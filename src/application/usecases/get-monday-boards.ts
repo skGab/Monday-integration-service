@@ -1,8 +1,16 @@
 import { Board } from 'src/domain/entities/board';
-export class GetMondayBoards {
-    constructor(private Board: Board) { }
+import { BoardsRepository } from 'src/domain/repositories/BoardsRepository';
 
-    handle() {
-        return this.Board.findAll()
-    }
+type GetProps = {
+  clientId: number;
+};
+export class GetMondayBoards {
+  constructor(private boardsRepository: BoardsRepository) {}
+
+  async execute({ clientId }: GetProps) {
+    const response = await this.boardsRepository.findAll(clientId);
+    const board = Board.create(response);
+
+    return board;
+  }
 }

@@ -1,7 +1,5 @@
 export abstract class Entity<T> {
-    constructor(protected props: T) { }
-
-    get fields() {
-        return this.props;
-    }
+  constructor(private props: T, private _id?: string) {
+    this._id = _id ?? crypto.randomUUID();
+  }
 }
