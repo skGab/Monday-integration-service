@@ -1,5 +1,5 @@
-import { BoardProps } from '../entities/board';
+import { Board } from '../entities/board';
 
 export interface BoardsRepository {
-  findAll(clienteId: number): Promise<BoardProps | null>;
+  findAll(): Promise<Board[] | null>;
 }
