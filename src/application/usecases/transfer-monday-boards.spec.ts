@@ -19,6 +19,12 @@ describe('Transfer monday boards', () => {
 
     const response = await systemUnderTest.execute();
 
-    expect(response).toBeTruthy();
+    // Check if the response is an array
+    expect(Array.isArray(response)).toBeTruthy();
+
+    // Check if every element in the array is an instance of the Board class
+    response.forEach(board => {
+      expect(board).toBeInstanceOf(Board);
+    });
   });
 });

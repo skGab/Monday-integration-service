@@ -4,7 +4,7 @@ import { BoardsRepository } from "src/domain/repositories/BoardsRepository";
 export class InMemoryBoardsRepository implements BoardsRepository {
   public items: Board[] = []
 
-  findAll(): Promise<Board[] | null> {
+  getAll(): Promise<Board[] | null> {
     const response = this.items
 
     if (!response || response.length === 0) {
