@@ -1,10 +1,10 @@
 import { Body, Controller, Get, Post, Res } from '@nestjs/common';
-import { TransferMondayBoards } from '../usecases/transfer-monday-boards';
-import { GetBoardsDto } from '../dto/boards/get-boards.dto';
+import { TransferBoards } from '../usecases/transfer-boards.usecase';
+import { GetBoardsDto } from '../dto/get-boards.dto';
 
 @Controller('boards')
 export class BoardController {
-  constructor(private transferBoards: TransferMondayBoards) {}
+  constructor(private transferBoards: TransferBoards) {}
 
   @Get()
   getBoards(
@@ -13,14 +13,14 @@ export class BoardController {
   ) {
     try {
       // res.status(HttpStatus.OK);
-      // return this.appService.getHello();
+      return 'Ola';
     } catch (error) {}
   }
 
   @Post()
   transfer() {
     try {
-      return this.transferBoards.execute();
+      // return this.transferBoards.execute();
     } catch (error) {}
   }
 }

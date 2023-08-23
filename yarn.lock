@@ -1014,6 +1014,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nestjs/devtools-integration@npm:^0.1.5":
+  version: 0.1.5
+  resolution: "@nestjs/devtools-integration@npm:0.1.5"
+  dependencies:
+    chalk: ^4.1.2
+    node-fetch: ^2.6.9
+  peerDependencies:
+    "@nestjs/common": ^9.3.7 || ^10.0.0
+    "@nestjs/core": ^9.3.7 || ^10.0.0
+    reflect-metadata: ^0.1.12
+  checksum: c9c006a5769bf09886712c91d405c4344ba6429ddd34b7e949b4b899bd1e7f707a8ebdd50a0b2be4bb191b69b631119f448f9663275a8ba658bef36b9b928b61
+  languageName: node
+  linkType: hard
+
 "@nestjs/platform-express@npm:^10.0.0":
   version: 10.2.0
   resolution: "@nestjs/platform-express@npm:10.2.0"
@@ -2399,6 +2413,7 @@ __metadata:
     "@nestjs/cli": ^10.0.1
     "@nestjs/common": ^10.0.0
     "@nestjs/core": ^10.0.0
+    "@nestjs/devtools-integration": ^0.1.5
     "@nestjs/platform-express": ^10.0.0
     "@nestjs/schematics": ^10.0.1
     "@nestjs/testing": ^10.0.0
@@ -5818,6 +5833,20 @@ __metadata:
     encoding:
       optional: true
   checksum: 055845ae5b4796c78c7053564745345025cf959563b3568b43c385f67d311779e6b00e5fef6ed1b79f86ba4048e4b4b722e1aa948305521b9353eb7e788912c9
+  languageName: node
+  linkType: hard
+
+"node-fetch@npm:^2.6.9":
+  version: 2.7.0
+  resolution: "node-fetch@npm:2.7.0"
+  dependencies:
+    whatwg-url: ^5.0.0
+  peerDependencies:
+    encoding: ^0.1.0
+  peerDependenciesMeta:
+    encoding:
+      optional: true
+  checksum: d76d2f5edb451a3f05b15115ec89fc6be39de37c6089f1b6368df03b91e1633fd379a7e01b7ab05089a25034b2023d959b47e59759cb38d88341b2459e89d6e5
   languageName: node
   linkType: hard
 
