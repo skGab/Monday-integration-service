@@ -2,10 +2,11 @@ import { Module } from '@nestjs/common';
 import { DevtoolsModule } from '@nestjs/devtools-integration';
 
 import { BoardController } from './application/controllers/board.controller';
-import { GetBoardsService } from './application/services/get-boards.service';
+import { TransferBoardService } from './application/services/transfer-boards.service';
 import { TransferBoards } from './application/usecases/transfer-boards.usecase';
-import { BOARDS_REPOSITORY } from './domain/repositories/boards.repository';
-import { InMemoryBoardsRepository } from 'tests/repositories/in-memory-boards-repository';
+import { BoardsRepository } from './domain/repositories/boards.repository';
+import { PrismaService } from './infra/service/prisma-client.service';
+import { PrismaBoardsRepository } from './infra/repositories/prisma-boards.repository';
 
 @Module({
   imports: [
@@ -15,11 +16,13 @@ import { InMemoryBoardsRepository } from 'tests/repositories/in-memory-boards-re
   ],
   controllers: [BoardController],
   providers: [
-    GetBoardsService,
+    TransferBoardService,
     TransferBoards,
+    PrismaService,
+
     {
-      provide: BOARDS_REPOSITORY, // Providing the interface
-      useClass: InMemoryBoardsRepository, // Linking to the concrete implementation
+      provide: BoardsRepository, // Providing the interface
+      useClass: PrismaBoardsRepository, // Linking to the concrete implementation
     },
   ],
 })

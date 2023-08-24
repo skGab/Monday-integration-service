@@ -1,5 +1,5 @@
-export interface Column {
-    title: string;
-    id: string;
-    type: string;
-  }
+export abstract class Column {
+  title: string;
+  id: string;
+  type: string;
+}

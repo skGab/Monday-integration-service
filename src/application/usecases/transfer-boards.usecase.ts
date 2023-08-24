@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { GetBoardsService } from '../services/get-boards.service';
+import { TransferBoardService } from '../services/transfer-boards.service';
 
 @Injectable()
 export class TransferBoards {
-  constructor(private getBoardsService: GetBoardsService) {}
+  constructor(private transferBoardsService: TransferBoardService) {}
 
   async run() {
-    const response = await this.getBoardsService.execute();
+    const response = await this.transferBoardsService.execute();
     return response;
   }
 }

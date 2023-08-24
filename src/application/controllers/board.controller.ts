@@ -7,20 +7,20 @@ export class BoardController {
   constructor(private transferBoards: TransferBoards) {}
 
   @Get()
-  getBoards(
-    @Body() getBoardsDto: GetBoardsDto[],
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  getBoards() {
     try {
-      // res.status(HttpStatus.OK);
-      return 'Ola';
+      const boards = this.transferBoards.run();
+
+      return {
+        boards,
+      };
     } catch (error) {}
   }
 
-  @Post()
-  transfer() {
-    try {
-      // return this.transferBoards.execute();
-    } catch (error) {}
-  }
+  // @Post()
+  // transfer() {
+  //   try {
+  //     // return this.transferBoards.execute();
+  //   } catch (error) {}
+  // }
 }

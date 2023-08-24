@@ -5,6 +5,6 @@ export abstract class Entity<T> {
   }
 
   get id() {
-    return this._id
+    return this._id;
   }
 }
