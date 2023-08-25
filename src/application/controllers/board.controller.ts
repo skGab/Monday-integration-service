@@ -7,13 +7,14 @@ export class BoardController {
   constructor(private transferBoards: TransferBoards) {}
 
   @Get()
-  getBoards() {
+  async getBoards(): Promise<GetBoardsDto[]> {
     try {
-      const boards = this.transferBoards.run();
 
-      return {
-        boards,
-      };
+      
+
+      const boards = await this.transferBoards.run();
+
+      return boards;
     } catch (error) {}
   }
 

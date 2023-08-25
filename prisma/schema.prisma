@@ -8,11 +8,11 @@ datasource db {
 }
 
 model Board {
-  folder_id Int      @id @default(autoincrement())
-  name      String
-  items     String
-  columns   Column[]
-  groups    Group[]
+  folderId Int      @id @default(autoincrement())
+  name     String
+  items    String
+  columns  Column[]
+  groups   Group[]
 }
 
 model Column {
@@ -20,12 +20,12 @@ model Column {
   title   String
   type    String
   boardId Int
-  board   Board  @relation(fields: [boardId], references: [folder_id])
+  board   Board  @relation(fields: [boardId], references: [folderId])
 }
 
 model Group {
   id      String @id @default(uuid())
   title   String
   boardId Int
-  board   Board  @relation(fields: [boardId], references: [folder_id])
+  board   Board  @relation(fields: [boardId], references: [folderId])
 }

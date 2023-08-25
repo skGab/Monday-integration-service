@@ -3,7 +3,6 @@ import { Column } from './column';
 import { Group } from './group';
 
 export type BoardProps = {
-  folder_id: number;
   name: string;
   columns: Column[];
   groups: Group[];
