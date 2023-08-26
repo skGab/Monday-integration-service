@@ -1,7 +1,7 @@
 import { InMemoryBoardsRepository } from '../../../tests/repositories/in-memory-boards-repository';
 import { Board } from '../../domain/entities/board';
 import { GetBoardsService } from '../services/transfer-boards.service';
-import { TransferBoards } from './transfer-boards.usecase';
+import { TransferBoards } from './transfer-usecase';
 
 describe('Transfer monday boards', () => {
   it('should return the transferred boards"', async () => {

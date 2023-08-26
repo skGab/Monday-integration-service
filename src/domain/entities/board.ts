@@ -16,11 +16,5 @@ export class Board extends Entity<BoardProps> {
   static create(props: BoardProps, id?: string) {
     const board = new Board(props, id);
     return board;
-  }
-
-  // static fromPrisma(prismaBoard: Prisma.Board): Board {
-  //   const { folder_id, name, columns, groups, items } = prismaBoard;
-  //   const props: BoardProps = { folder_id, name, columns, groups, items };
-  //   return new Board(props);
-  // }
+  } 
 }

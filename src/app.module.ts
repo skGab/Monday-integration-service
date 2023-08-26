@@ -2,11 +2,12 @@ import { Module } from '@nestjs/common';
 import { DevtoolsModule } from '@nestjs/devtools-integration';
 
 import { BoardController } from './application/controllers/board.controller';
-import { TransferBoardService } from './application/services/transfer-boards.service';
-import { TransferBoards } from './application/usecases/transfer-boards.usecase';
-import { BoardsRepository } from './domain/repositories/boards.repository';
-import { PrismaService } from './infra/service/prisma-client.service';
-import { PrismaBoardsRepository } from './infra/repositories/prisma-boards.repository';
+// import { TransferBoards } from './application/usecases/transfer-usecase';
+import { BoardsRepository } from './domain/repositories/boards-repository';
+import { PrismaService } from './infra/database/prisma-client.service';
+import { PrismaBoardsRepository } from './infra/repositories/prisma-boards-repository';
+import { GetBoardsService } from './application/services/get-boards.service';
+import { GetUseCase } from './application/usecases/get-usecase';
 
 @Module({
   imports: [
@@ -16,8 +17,9 @@ import { PrismaBoardsRepository } from './infra/repositories/prisma-boards.repos
   ],
   controllers: [BoardController],
   providers: [
-    TransferBoardService,
-    TransferBoards,
+    GetBoardsService,
+    GetUseCase,
+    // TransferBoards,
     PrismaService,
 
     {

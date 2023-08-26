@@ -10,9 +10,9 @@ datasource db {
 model Board {
   folderId Int      @id @default(autoincrement())
   name     String
-  items    String
   columns  Column[]
   groups   Group[]
+  items    String
 }
 
 model Column {
