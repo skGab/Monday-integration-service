@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { BoardsRepository } from 'src/domain/repositories/boards-repository';
+import { BoardsRepository } from 'src/domain/repositories/iboards-repository';
 import { GetBoardsDto } from '../dto/get-boards.dto';
 import { Board } from 'src/domain/entities/board';
 
