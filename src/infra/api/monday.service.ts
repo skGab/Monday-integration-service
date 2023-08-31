@@ -39,8 +39,6 @@ export class MondayService implements ApiService {
         this.errorEvent('Nenhum dado encontrado', 'MondayService');
       }
 
-      console.log(JSON.stringify(data, null, 2));
-
       return data;
     } catch (error) {
       this.errorEvent(error, 'MondayService');
