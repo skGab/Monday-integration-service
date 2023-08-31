@@ -6,8 +6,8 @@ import { TransferBoardsDto } from '../dto/transfer-boards.dto';
 export class TransferUseCase {
   constructor(private transferBoardsService: TransferBoardService) {}
 
-  async run(): Promise<TransferBoardsDto[]> {
-    const boards = await this.transferBoardsService.execute();
-    return boards;
-  }
+  // async run(): Promise<TransferBoardsDto[]> {
+  //   const boards = await this.transferBoardsService.execute();
+  //   return boards;
+  // }
 }

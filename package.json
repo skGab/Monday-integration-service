@@ -19,11 +19,15 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@nestjs/axios": "^3.0.0",
     "@nestjs/common": "^10.0.0",
+    "@nestjs/config": "^3.0.1",
     "@nestjs/core": "^10.0.0",
     "@nestjs/devtools-integration": "^0.1.5",
+    "@nestjs/event-emitter": "^2.0.2",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/platform-fastify": "^10.2.1",
+    "axios": "^1.5.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "uuid": "^9.0.0"

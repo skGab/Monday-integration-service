@@ -1,15 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { BoardsRepository } from 'src/domain/repositories/iboards-repository';
 import { GetBoardsDto } from '../dto/get-boards.dto';
 import { Board } from 'src/domain/entities/board';
+import { IBoardsRepository } from '../../domain/repositories/iboards-repository';
 
 @Injectable()
 export class GetBoardsService {
-  constructor(private boardsRepository: BoardsRepository) {}
+  constructor(private boardsRepository: IBoardsRepository) {}
 
   async execute(): Promise<GetBoardsDto[]> {
-    const boards = await this.boardsRepository.getAll();
-    return boards.map((board) => this.toDto(board));
+    const response = await this.boardsRepository.getAll();
+    console.log(response);
+
+    const boards = response.map((board) => this.toDto(board));
+
+    return boards;
   }
 
   private toDto(board: Board): GetBoardsDto {

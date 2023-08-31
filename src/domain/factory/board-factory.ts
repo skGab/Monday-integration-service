@@ -2,7 +2,9 @@ import { Board } from 'src/domain/entities/board';
 import { Factory } from './factory';
 import { Column } from 'src/domain/entities/column';
 import { Group } from 'src/domain/entities/group';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class BoardFactory implements Factory {
   createBoard(boardData: any): Board {
     return Board.create(

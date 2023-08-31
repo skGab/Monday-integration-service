@@ -1,50 +1,78 @@
+import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { Board } from 'src/domain/entities/board';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { Observable, lastValueFrom } from 'rxjs';
+import { EventTypes } from 'src/application/services/error-handling.service';
+import { ConfigService } from '@nestjs/config';
 
-type HeadersProps = {
-  contentType: string;
-  authorization: string;
-  apiVersion: string;
-};
+interface ResponseParamns {}
 
-type bodyProps = {
-  query: string;
-};
-abstract class IService {
-  method: string;
-  headers: HeadersProps;
-  body: bodyProps;
+abstract class ApiService {
+  httpService: HttpService;
+  eventEmitter: EventEmitter2;
 
-  abstract run(): Promise<Board[] | null>;
+  abstract run(): Promise<any[] | null>;
+
+  abstract errorEvent(
+    cause: string | any,
+    place: string,
+  ): { source: string; error: string | any };
+
+  abstract apiCall(): Observable<AxiosResponse<any[], any>>;
 }
 
 @Injectable()
-export class MondayService implements IService {
-  private constructor(
-    private method: string,
-    private headers: HeadersProps,
-    private body: bodyProps,
+export class MondayService implements ApiService {
+  constructor(
+    readonly httpService: HttpService,
+    readonly eventEmitter: EventEmitter2,
+    readonly configService: ConfigService,
   ) {}
 
-  async run(): Promise<Board[] | null> {
-    const headers = {
-      contentType: 'application/json',
-      authorization: 'api-key',
-      apiVersion: '2023-04',
-    };
+  // RUNNING THE MAIN FUNCTION
+  async run(): Promise<any[]> {
+    try {
+      const { data } = await lastValueFrom(this.apiCall());
+
+      if (!data) {
+        this.errorEvent('Nenhum dado encontrado', 'MondayService');
+      }
+
+      console.log(JSON.stringify(data, null, 2));
+
+      return data;
+    } catch (error) {
+      this.errorEvent(error, 'MondayService');
+      return null;
+    }
+  }
+
+  // SENDIND ERROR EVENTS
+  errorEvent(cause: string | any, place: string): any {
+    this.eventEmitter.emit(EventTypes.SERVICE_ERROR, {
+      source: place,
+      error: cause,
+    });
+    return null;
+  }
+
+  // SETTING THE REQUEST CONFIGURATION
+  apiCall() {
+    const url = 'https://api.monday.com/v2';
 
     const body = {
-      query: 'query{boards (limit:1) {id name} }',
+      query: 'query{boards (limit:5) {id name} }',
+    };
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: this.configService.get<string>('MONDAY_TOKEN'),
+      'Api-Version': '2023-04',
     };
 
-    const mondayService = new MondayService('post', headers, body);
-    const boards = fetch(
-      'https://api.monday.com/v2',
-      mondayService.method,
-      mondayService.headers,
-      mondayService.body,
-    );
+    const config: AxiosRequestConfig = { headers: headers };
+    const observable = this.httpService.post<any[]>(url, body, config);
 
-    return boards;
+    return observable;
   }
 }

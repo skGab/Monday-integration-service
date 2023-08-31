@@ -12,6 +12,7 @@ async function bootstrap() {
     {
       snapshot: true,
       abortOnError: false,
+      logger: ['error', 'warn'],
     },
   );
   await app.listen(3000);

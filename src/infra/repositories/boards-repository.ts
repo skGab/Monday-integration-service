@@ -1,13 +1,11 @@
 import { Board } from 'src/domain/entities/board';
-import { BoardFactory } from 'src/domain/factory/board-factory';
 import { MondayService } from '../api/monday.service';
 import { IBoardsRepository } from 'src/domain/repositories/iboards-repository';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class BoardsRepository implements IBoardsRepository {
-  constructor(
-    private boardFactory: BoardFactory,
-    private mondayService: MondayService,
-  ) {}
+  constructor(private mondayService: MondayService) {}
 
   async getAll(): Promise<Board[] | null> {
     const response = await this.mondayService.run();
@@ -16,18 +14,17 @@ export class BoardsRepository implements IBoardsRepository {
       return null;
     }
 
-    return response.map((boardData) =>
-      this.boardFactory.createBoard(boardData),
-    );
+    return response;
   }
 
-  async transferAll(): Promise<Board[] | null> {
-    const response = this.getAll();
+  // async transferAll(): Promise<Board[] | null> {
+  //   const response = await this.getAll();
 
-    if (!response) {
-      return null;
-    }
+  //   if (!response) {
+  //     return null;
+  //   }
 
-    return;
-  }
+  //   return;
+  // }
 }
+

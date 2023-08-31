@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { TransferBoardsDto } from '../dto/transfer-boards.dto';
-import { BoardsRepository } from 'src/domain/repositories/iboards-repository';
+import { IBoardsRepository } from 'src/domain/repositories/iboards-repository';
 import { Board } from 'src/domain/entities/board';
 
 @Injectable()
 export class TransferBoardService {
-  constructor(private boardsRepository: BoardsRepository) {}
+  constructor(private boardsRepository: IBoardsRepository) {}
 
-  async execute(): Promise<TransferBoardsDto[]> {
-    const boards = await this.boardsRepository.transferAll();
-    return boards.map((board) => this.toDto(board));
-  }
+  // async execute(): Promise<TransferBoardsDto[]> {
+  //   const boards = await this.boardsRepository.transferAll();
+  //   return boards.map((board) => this.toDto(board));
+  // }
 
   private toDto(board: Board): TransferBoardsDto {
     return {
