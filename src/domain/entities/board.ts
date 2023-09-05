@@ -1,20 +1,11 @@
-import { Entity } from '../core/entity';
-import { Column } from './column';
-import { Group } from './group';
+import { ItemVo } from '../valueObject/item-vo';
 
-export type BoardProps = {
+type BoardShap = {
+  id: string;
   name: string;
-  columns: Column[];
-  groups: Group[];
-  items: any[];
+  items: ItemVo[];
+  workspace: { id: number; name: string };
 };
-export class Board extends Entity<BoardProps> {
-  private constructor(props: BoardProps, id?: string) {
-    super(props, id);
-  }
-
-  static create(props: BoardProps, id?: string) {
-    const board = new Board(props, id);
-    return board;
-  } 
+export class Board {
+  constructor(public props: BoardShap) {}
 }

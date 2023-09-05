@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { TransferBoardsDto } from '../dto/transfer-boards.dto';
-import { IBoardsRepository } from 'src/domain/repositories/iboards-repository';
+import { IBoardsRepository } from 'src/domain/database/iboards-repository';
 import { Board } from 'src/domain/entities/board';
 
 @Injectable()

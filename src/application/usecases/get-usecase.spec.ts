@@ -1,4 +1,4 @@
-import { PrismaBoardsRepository } from 'src/infra/repositories/boards-repository';
+import { PrismaBoardsRepository } from 'src/infra/database/boards-repository';
 import { Board } from '../../domain/entities/board';
 import { BoardFactory } from '../../domain/factory/board-factory;
 import { GetBoardsService } from '../services/get-boards.service';

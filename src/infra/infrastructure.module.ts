@@ -1,10 +1,16 @@
 import { Module } from '@nestjs/common';
-import { MondayService } from './api/monday.service';
-import { BoardsRepository } from './repositories/boards-repository';
-import { IBoardsRepository } from 'src/domain/repositories/iboards-repository';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+
+// INFRA
+import { BoardsRepository } from './database/boards-repository';
+import { MondayService } from './api/monday.service';
+import { ApiService } from './api/api.service';
+
+// DOMAIN
+import { IBoardsRepository } from 'src/domain/database/iboards-repository';
+import { BoardFactory, Factory } from 'src/domain/factory/board-factory';
 
 @Module({
   // CONFIGURATION
@@ -16,10 +22,17 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 
   // SERVICES
   providers: [
-    MondayService,
+    {
+      provide: ApiService,
+      useClass: MondayService,
+    },
     {
       provide: IBoardsRepository,
       useClass: BoardsRepository,
+    },
+    {
+      provide: Factory,
+      useClass: BoardFactory,
     },
   ],
 

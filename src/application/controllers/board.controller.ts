@@ -1,16 +1,13 @@
-import { TransferUseCase } from './../usecases/transfer-usecase';
 import {
   Controller,
   Get,
   HttpException,
   HttpStatus,
   Logger,
-  Post,
 } from '@nestjs/common';
 import { GetUseCase } from '../usecases/get-usecase';
 import { GetBoardsDto } from '../dto/get-boards.dto';
-import { TransferBoardsDto } from '../dto/transfer-boards.dto';
-import { ErrorHandlingService } from '../services/error-handling.service';
+import { EventHandleService } from '../events/event-handle.service';
 
 @Controller('boards')
 export class BoardController {
@@ -19,7 +16,7 @@ export class BoardController {
   constructor(
     // private transferBoards: TransferBoards,
     private getUseCase: GetUseCase, // private transferUseCase: TransferUseCase,
-    readonly errorHandling: ErrorHandlingService,
+    readonly errorHandling: EventHandleService,
   ) {}
 
   // @Post()
