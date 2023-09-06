@@ -4,32 +4,14 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AxiosRequestConfig } from 'axios';
 import { lastValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
-import { ApiService } from './api.service';
+import { MondayApiResponse } from 'src/domain/factory/types';
 
 export enum EventTypes {
   SERVICE_ERROR = 'SERVICE_ERROR',
 }
 
-type Column_values = {
-  title: string;
-  text: string;
-};
-
-type Items = {
-  name: string;
-  groups: { title: string };
-  column_values: Column_values[];
-};
-
-type BoardResponse = {
-  id: string;
-  name: string;
-  items: Items[];
-  workspace: { id: number; name: string };
-};
-
 @Injectable()
-export class MondayService implements ApiService {
+export class MondayService {
   constructor(
     readonly httpService: HttpService,
     readonly eventEmitter: EventEmitter2,
@@ -37,7 +19,7 @@ export class MondayService implements ApiService {
   ) {}
 
   // RUNNING THE MAIN FUNCTION
-  async run(): Promise<BoardResponse[] | null> {
+  async run(): Promise<MondayApiResponse | null> {
     try {
       const { data } = await lastValueFrom(this.apiCall());
 
@@ -45,7 +27,6 @@ export class MondayService implements ApiService {
         this.errorEvent('Nenhum dado encontrado', 'MondayService');
       }
 
-      console.log(data);
       return data;
     } catch (error) {
       this.errorEvent(error, 'MondayService');
@@ -77,7 +58,7 @@ export class MondayService implements ApiService {
     };
 
     const config: AxiosRequestConfig = { headers: headers };
-    const observable = this.httpService.post<BoardResponse[] | null>(
+    const observable = this.httpService.post<MondayApiResponse | null>(
       url,
       body,
       config,

@@ -1,32 +1,30 @@
 import { CreateDatasetService } from './create-dataset.service';
 import { HttpService } from '@nestjs/axios';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { BigQuery } from '@google-cloud/bigquery/build/src/bigquery';
+import { CreateTableService } from './create-table.service';
 
-abstract class ApiService {
-  httpService: HttpService;
-  eventEmitter: EventEmitter2;
+export class BigQueryService {
+  private readonly location = 'US';
+  private readonly projectId = 'my_project';
 
-  abstract run(): Promise<any[] | null>;
-
-  abstract errorEvent(
-    cause: string | any,
-    place: string,
-  ): { source: string; error: string | any };
-
-  abstract apiCall();
-}
-
-export class BigQueryService implements ApiService {
   constructor(
-    private readonly httpService: HttpService,
-    private readonly eventEmitter: EventEmitter2,
-    private readonly CreateDatasetService: CreateDatasetService,
+    // private readonly httpService: HttpService,
+    // private readonly eventEmitter: EventEmitter2,
+    private readonly createDatasetService: CreateDatasetService,
+    private readonly createTableService: CreateTableService,
   ) {}
 
-  run(): Promise<any[]> {
-    const bigqueryCliente = new BigQuery();
+  async run(workspaceId: string, tableId: string, boards) {
+    const workspace = await this.createDatasetService.run(
+      workspaceId,
+      this.location,
+    );
 
-    return bigqueryCliente.dataset. 
+    const table = await this.createTableService.run(
+      workspaceId,
+      tableId,
+      this.location,
+      boards,
+    );
   }
 }

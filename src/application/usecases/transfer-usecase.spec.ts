@@ -1,7 +1,7 @@
 import { TransferBoardService } from './../services/transfer-boards.service';
-import { PrismaBoardsRepository } from 'src/infra/database/boards-repository';
+import { PrismaBoardsRepository } from 'src/infra/database/boards-repository.service';
 import { Board } from '../../domain/entities/board';
-import { BoardFactory } from 'src/domain/factory/board-factory';
+import { BoardFactory } from 'src/domain/factory/board-factory.service';
 import { GetBoardsService } from '../services/get-boards.service';
 import { TransferUseCase } from './transfer-usecase';
 

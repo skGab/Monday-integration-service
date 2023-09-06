@@ -4,13 +4,16 @@ import { ConfigModule } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 
 // INFRA
-import { BoardsRepository } from './database/boards-repository';
+import { BoardsRepositoryService } from './database/boards-repository.service';
 import { MondayService } from './api/monday.service';
 import { ApiService } from './api/api.service';
 
 // DOMAIN
-import { IBoardsRepository } from 'src/domain/database/iboards-repository';
-import { BoardFactory, Factory } from 'src/domain/factory/board-factory';
+import { BoardsRepository } from 'src/domain/database/boards-repository';
+import {
+  BoardFactoryService,
+  Factory,
+} from 'src/domain/factory/board-factory.service';
 
 @Module({
   // CONFIGURATION
@@ -27,15 +30,15 @@ import { BoardFactory, Factory } from 'src/domain/factory/board-factory';
       useClass: MondayService,
     },
     {
-      provide: IBoardsRepository,
-      useClass: BoardsRepository,
+      provide: BoardsRepository,
+      useClass: BoardsRepositoryService,
     },
     {
       provide: Factory,
-      useClass: BoardFactory,
+      useClass: BoardFactoryService,
     },
   ],
 
-  exports: [IBoardsRepository],
+  exports: [BoardsRepository],
 })
 export class InfrastructureModule {}
