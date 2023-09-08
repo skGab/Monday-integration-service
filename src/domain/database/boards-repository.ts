@@ -1,10 +1,6 @@
 import { Board } from 'src/domain/entities/board';
 
 export abstract class BoardsRepository {
-  abstract transferAll(
-    workspaceId: string,
-    tableId: string,
-    boards: Board[],
-  ): Promise<any[] | null>;
+  abstract transferAll(boards: Board[]): Promise<Board[] | null>;
   abstract getAll(): Promise<Board[] | null>;
 }

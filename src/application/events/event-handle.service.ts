@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
-import { EventTypes } from 'src/infra/api/monday.service';
 
 @Injectable()
 export class EventHandleService {

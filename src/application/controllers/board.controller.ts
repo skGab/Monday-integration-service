@@ -10,6 +10,7 @@ import { GetUseCase } from '../usecases/get-usecase';
 import { EventHandleService } from '../events/event-handle.service';
 import { Board } from 'src/domain/entities/board';
 import { BoardDto } from '../dto/board.dto';
+import { TransferUseCase } from '../usecases/transfer-usecase';
 
 @Controller('boards')
 export class BoardController {

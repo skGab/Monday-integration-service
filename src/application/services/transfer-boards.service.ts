@@ -5,14 +5,16 @@ import { Board } from 'src/domain/entities/board';
 
 @Injectable()
 export class TransferBoardService {
-  constructor(private boardsRepository: BoardsRepository) {}
+  constructor(private boardsRepositoryService: BoardsRepository) {}
 
   async execute(boards): Promise<BoardDto[]> {
-    const response = await this.boardsRepository.transferAll();
-    // return boards.map((board) => this.toDto(board));
+    const response = await this.boardsRepositoryService.transferAll(boards);
+    return response;
   }
 
-  // private toDto(board: Board): BoardDto {
-  //   return {};
-  // }
+  private toDto(board: Board): BoardDto {
+    return {
+      
+    };
+  }
 }
