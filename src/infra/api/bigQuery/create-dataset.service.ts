@@ -4,9 +4,20 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class CreateDatasetService {
   async run(bigQuery: BigQuery, workspace: string, location: string) {
-    const [dataset] = await bigQuery.createDataset(workspace, {
-      location,
-    });
+    const dataset = bigQuery.dataset(workspace);
+    const [exists] = await dataset.exists();
+
+    if (!exists) {
+      const [dataset] = await bigQuery.createDataset(workspace, {
+        location,
+      });
+
+      console.log('Tabela criada com sucesso', dataset.id);
+
+      return dataset;
+    }
+
+    console.log('Tabelas já existente', dataset.id);
     return dataset;
   }
 }

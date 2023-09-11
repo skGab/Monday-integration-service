@@ -4,10 +4,11 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventSenderService } from 'src/infra/error/event-sender.service';
 import { Workspaces } from 'src/domain/factory/types';
+import credentials from '../../../../credentials/private.json';
 
 @Injectable()
 export class BigQueryService {
-  readonly location = 'US';
+  readonly location = 'southamerica-east1';
   private bigQueryClient: BigQuery;
 
   constructor(
@@ -17,21 +18,23 @@ export class BigQueryService {
   ) {
     this.bigQueryClient = new BigQuery({
       projectId: this.configService.get<string>('BIGQUERY_PROJECT_ID'),
-      keyFile: this.configService.get<string>('BIGQUERY_KEY_FILE'),
+      credentials: credentials,
     });
   }
 
   async datasetHandle(workspaces: Workspaces[]) {
     try {
-      const datasetId = workspaces.map(async (workspace) => {
-        return await this.createDatasetService.run(
+      const promises = workspaces.map(async (workspace) => {
+        this.createDatasetService.run(
           this.bigQueryClient,
           workspace.name,
           this.location,
         );
       });
-      console.log(datasetId);
-      return datasetId;
+
+      const dataset = await Promise.all(promises);
+
+      return dataset;
     } catch (error) {
       this.eventSenderService.errorEvent(error, 'BigQuery Service');
     }

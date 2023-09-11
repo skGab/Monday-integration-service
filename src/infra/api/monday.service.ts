@@ -49,7 +49,7 @@ export class MondayService {
 
     const body = {
       query:
-        'query{ boards (limit:1) {id name items {name group {title} column_values {title text} } workspace {id name}} workspaces (limit:5) {id name} }',
+        'query{ boards (limit:1) {id name items {name group {title} column_values {title text} } workspace {id name}} workspaces () {id name} }',
     };
     const headers = {
       'Content-Type': 'application/json',

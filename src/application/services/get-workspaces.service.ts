@@ -8,6 +8,16 @@ export class GetWorkSpacesService {
 
   async run(): Promise<Workspaces[]> {
     const workspaces = await this.boardsRepositoryService.getAllWorkSpaces();
-    return workspaces;
+
+    console.log();
+
+    return workspaces.filter((workspace) =>
+      this.validateWorkspaceName(workspace),
+    );
+  }
+
+  private validateWorkspaceName(workspace: Workspaces): boolean {
+    const pattern = /^[a-zA-Z0-9_]+$/;
+    return pattern.test(workspace.name);
   }
 }
