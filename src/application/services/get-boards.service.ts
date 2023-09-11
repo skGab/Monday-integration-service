@@ -6,14 +6,8 @@ import { BoardsRepository } from '../../domain/database/boards-repository';
 export class GetBoardsService {
   constructor(private boardsRepositoryService: BoardsRepository) {}
 
-  async execute(): Promise<Board[]> {
+  async run(): Promise<Board[]> {
     const boards = await this.boardsRepositoryService.getAll();
     return boards;
-
-    // const boards = response.map((board) => this.toDto(board));
   }
-
-  // private toDto(board: Board): GetBoardsDto {
-  //   return {};
-  // }
 }

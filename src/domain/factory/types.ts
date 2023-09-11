@@ -9,6 +9,11 @@ type Items = {
   column_values: Column_values[];
 };
 
+export type Workspaces = {
+  id: number;
+  name: string;
+};
+
 export type BoardResponse = {
   id: string;
   name: string;
@@ -19,5 +24,6 @@ export type BoardResponse = {
 export type MondayApiResponse = {
   data: {
     boards: BoardResponse[];
+    workspaces: Workspaces[];
   };
 };

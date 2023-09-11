@@ -1,51 +1,56 @@
+import { BigQuery } from '@google-cloud/bigquery';
 import { CreateDatasetService } from './create-dataset.service';
-import { HttpService } from '@nestjs/axios';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { CreateTableService } from './create-table.service';
-import { Board } from 'src/domain/entities/board';
-import { async } from 'rxjs';
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { EventSenderService } from 'src/infra/error/event-sender.service';
+import { Workspaces } from 'src/domain/factory/types';
 
+@Injectable()
 export class BigQueryService {
-  private readonly location = 'US';
-  private readonly projectId = 'my_project';
+  readonly location = 'US';
+  private bigQueryClient: BigQuery;
 
   constructor(
-    // private readonly httpService: HttpService,
-    // private readonly eventEmitter: EventEmitter2,
     private readonly createDatasetService: CreateDatasetService,
-    private readonly createTableService: CreateTableService,
-  ) {}
+    private readonly configService: ConfigService,
+    private readonly eventSenderService: EventSenderService,
+  ) {
+    this.bigQueryClient = new BigQuery({
+      projectId: this.configService.get<string>('BIGQUERY_PROJECT_ID'),
+      keyFile: this.configService.get<string>('BIGQUERY_KEY_FILE'),
+    });
+  }
 
-  async run(boards: Board[], workspaces: any[], tables: any[]): Promise<any> {
-    // Use map to create an array of promises for creating datasets
-    const datasetPromises = workspaces.map(async (workspace) => {
-      const datasetId = await this.createDatasetService.run(
-        workspace.name,
-        this.location,
-      );
-
-      // For each dataset, create tables
-      const tablePromises = tables.map(async (table) => {
-        return this.createTableService.run(
+  async datasetHandle(workspaces: Workspaces[]) {
+    try {
+      const datasetId = workspaces.map(async (workspace) => {
+        return await this.createDatasetService.run(
+          this.bigQueryClient,
           workspace.name,
-          table.name,
           this.location,
-          boards,
         );
       });
-
-      // Wait for all tables to be created for this dataset
-      const tableIds = await Promise.all(tablePromises);
-
-      return {
-        datasetId: datasetId,
-        tableIds: tableIds,
-      };
-    });
-
-    // Wait for all datasets (and their respective tables) to be created
-    const results = await Promise.all(datasetPromises);
-
-    return results;
+      console.log(datasetId);
+      return datasetId;
+    } catch (error) {
+      this.eventSenderService.errorEvent(error, 'BigQuery Service');
+    }
   }
+
+  // async taleHandle(tables: any[]) {
+  //   // For each dataset, create tables
+  //   const tablePromises = tables.map(async (table) => {
+  //     return this.createTableService.run(
+  //       workspace.name,
+  //       table.name,
+  //       this.location,
+  //       boards,
+  //     );
+  //   });
+
+  //   // Wait for all tables to be created for this dataset
+  //   const tableIds = await Promise.all(tablePromises);
+
+  //   return tableIds;
+  // }
 }

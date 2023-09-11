@@ -1,42 +1,47 @@
+import { Workspaces } from './../../domain/factory/types';
 import {
   Controller,
   Get,
   Post,
   HttpException,
   HttpStatus,
-  Logger,
 } from '@nestjs/common';
-import { GetUseCase } from '../usecases/get-usecase';
-import { EventHandleService } from '../events/event-handle.service';
+
 import { Board } from 'src/domain/entities/board';
-import { BoardDto } from '../dto/board.dto';
-import { TransferUseCase } from '../usecases/transfer-usecase';
+
+import { GetBoardsService } from '../services/get-boards.service';
+import { TransferBoardService } from '../services/transfer-boards.service';
+import { EventHandleService } from '../events/event-handle.service';
+import { Dataset } from '@google-cloud/bigquery';
+import { GetWorkSpacesService } from '../services/get-workspaces.service';
 
 @Controller('boards')
 export class BoardController {
-  private readonly logger = new Logger(BoardController.name);
-
   constructor(
-    private getUseCase: GetUseCase,
-    private transferUseCase: TransferUseCase,
     readonly errorHandling: EventHandleService,
+    private getBoardsService: GetBoardsService,
+    private getWorkSpacesService: GetWorkSpacesService,
+    private transferBoardsService: TransferBoardService,
   ) {}
 
-  @Post('transfer')
-  async transferBoardsToBigQuery(): Promise<BoardDto[]> {
+  @Get('transfer')
+  async transferBoardsToBigQuery() {
     try {
-      const boards = await this.getUseCase.run();
-      const response = await this.transferUseCase.run(boards);
+      // const boards = await this.getBoardsService.run();
+      const Workspaces = await this.getWorkSpacesService.run();
 
-      return response;
+      // const response = await this.transferBoardsService.createWorkSpaces(
+      //   Workspaces,
+      // );
+
+      return Workspaces;
     } catch (error) {
-      this.logger.error(error);
-
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
           error: 'Error durante a transferencia de quadros',
         },
+
         HttpStatus.BAD_REQUEST,
         {
           cause: error,
@@ -49,11 +54,9 @@ export class BoardController {
   @Get('logs')
   async getBoardsFromMonday(): Promise<Board[]> {
     try {
-      const boards = await this.getUseCase.run();
+      const boards = await this.getBoardsService.run();
       return boards;
     } catch (error) {
-      this.logger.error(error);
-
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,

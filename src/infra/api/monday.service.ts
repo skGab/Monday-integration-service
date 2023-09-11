@@ -5,10 +5,8 @@ import { AxiosRequestConfig } from 'axios';
 import { lastValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
 import { MondayApiResponse } from 'src/domain/factory/types';
-
-export enum EventTypes {
-  SERVICE_ERROR = 'SERVICE_ERROR',
-}
+import { HttpError } from '../error/http-error';
+import { EventSenderService } from '../error/event-sender.service';
 
 @Injectable()
 export class MondayService {
@@ -16,6 +14,7 @@ export class MondayService {
     readonly httpService: HttpService,
     readonly eventEmitter: EventEmitter2,
     readonly configService: ConfigService,
+    private eventSenderService: EventSenderService,
   ) {}
 
   // RUNNING THE MAIN FUNCTION
@@ -23,24 +22,25 @@ export class MondayService {
     try {
       const { data } = await lastValueFrom(this.apiCall());
 
-      if (!data) {
-        this.errorEvent('Nenhum dado encontrado', 'MondayService');
-      }
-
       return data;
     } catch (error) {
-      this.errorEvent(error, 'MondayService');
-      return null;
-    }
-  }
+      if (error.isAxiosError && error.response) {
+        // Create a custom error object
+        const httpError = new HttpError(
+          error.response.status,
+          error.response.statusText,
+          error.response.data,
+        );
 
-  // SENDIND ERROR EVENTS
-  errorEvent(cause: string | any, place: string): any {
-    this.eventEmitter.emit(EventTypes.SERVICE_ERROR, {
-      source: place,
-      error: cause,
-    });
-    return null;
+        this.eventSenderService.errorEvent(httpError, 'MondayService');
+
+        return null;
+      } else {
+        this.eventSenderService.errorEvent(error, 'MondayService');
+
+        return null;
+      }
+    }
   }
 
   // SETTING THE REQUEST CONFIGURATION
@@ -49,7 +49,7 @@ export class MondayService {
 
     const body = {
       query:
-        'query{ boards (limit:5) {id name items {name group {title} column_values {title text} } workspace {id name}} }',
+        'query{ boards (limit:1) {id name items {name group {title} column_values {title text} } workspace {id name}} workspaces (limit:5) {id name} }',
     };
     const headers = {
       'Content-Type': 'application/json',

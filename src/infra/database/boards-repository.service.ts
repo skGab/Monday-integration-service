@@ -3,14 +3,13 @@ import { Board } from 'src/domain/entities/board';
 import { BoardsRepository } from 'src/domain/database/boards-repository';
 import { Factory } from 'src/domain/factory/board-factory.service';
 import { MondayService } from '../api/monday.service';
-import { BigQueryService } from '../api/bigQuery/bigQuery.service';
+import { Workspaces } from 'src/domain/factory/types';
 
 @Injectable()
 export class BoardsRepositoryService implements BoardsRepository {
   constructor(
     private mondayService: MondayService,
-    private boardFactoryService: Factory,
-    private bigQueryService: BigQueryService,
+    private boardFactoryService: Factory, // private bigQueryService: BigQueryService,
   ) {}
 
   async getAll(): Promise<Board[] | null> {
@@ -22,20 +21,30 @@ export class BoardsRepositoryService implements BoardsRepository {
       return null;
     }
 
-    console.log(boards);
-
     return boards.map((rawBoard) =>
       this.boardFactoryService.createBoard(rawBoard),
     );
   }
 
-  async transferAll(boards: Board[]): Promise<Board[] | null> {
-    const response = await this.bigQueryService.run(boards);
+  async getAllWorkSpaces(): Promise<Workspaces[] | null> {
+    const {
+      data: { workspaces },
+    } = await this.mondayService.run();
 
-    if (!response) {
+    if (!workspaces) {
       return null;
     }
 
-    return response;
+    return workspaces;
   }
+
+  // async transferAll(boards: Board[]): Promise<Board[] | null> {
+  //   const response = await this.bigQueryService.run(boards);
+
+  //   if (!response) {
+  //     return null;
+  //   }
+
+  //   return response;
+  // }
 }
