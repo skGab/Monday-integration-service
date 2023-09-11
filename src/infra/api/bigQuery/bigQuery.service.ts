@@ -1,14 +1,15 @@
-import { BigQuery } from '@google-cloud/bigquery';
+import { BigQuery, Dataset } from '@google-cloud/bigquery';
 import { CreateDatasetService } from './create-dataset.service';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EventSenderService } from 'src/infra/error/event-sender.service';
 import { Workspaces } from 'src/domain/factory/types';
 import credentials from '../../../../credentials/private.json';
+import { Board } from 'src/domain/entities/board';
 
 @Injectable()
 export class BigQueryService {
-  readonly location = 'southamerica-east1';
+  private readonly location = 'southamerica-east1';
   private bigQueryClient: BigQuery;
 
   constructor(
@@ -38,6 +39,10 @@ export class BigQueryService {
     } catch (error) {
       this.eventSenderService.errorEvent(error, 'BigQuery Service');
     }
+  }
+
+  async transfer(boards: Board[]) {
+    return boards;
   }
 
   // async taleHandle(tables: any[]) {

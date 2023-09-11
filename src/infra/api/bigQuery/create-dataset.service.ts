@@ -1,9 +1,13 @@
-import { BigQuery } from '@google-cloud/bigquery';
+import { BigQuery, Dataset } from '@google-cloud/bigquery';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class CreateDatasetService {
-  async run(bigQuery: BigQuery, workspace: string, location: string) {
+  async run(
+    bigQuery: BigQuery,
+    workspace: string,
+    location: string,
+  ): Promise<Dataset> {
     const dataset = bigQuery.dataset(workspace);
     const [exists] = await dataset.exists();
 

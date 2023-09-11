@@ -27,7 +27,7 @@ export class BoardController {
   @Get('transfer')
   async transferBoardsToBigQuery() {
     try {
-      const response = await this.transferBoardsService.createWorkSpaces();
+      const response = await this.transferBoardsService.execute();
 
       return response;
     } catch (error) {

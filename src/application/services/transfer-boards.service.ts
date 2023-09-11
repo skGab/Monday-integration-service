@@ -1,3 +1,4 @@
+import { GetBoardsService } from './get-boards.service';
 import { BigQueryService } from './../../infra/api/bigQuery/bigQuery.service';
 import { Injectable } from '@nestjs/common';
 import { BoardsRepository } from 'src/domain/database/boards-repository';
@@ -7,18 +8,19 @@ import { GetWorkSpacesService } from './get-workspaces.service';
 @Injectable()
 export class TransferBoardService {
   constructor(
+    private getBoardsService: GetBoardsService,
     private boardsRepositoryService: BoardsRepository,
     private bigQueryService: BigQueryService,
     private getWorkSpacesService: GetWorkSpacesService,
   ) {}
 
-  // async execute(boards: Board[]): Promise<Board[]> {
-  // const boards = await this.getBoardsService.run();
+  async execute(): Promise<Board[]> {
+    const response = await this.getBoardsService.run();
 
-  //   // const response = await this.boardsRepositoryService.transferAll(boards);
-  //   const response = this.
-  //   return response;
-  // }
+    const boards = await this.boardsRepositoryService.transferAll(response);
+
+    return boards;
+  }
 
   async createWorkSpaces() {
     const response = await this.getWorkSpacesService.run();
