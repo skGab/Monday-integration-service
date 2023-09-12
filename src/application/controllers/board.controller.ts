@@ -1,36 +1,30 @@
-import { Workspaces } from './../../domain/factory/types';
 import {
   Controller,
   Get,
   Post,
   HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 
-import { Board } from 'src/domain/entities/board';
-
-import { GetBoardsService } from '../services/get-boards.service';
 import { TransferBoardService } from '../services/transfer-boards.service';
-import { EventHandleService } from '../events/event-handle.service';
-import { Dataset } from '@google-cloud/bigquery';
-import { GetWorkSpacesService } from '../services/get-workspaces.service';
 
 @Controller('boards')
 export class BoardController {
-  constructor(
-    readonly errorHandling: EventHandleService,
-    private getBoardsService: GetBoardsService,
-    private getWorkSpacesService: GetWorkSpacesService,
-    private transferBoardsService: TransferBoardService,
-  ) {}
+  logger = new Logger(BoardController.name);
+
+  constructor(private transferBoardsService: TransferBoardService) {}
 
   @Get('transfer')
   async transferBoardsToBigQuery() {
     try {
-      const response = await this.transferBoardsService.execute();
+      const workspaces =
+        await this.transferBoardsService.createBigQueryWorkSpaces();
 
-      return response;
+      return workspaces;
     } catch (error) {
+      this.logger.error(error.message);
+
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,
@@ -47,9 +41,9 @@ export class BoardController {
 
   // SERVICE LOGS
   @Get('logs')
-  async getBoardsFromMonday(): Promise<Board[]> {
+  async getBoardsFromMonday() {
     try {
-      const boards = await this.getBoardsService.run();
+      const boards = await this.transferBoardsService.run();
       return boards;
     } catch (error) {
       throw new HttpException(

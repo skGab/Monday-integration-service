@@ -1,45 +1,31 @@
 import { HttpService } from '@nestjs/axios';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AxiosRequestConfig } from 'axios';
 import { lastValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
-import { MondayApiResponse } from 'src/domain/factory/types';
-import { HttpError } from '../error/http-error';
-import { EventSenderService } from '../error/event-sender.service';
+import { MondayResponseVo } from 'src/domain/valueObjects/monday-vo';
 
 @Injectable()
 export class MondayService {
+  private logger = new Logger(MondayService.name);
+
   constructor(
     readonly httpService: HttpService,
     readonly eventEmitter: EventEmitter2,
     readonly configService: ConfigService,
-    private eventSenderService: EventSenderService,
   ) {}
 
   // RUNNING THE MAIN FUNCTION
-  async run(): Promise<MondayApiResponse | null> {
+  async run(): Promise<MondayResponseVo | null> {
     try {
       const { data } = await lastValueFrom(this.apiCall());
 
       return data;
     } catch (error) {
-      if (error.isAxiosError && error.response) {
-        // Create a custom error object
-        const httpError = new HttpError(
-          error.response.status,
-          error.response.statusText,
-          error.response.data,
-        );
+      this.logger.error(error);
 
-        this.eventSenderService.errorEvent(httpError, 'MondayService');
-
-        return null;
-      } else {
-        this.eventSenderService.errorEvent(error, 'MondayService');
-
-        return null;
-      }
+      return null;
     }
   }
 
@@ -49,8 +35,9 @@ export class MondayService {
 
     const body = {
       query:
-        'query{ boards (limit:1) {id name items {name group {title} column_values {title text} } workspace {id name}} workspaces () {id name} }',
+        'query{ boards (limit:5, ids:5073094843) {id name items {name group {title} column_values {title text} } workspace {id name}} workspaces (limit: 1,ids: 2990734) {id name} }',
     };
+
     const headers = {
       'Content-Type': 'application/json',
       Authorization: this.configService.get<string>('MONDAY_TOKEN'),
@@ -58,7 +45,7 @@ export class MondayService {
     };
 
     const config: AxiosRequestConfig = { headers: headers };
-    const observable = this.httpService.post<MondayApiResponse | null>(
+    const observable = this.httpService.post<MondayResponseVo | null>(
       url,
       body,
       config,

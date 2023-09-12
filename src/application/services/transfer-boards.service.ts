@@ -1,37 +1,36 @@
-import { GetBoardsService } from './get-boards.service';
-import { BigQueryService } from './../../infra/api/bigQuery/bigQuery.service';
 import { Injectable } from '@nestjs/common';
-import { BoardsRepository } from 'src/domain/database/boards-repository';
-import { Board } from 'src/domain/entities/board';
-import { GetWorkSpacesService } from './get-workspaces.service';
+import { BigQueryRepository } from 'src/domain/database/bigQuery-repository';
+import { MondayRepository } from 'src/domain/database/monday-repository';
 
 @Injectable()
 export class TransferBoardService {
   constructor(
-    private getBoardsService: GetBoardsService,
-    private boardsRepositoryService: BoardsRepository,
-    private bigQueryService: BigQueryService,
-    private getWorkSpacesService: GetWorkSpacesService,
+    private mondayRepositoryService: MondayRepository,
+    private bigQueryRepository: BigQueryRepository,
   ) {}
 
-  async execute(): Promise<Board[]> {
-    const response = await this.getBoardsService.run();
+  async createBigQueryWorkSpaces() {
+    const mondayWorkSpaces = await this.mondayRepositoryService.getWorkSpaces();
 
-    const boards = await this.boardsRepositoryService.transferAll(response);
+    // VALIDATION
+    const validWorkspaces = mondayWorkSpaces.filter((workspace) => {
+      const pattern = /^[a-zA-Z0-9_]+$/;
+      return pattern.test(workspace.name.trim());
+    });
 
-    return boards;
+    const bigQueryWorkspaces = await this.bigQueryRepository.createWorkspaces(
+      validWorkspaces,
+    );
+
+    return bigQueryWorkspaces;
   }
 
-  async createWorkSpaces() {
-    const response = await this.getWorkSpacesService.run();
-    const workspaces = await this.bigQueryService.datasetHandle(response);
+  async run() {
+    const mondayBoards = await this.mondayRepositoryService.getBoards();
+    // const response = await this.bigQueryRepository.transferAllBoards(
+    //   mondayBoards,
+    // );
 
-    return workspaces;
+    return mondayBoards;
   }
-
-  // private toDto(board: Board): BoardDto {
-  //   return {
-
-  //   };
-  // }
 }

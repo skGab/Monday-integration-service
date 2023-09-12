@@ -5,18 +5,16 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { BigQuery } from '@google-cloud/bigquery';
 
 // INFRA
-import { BoardsRepositoryService } from './database/boards-repository.service';
 import { MondayService } from './api/monday.service';
-import { EventSenderService } from './error/event-sender.service';
 import { CreateDatasetService } from './api/bigQuery/create-dataset.service';
 import { BigQueryService } from './api/bigQuery/bigQuery.service';
+import { CreateTableService } from './api/bigQuery/create-table.service';
+import { BigQueryRepositoryService } from './database/bigQuery-repository.service';
+import { MondayRepositoryService } from './database/monday-repository.service';
 
 // DOMAIN
-import { BoardsRepository } from 'src/domain/database/boards-repository';
-import {
-  BoardFactoryService,
-  Factory,
-} from 'src/domain/factory/board-factory.service';
+import { MondayRepository } from 'src/domain/database/monday-repository';
+import { BigQueryRepository } from 'src/domain/database/bigQuery-repository';
 
 @Module({
   // CONFIGURATION
@@ -33,19 +31,19 @@ import {
     MondayService,
     BigQueryService,
     CreateDatasetService,
-    EventSenderService,
+    CreateTableService,
 
     // WITH CONTRACTS
     {
-      provide: BoardsRepository,
-      useClass: BoardsRepositoryService,
+      provide: MondayRepository,
+      useClass: MondayRepositoryService,
     },
     {
-      provide: Factory,
-      useClass: BoardFactoryService,
+      provide: BigQueryRepository,
+      useClass: BigQueryRepositoryService,
     },
   ],
 
-  exports: [BoardsRepository, BigQueryService],
+  exports: [MondayRepository, BigQueryRepository],
 })
 export class InfrastructureModule {}

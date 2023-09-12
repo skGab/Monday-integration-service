@@ -1,11 +1,12 @@
 import { BigQuery, Dataset } from '@google-cloud/bigquery';
-import { CreateDatasetService } from './create-dataset.service';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { EventSenderService } from 'src/infra/error/event-sender.service';
-import { Workspaces } from 'src/domain/factory/types';
+
+import { CreateDatasetService } from './create-dataset.service';
+import { CreateTableService } from './create-table.service';
+
 import credentials from '../../../../credentials/private.json';
-import { Board } from 'src/domain/entities/board';
+import { BoardVo, WorkspaceVo } from 'src/domain/valueObjects/board-vo';
 
 @Injectable()
 export class BigQueryService {
@@ -14,8 +15,8 @@ export class BigQueryService {
 
   constructor(
     private readonly createDatasetService: CreateDatasetService,
+    private readonly createTableService: CreateTableService,
     private readonly configService: ConfigService,
-    private readonly eventSenderService: EventSenderService,
   ) {
     this.bigQueryClient = new BigQuery({
       projectId: this.configService.get<string>('BIGQUERY_PROJECT_ID'),
@@ -23,42 +24,29 @@ export class BigQueryService {
     });
   }
 
-  async datasetHandle(workspaces: Workspaces[]) {
-    try {
-      const promises = workspaces.map(async (workspace) => {
-        this.createDatasetService.run(
-          this.bigQueryClient,
-          workspace.name,
-          this.location,
-        );
-      });
+  async workSpaceHandle(workspaces: WorkspaceVo[]): Promise<any[]> {
+    const promises = workspaces.map(async (workspace) => {
+      const response = await this.createDatasetService.run(
+        this.bigQueryClient,
+        workspace.name,
+        this.location,
+      );
+      return response;
+    });
 
-      const dataset = await Promise.all(promises);
+    const datasets = await Promise.all(promises);
 
-      return dataset;
-    } catch (error) {
-      this.eventSenderService.errorEvent(error, 'BigQuery Service');
-    }
+    return datasets.map((dataset) => {
+      return dataset.id;
+    });
   }
 
-  async transfer(boards: Board[]) {
-    return boards;
+  async tableHandle(boards: BoardVo[]) {
+    const tables = await this.createTableService.run(
+      this.bigQueryClient,
+      boards,
+    );
+
+    return tables;
   }
-
-  // async taleHandle(tables: any[]) {
-  //   // For each dataset, create tables
-  //   const tablePromises = tables.map(async (table) => {
-  //     return this.createTableService.run(
-  //       workspace.name,
-  //       table.name,
-  //       this.location,
-  //       boards,
-  //     );
-  //   });
-
-  //   // Wait for all tables to be created for this dataset
-  //   const tableIds = await Promise.all(tablePromises);
-
-  //   return tableIds;
-  // }
 }
