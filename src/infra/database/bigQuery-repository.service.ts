@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { BigQueryService } from '../api/bigQuery/bigQuery.service';
+import { Table } from '@google-cloud/bigquery';
+import { BigQueryService } from '../api/bigQuery.service';
 import { BigQueryRepository } from 'src/domain/database/bigQuery-repository';
-import { BoardVo, WorkspaceVo } from 'src/domain/valueObjects/board-vo';
+import { BoardVo, ItemVo, WorkspaceVo } from 'src/domain/valueObjects/board-vo';
+import { ItemDto } from 'src/application/dto/item.dto';
 
 @Injectable()
 export class BigQueryRepositoryService implements BigQueryRepository {
@@ -17,7 +19,7 @@ export class BigQueryRepositoryService implements BigQueryRepository {
     return response;
   }
 
-  async createWorkspaces(workspaces: WorkspaceVo[]): Promise<any[]> {
+  async createWorkspaces(workspaces: WorkspaceVo[]) {
     const response = await this.bigQueryService.workSpaceHandle(workspaces);
 
     if (!response) {
@@ -27,5 +29,13 @@ export class BigQueryRepositoryService implements BigQueryRepository {
     return response;
   }
 
-  async transferAllBoards(boards: BoardVo[]) {}
+  async transferBoards(items: ItemDto[], tables: Table[]) {
+    const response = await this.bigQueryService.transferBoards(items, tables);
+
+    if (!response) {
+      return null;
+    }
+
+    return response;
+  }
 }

@@ -6,20 +6,19 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-
-import { TransferBoardService } from '../services/transfer-boards.service';
+import { TransferBoardsUsecase } from '../usecase/transfer-boards-usecase.service';
 
 @Controller('boards')
 export class BoardController {
   logger = new Logger(BoardController.name);
 
-  constructor(private transferBoardsService: TransferBoardService) {}
+  constructor(private transferBoardsUseCase: TransferBoardsUsecase) {}
 
   @Get('transfer')
   async transferBoardsToBigQuery() {
     try {
       const workspaces =
-        await this.transferBoardsService.createBigQueryWorkSpaces();
+        await this.transferBoardsUseCase.createBigQueryWorkSpaces();
 
       return workspaces;
     } catch (error) {
@@ -43,9 +42,12 @@ export class BoardController {
   @Get('logs')
   async getBoardsFromMonday() {
     try {
-      const boards = await this.transferBoardsService.run();
+      const boards = await this.transferBoardsUseCase.run();
+
       return boards;
     } catch (error) {
+      this.logger.error(error.message);
+
       throw new HttpException(
         {
           status: HttpStatus.BAD_REQUEST,

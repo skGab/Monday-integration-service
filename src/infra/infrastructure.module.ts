@@ -6,9 +6,9 @@ import { BigQuery } from '@google-cloud/bigquery';
 
 // INFRA
 import { MondayService } from './api/monday.service';
-import { CreateDatasetService } from './api/bigQuery/create-dataset.service';
-import { BigQueryService } from './api/bigQuery/bigQuery.service';
-import { CreateTableService } from './api/bigQuery/create-table.service';
+import { CreateDatasetService } from './util/create-dataset.service';
+import { BigQueryService } from './api/bigQuery.service';
+import { CreateTableService } from './util/create-table.service';
 import { BigQueryRepositoryService } from './database/bigQuery-repository.service';
 import { MondayRepositoryService } from './database/monday-repository.service';
 
