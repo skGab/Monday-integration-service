@@ -1,6 +1,6 @@
-import { ItemVo } from 'src/domain/valueObjects/board-vo';
-import { SanitizeColumnService } from './sanitize-column.service';
 import { Injectable } from '@nestjs/common';
+import { ItemVo } from 'src/domain/board/item.vo';
+import { SanitizeColumnService } from '../column/sanitize-column.service';
 
 @Injectable()
 export class PrepareItemsService {

@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { BoardController } from './controllers/board.controller';
+import { BoardController } from './board/board.controller';
 import { InfrastructureModule } from 'src/infra/infrastructure.module';
-import { TransferBoardsUsecase } from './usecase/transfer-boards-usecase.service';
-import { WorkSpacesValidator } from './services/workSpaces-validator.service';
-import { PrepareItemsService } from './services/prepare-items.service';
-import { SanitizeColumnService } from './services/sanitize-column.service';
+import { TransferBoardsUsecase } from './board/transfer-boards-usecase.service';
+import { WorkSpacesValidator } from './board/workspace/workSpaces-validator.service';
+import { SanitizeColumnService } from './board/column/sanitize-column.service';
+import { PrepareItemsService } from './board/item/prepare-items.service';
 
 @Module({
   // CONTROLLERS

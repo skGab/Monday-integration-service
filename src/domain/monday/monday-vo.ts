@@ -1,4 +1,5 @@
-import { BoardVo, WorkspaceVo } from './board-vo';
+import { BoardVo } from '../board/board-vo';
+import { WorkspaceVo } from '../board/workspace-vo';
 
 export abstract class MondayResponseVo {
   data: {

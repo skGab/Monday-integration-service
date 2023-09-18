@@ -1,4 +1,5 @@
-import { BoardVo, WorkspaceVo } from '../valueObjects/board-vo';
+import { BoardVo } from '../board/board-vo';
+import { WorkspaceVo } from '../board/workspace-vo';
 
 export abstract class MondayRepository {
   abstract getBoards(): Promise<BoardVo[] | null>;

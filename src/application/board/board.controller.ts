@@ -6,7 +6,7 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { TransferBoardsUsecase } from '../usecase/transfer-boards-usecase.service';
+import { TransferBoardsUsecase } from './transfer-boards-usecase.service';
 
 @Controller('boards')
 export class BoardController {

@@ -1,4 +1,5 @@
-import { BoardVo, ItemVo, WorkspaceVo } from '../valueObjects/board-vo';
+import { BoardVo } from '../board/board-vo';
+import { WorkspaceVo } from '../board/workspace-vo';
 
 export abstract class BigQueryRepository {
   abstract createWorkspaces(workspaces: WorkspaceVo[]): Promise<any[]>;

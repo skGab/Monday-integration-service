@@ -1,6 +1,6 @@
 import { BigQuery } from '@google-cloud/bigquery';
 import { Injectable, Logger } from '@nestjs/common';
-import { BoardVo, ItemVo } from 'src/domain/valueObjects/board-vo';
+import { BoardVo } from 'src/domain/board/board-vo';
 
 abstract class Schema {}
 

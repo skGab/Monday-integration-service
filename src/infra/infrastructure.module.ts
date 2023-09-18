@@ -5,16 +5,16 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { BigQuery } from '@google-cloud/bigquery';
 
 // INFRA
-import { MondayService } from './api/monday.service';
-import { CreateDatasetService } from './util/create-dataset.service';
-import { BigQueryService } from './api/bigQuery.service';
-import { CreateTableService } from './util/create-table.service';
-import { BigQueryRepositoryService } from './database/bigQuery-repository.service';
-import { MondayRepositoryService } from './database/monday-repository.service';
+import { MondayService } from './monday/monday.service';
+import { CreateDatasetService } from './bigQuery/util/create-dataset.service';
+import { BigQueryService } from './bigQuery/bigQuery.service';
+import { CreateTableService } from './bigQuery/util/create-table.service';
+import { BigQueryRepositoryService } from './bigQuery/bigQuery-repository.service';
+import { MondayRepositoryService } from './monday/monday-repository.service';
 
 // DOMAIN
-import { MondayRepository } from 'src/domain/database/monday-repository';
-import { BigQueryRepository } from 'src/domain/database/bigQuery-repository';
+import { MondayRepository } from 'src/domain/monday/monday-repository';
+import { BigQueryRepository } from 'src/domain/bigQuery/bigQuery-repository';
 
 @Module({
   // CONFIGURATION

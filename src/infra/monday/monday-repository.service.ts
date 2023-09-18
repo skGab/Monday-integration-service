@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { BoardVo, WorkspaceVo } from 'src/domain/valueObjects/board-vo';
-import { MondayService } from '../api/monday.service';
+import { MondayService } from './monday.service';
+import { BoardVo } from 'src/domain/board/board-vo';
+import { WorkspaceVo } from 'src/domain/board/workspace-vo';
 
 @Injectable()
 export class MondayRepositoryService {

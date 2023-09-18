@@ -1,13 +1,13 @@
-import { BigQuery, Dataset, Table } from '@google-cloud/bigquery';
+import { BigQuery, Table } from '@google-cloud/bigquery';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { CreateDatasetService } from '../util/create-dataset.service';
-import { CreateTableService } from '../util/create-table.service';
+import { CreateDatasetService } from './util/create-dataset.service';
+import { CreateTableService } from './util/create-table.service';
 
 import credentials from '../../../credentials/private.json';
-import { BoardVo, ItemVo, WorkspaceVo } from 'src/domain/valueObjects/board-vo';
-import { ItemDto } from 'src/application/dto/item.dto';
+import { BoardVo } from 'src/domain/board/board-vo';
+import { WorkspaceVo } from 'src/domain/board/workspace-vo';
 
 @Injectable()
 export class BigQueryService {
@@ -51,7 +51,7 @@ export class BigQueryService {
     return tables;
   }
 
-  async transferBoards(items: ItemDto[], tables: Table[]) {
+  async transferBoards(items, tables: Table[]) {
     const transferedData = tables.map(async (table) => {
       return await table.insert(items);
     });

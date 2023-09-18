@@ -4,7 +4,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { AxiosRequestConfig } from 'axios';
 import { lastValueFrom } from 'rxjs';
 import { ConfigService } from '@nestjs/config';
-import { MondayResponseVo } from 'src/domain/valueObjects/monday-vo';
+import { MondayResponseVo } from 'src/domain/monday/monday-vo';
 
 @Injectable()
 export class MondayService {

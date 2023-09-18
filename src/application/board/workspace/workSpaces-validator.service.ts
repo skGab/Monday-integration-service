@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { WorkspaceVo } from 'src/domain/valueObjects/board-vo';
+import { WorkspaceVo } from 'src/domain/board/workspace-vo';
 
 @Injectable()
 export class WorkSpacesValidator {

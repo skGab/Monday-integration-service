@@ -1,9 +1,9 @@
-import { SanitizeColumnService } from './../services/sanitize-column.service';
-import { WorkSpacesValidator } from '../services/workSpaces-validator.service';
+import { SanitizeColumnService } from './column/sanitize-column.service';
+import { WorkSpacesValidator } from './workspace/workSpaces-validator.service';
 import { Injectable } from '@nestjs/common';
-import { BigQueryRepository } from 'src/domain/database/bigQuery-repository';
-import { MondayRepository } from 'src/domain/database/monday-repository';
-import { PrepareItemsService } from '../services/prepare-items.service';
+import { BigQueryRepository } from 'src/domain/bigQuery/bigQuery-repository';
+import { MondayRepository } from 'src/domain/monday/monday-repository';
+import { PrepareItemsService } from './item/prepare-items.service';
 
 @Injectable()
 export class TransferBoardsUsecase {
