@@ -3,19 +3,17 @@ import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export class CreateDatasetService {
-  logger = new Logger(CreateDatasetService.name);
-  async run(
-    bigQuery: BigQuery,
-    workspace: string,
-    location: string,
-  ): Promise<Dataset> {
+  private readonly logger = new Logger(CreateDatasetService.name);
+  private readonly location = 'southamerica-east1';
+
+  async run(bigQuery: BigQuery, workspace: string): Promise<Dataset> {
     try {
       const dataset = bigQuery.dataset(workspace);
       const [exists] = await dataset.exists();
 
       if (!exists) {
         const [dataset] = await bigQuery.createDataset(workspace, {
-          location,
+          location: this.location,
         });
 
         console.log('Novo WorkSpace criado:', dataset.id);

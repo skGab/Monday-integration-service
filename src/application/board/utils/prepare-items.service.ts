@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ItemVo } from 'src/domain/board/item.vo';
-import { SanitizeColumnService } from '../column/sanitize-column.service';
+import { SanitizeColumnService } from './sanitize-column.service';
 
 @Injectable()
 export class PrepareItemsService {
@@ -13,7 +13,7 @@ export class PrepareItemsService {
       }
 
       const transformed = {
-        solicitacoes: item.name,
+        solicitacao: item.name,
         grupo: item.group.title,
       };
 
@@ -21,7 +21,13 @@ export class PrepareItemsService {
         transformed[this.sanitizeColumnService.run(column.title)] = column.text;
       });
 
-      return transformed;
+      const result = Array.isArray(transformed[0])
+        ? transformed[0]
+        : transformed;
+      // NEED TO RETURN THE RIGHT JSON STRUCTURE
+      // AFTER INSERTING DATA ON THE TABLE, CHECK FOR THE CRUD METHOD
+
+      return result;
     });
   }
 }

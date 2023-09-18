@@ -1,3 +1,4 @@
+// CAN APPEAR MORE FIELDS BECAUSE OF THE FLEXIBILITY OF MONDAY
 export class ItemDto {
   constructor(
     public solicitacoes: string,

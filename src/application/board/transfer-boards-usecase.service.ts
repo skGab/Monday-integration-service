@@ -1,40 +1,23 @@
-import { SanitizeColumnService } from './column/sanitize-column.service';
-import { WorkSpacesValidator } from './workspace/workSpaces-validator.service';
 import { Injectable } from '@nestjs/common';
 import { BigQueryRepository } from 'src/domain/bigQuery/bigQuery-repository';
+import { PrepareItemsService } from './utils/prepare-items.service';
+import { SanitizeColumnService } from './utils/sanitize-column.service';
 import { MondayRepository } from 'src/domain/monday/monday-repository';
-import { PrepareItemsService } from './item/prepare-items.service';
 
 @Injectable()
 export class TransferBoardsUsecase {
   constructor(
     private mondayRepositoryService: MondayRepository,
     private bigQueryRepository: BigQueryRepository,
-    private workSpacesValidator: WorkSpacesValidator,
     private prepareItemsService: PrepareItemsService,
     private sanitizeColumnService: SanitizeColumnService,
   ) {}
 
-  async createBigQueryWorkSpaces() {
-    // GET WORKSPACES
-    const mondayWorkSpaces = await this.mondayRepositoryService.getWorkSpaces();
-
-    // VALIDATE
-    const validWorkspaces = this.workSpacesValidator.validate(mondayWorkSpaces);
-
-    // CREATE WORKSPACES ON BIGQUERY
-    const bigQueryWorkspaces = await this.bigQueryRepository.createWorkspaces(
-      validWorkspaces,
-    );
-
-    return bigQueryWorkspaces;
-  }
-
   async run() {
-    // GET BOARDS
+    // GET MONDAY BOARDS
     const mondayBoards = await this.mondayRepositoryService.getBoards();
 
-    // SANITIZE MONDAY BOARDS
+    // FIXING MONDAY COLUMNS NAMES TO BIGQUERY ACCEPTANCE BOARDS
     const sanitizedMondayBoards = mondayBoards.map((board) => {
       board.items = board.items.map((item) => {
         item.column_values = item.column_values.map((column) => {
@@ -47,11 +30,14 @@ export class TransferBoardsUsecase {
     });
 
     // CREATE BOARDS ON BIGQUERY
+    // HERE IM CREATING THE BOARDS/TABLES AND CREATING THE WORKSPACES/DATASETS IF NOT EXISTS
+    // THE CREATION OF BOARDS/TABLES SHOULD BE DINAMIC ON BIGQUERY, BECAUSE THE BOARDS COLUMNS ARE FLEXIVE
+    // THE CREATION OF WORKSPACES/DATASETS SHOULD BE A PART, BECAUSE THE NAMES ARE MORE EASILY TO UPDATE
     const bigQueryBoards = await this.bigQueryRepository.createBoards(
       sanitizedMondayBoards,
     );
 
-    // VALIDATE ITEMS TO BIGQUERY SCHEMA
+    //  MAPPING ITEMS TO BIGQUERY SCHEMA
     const bigQueryItems = sanitizedMondayBoards.map((board) =>
       this.prepareItemsService.run(board.items),
     );
@@ -62,7 +48,8 @@ export class TransferBoardsUsecase {
     //   bigQueryBoards,
     // );
 
-    console.log(response);
-    return response;
+    console.log(bigQueryItems);
+
+    return bigQueryItems;
   }
 }

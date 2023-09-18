@@ -1,7 +1,7 @@
+import { HandleBigQueryWorkspacesService } from '../workspace/handleBigQuery-workspaces.service';
 import {
   Controller,
   Get,
-  Post,
   HttpException,
   HttpStatus,
   Logger,
@@ -12,13 +12,15 @@ import { TransferBoardsUsecase } from './transfer-boards-usecase.service';
 export class BoardController {
   logger = new Logger(BoardController.name);
 
-  constructor(private transferBoardsUseCase: TransferBoardsUsecase) {}
+  constructor(
+    private transferBoardsUseCase: TransferBoardsUsecase,
+    private handleBigQueryWorkspacesService: HandleBigQueryWorkspacesService,
+  ) {}
 
   @Get('transfer')
   async transferBoardsToBigQuery() {
     try {
-      const workspaces =
-        await this.transferBoardsUseCase.createBigQueryWorkSpaces();
+      const workspaces = await this.handleBigQueryWorkspacesService.run();
 
       return workspaces;
     } catch (error) {

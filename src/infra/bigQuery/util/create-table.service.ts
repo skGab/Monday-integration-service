@@ -1,3 +1,4 @@
+import { CreateDatasetService } from './create-dataset.service';
 import { BigQuery } from '@google-cloud/bigquery';
 import { Injectable, Logger } from '@nestjs/common';
 import { BoardVo } from 'src/domain/board/board-vo';
@@ -9,12 +10,17 @@ export class CreateTableService {
   private schema: Schema;
   private logger = new Logger(CreateTableService.name);
 
+  constructor(private createDatasetService: CreateDatasetService) {}
+
   async run(bigQuery: BigQuery, boards: BoardVo[]) {
     try {
       const promises = boards.map(async (board) => {
         // Getting the board and workspace reference
         const datasetId = board.workspace.name;
         const tableId = board.name;
+
+        // Ensure dataset exists
+        await this.createDatasetService.run(bigQuery, datasetId);
 
         // Check if the board already exists
         const table = bigQuery.dataset(datasetId).table(tableId);

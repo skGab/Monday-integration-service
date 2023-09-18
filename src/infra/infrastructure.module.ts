@@ -7,7 +7,6 @@ import { BigQuery } from '@google-cloud/bigquery';
 // INFRA
 import { MondayService } from './monday/monday.service';
 import { CreateDatasetService } from './bigQuery/util/create-dataset.service';
-import { BigQueryService } from './bigQuery/bigQuery.service';
 import { CreateTableService } from './bigQuery/util/create-table.service';
 import { BigQueryRepositoryService } from './bigQuery/bigQuery-repository.service';
 import { MondayRepositoryService } from './monday/monday-repository.service';
@@ -15,6 +14,7 @@ import { MondayRepositoryService } from './monday/monday-repository.service';
 // DOMAIN
 import { MondayRepository } from 'src/domain/monday/monday-repository';
 import { BigQueryRepository } from 'src/domain/bigQuery/bigQuery-repository';
+import { CallApiService } from './monday/util/call-api.service';
 
 @Module({
   // CONFIGURATION
@@ -29,9 +29,9 @@ import { BigQueryRepository } from 'src/domain/bigQuery/bigQuery-repository';
     // WITHOUT CONTRACTS
     BigQuery,
     MondayService,
-    BigQueryService,
     CreateDatasetService,
     CreateTableService,
+    CallApiService,
 
     // WITH CONTRACTS
     {
