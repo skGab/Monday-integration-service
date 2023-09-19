@@ -1,33 +1,41 @@
-import { Injectable } from '@nestjs/common';
-import { MondayService } from './monday.service';
+import { CallApiService } from './call-api.service';
+import { Injectable, Logger } from '@nestjs/common';
 import { BoardVo } from 'src/domain/board/board-vo';
 import { WorkspaceVo } from 'src/domain/board/workspace-vo';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class MondayRepositoryService {
-  constructor(private mondayService: MondayService) {}
+  private logger = new Logger(MondayRepositoryService.name);
+
+  constructor(private callApiService: CallApiService) {}
 
   async getBoards(): Promise<BoardVo[] | null> {
-    const {
-      data: { boards },
-    } = await this.mondayService.run();
+    try {
+      const { data } = await lastValueFrom(this.callApiService.run());
 
-    if (!boards) {
+      const {
+        data: { boards },
+      } = data;
+
+      return boards;
+    } catch (error) {
       return null;
+      this.logger.error(error);
     }
-
-    return boards;
   }
 
   async getWorkSpaces(): Promise<WorkspaceVo[] | null> {
-    const {
-      data: { workspaces },
-    } = await this.mondayService.run();
+    try {
+      const { data } = await lastValueFrom(this.callApiService.run());
 
-    if (!workspaces) {
-      return null;
+      const {
+        data: { workspaces },
+      } = data;
+
+      return workspaces;
+    } catch (error) {
+      this.logger.error(error);
     }
-
-    return workspaces;
   }
 }

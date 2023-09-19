@@ -1,7 +1,4 @@
-import { Injectable } from '@nestjs/common';
-
-@Injectable()
-export class SanitizeColumnService {
+export class SanitizeColumn {
   run(title: string) {
     const specialCharsMap = {
       ç: 'c',

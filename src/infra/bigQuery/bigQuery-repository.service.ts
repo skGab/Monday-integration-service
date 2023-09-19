@@ -2,8 +2,8 @@ import { BigQuery, Table } from '@google-cloud/bigquery';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { CreateDatasetService } from './util/create-dataset.service';
-import { CreateTableService } from './util/create-table.service';
+import { CreateDatasetService } from './create-dataset.service';
+import { CreateTableService } from './create-table.service';
 
 import credentials from '../../../credentials/private.json';
 import { BoardVo } from 'src/domain/board/board-vo';
@@ -51,7 +51,7 @@ export class BigQueryRepositoryService implements BigQueryRepository {
     return tables;
   }
 
-  async transferDataToBoard(payload, table: Table) {
+  async transferDataToBoard(payload, table: Table): Promise<any> {
     try {
       await table.insert(payload);
       // When successful, return the table ID and the payload
