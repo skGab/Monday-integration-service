@@ -1,7 +1,7 @@
 import { BoardVo } from 'src/domain/board/board-vo';
 
 export class PreparePayload {
-  run(board: BoardVo): any {
+  run(bigQueryItems: string[], board: BoardVo): any {
     return board.items.map((item) => {
       const payload: { [key: string]: string } = {};
 
@@ -12,7 +12,33 @@ export class PreparePayload {
         payload[column.title] = column.text;
       });
 
-      return payload;
+      const { duplicateItems, corePayload } = this.checkDuplicatedItems(
+        bigQueryItems,
+        payload,
+      );
+
+      return { duplicateItems, corePayload };
     });
+  }
+
+  private checkDuplicatedItems(
+    bigQueryItems: string[],
+    payload: { [key: string]: string },
+  ): { duplicateItems: any[]; corePayload: any } {
+    const isDuplicate = bigQueryItems.some(
+      (item) => item === payload.id_de_elemento,
+    );
+
+    if (isDuplicate) {
+      return {
+        duplicateItems: [payload],
+        corePayload: null,
+      };
+    }
+
+    return {
+      duplicateItems: [],
+      corePayload: payload,
+    };
   }
 }

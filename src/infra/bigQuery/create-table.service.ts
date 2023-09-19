@@ -12,7 +12,7 @@ export class CreateTableService {
 
   constructor(private createDatasetService: CreateDatasetService) {}
 
-  async run(bigQuery: BigQuery, boards: BoardVo[]) {
+  async run(location: string, bigQuery: BigQuery, boards: BoardVo[]) {
     try {
       const promises = boards.map(async (board) => {
         // Getting the board and workspace reference
@@ -20,7 +20,7 @@ export class CreateTableService {
         const tableId = board.name;
 
         // Ensure dataset exists
-        await this.createDatasetService.run(bigQuery, datasetId);
+        await this.createDatasetService.run(location, bigQuery, datasetId);
 
         // Check if the board already exists
         const table = bigQuery.dataset(datasetId).table(tableId);

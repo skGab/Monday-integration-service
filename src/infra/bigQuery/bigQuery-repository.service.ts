@@ -13,6 +13,7 @@ import { BigQueryRepository } from 'src/domain/bigQuery/bigQuery-repository';
 @Injectable()
 export class BigQueryRepositoryService implements BigQueryRepository {
   private bigQueryClient: BigQuery;
+  private readonly location = 'southamerica-east1';
   private readonly logger = new Logger(BigQueryRepositoryService.name);
 
   constructor(
@@ -29,6 +30,7 @@ export class BigQueryRepositoryService implements BigQueryRepository {
   async createWorkspaces(workspaces: WorkspaceVo[]): Promise<string[]> {
     const promises = workspaces.map(async (workspace) => {
       const response = await this.createDatasetService.run(
+        this.location,
         this.bigQueryClient,
         workspace.name,
       );
@@ -44,6 +46,7 @@ export class BigQueryRepositoryService implements BigQueryRepository {
 
   async createBoards(boards: BoardVo[]): Promise<Table[]> {
     const tables = await this.createTableService.run(
+      this.location,
       this.bigQueryClient,
       boards,
     );
@@ -77,6 +80,26 @@ export class BigQueryRepositoryService implements BigQueryRepository {
           error: error.message,
         };
       }
+    }
+  }
+
+  async getItemsFromBoard(board: BoardVo): Promise<string[]> {
+    try {
+      // Construct a SQL query based on your board. This is just a placeholder
+      const sqlQuery = `SELECT id_de_elemento FROM ${board.workspace.name}.${board.name}`;
+
+      const options = {
+        query: sqlQuery,
+        location: this.location,
+      };
+
+      // Run the query on BigQuery
+      const [rows] = await this.bigQueryClient.query(options);
+
+      // Extract the id_de_elemento values and return
+      return rows.map((row) => row.id_de_elemento);
+    } catch (error) {
+      this.logger.error(error);
     }
   }
 }
