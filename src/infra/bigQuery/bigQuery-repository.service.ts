@@ -51,14 +51,32 @@ export class BigQueryRepositoryService implements BigQueryRepository {
     return tables;
   }
 
-  async transferBoards(items, boards: Table[]) {
+  async transferDataToBoard(payload, table: Table) {
     try {
-      const transferedDataPromises = boards.map((board) => board.insert(items));
-      const results = await Promise.all(transferedDataPromises);
-
-      return results;
+      await table.insert(payload);
+      // When successful, return the table ID and the payload
+      return {
+        tableId: table.id,
+        status: 'success',
+        insertedPayload: payload,
+      };
     } catch (error) {
-      this.logger.error(error);
+      if (error.name === 'PartialFailureError') {
+        // Log or handle the rows that failed
+        this.logger.error('Failed rows:', error.errors);
+        return {
+          tableId: table.id,
+          status: 'partial_failure',
+          errors: error.errors,
+        };
+      } else {
+        this.logger.error(error);
+        return {
+          tableId: table.id,
+          status: 'error',
+          error: error.message,
+        };
+      }
     }
   }
 }

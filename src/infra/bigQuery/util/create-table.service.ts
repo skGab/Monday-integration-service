@@ -69,7 +69,7 @@ export class CreateTableService {
     });
 
     this.schema = [
-      { name: 'solicitacoes', type: 'STRING', mode: 'NULLABLE' },
+      { name: 'solicitacao', type: 'STRING', mode: 'NULLABLE' },
       { name: 'grupo', type: 'STRING', mode: 'NULLABLE' },
       ...schemaFromItems,
     ];

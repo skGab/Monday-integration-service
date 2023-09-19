@@ -1,7 +1,7 @@
 // CAN APPEAR MORE FIELDS BECAUSE OF THE FLEXIBILITY OF MONDAY
 export class ItemDto {
   constructor(
-    public solicitacoes: string,
+    public solicitacao: string,
     public grupo: string,
     public responsavel: string,
     public status: string,
