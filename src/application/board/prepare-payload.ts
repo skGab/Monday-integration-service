@@ -1,44 +1,49 @@
 import { BoardVo } from 'src/domain/board/board-vo';
 
 export class PreparePayload {
-  run(bigQueryItems: string[], board: BoardVo): any {
-    return board.items.map((item) => {
-      const payload: { [key: string]: string } = {};
+  run(bigQueryItems: string[], board: BoardVo) {
+    // Step 1: Prepare individual payloads for each item.
+    const preparedPayloads = board.items.map(this.prepareSinglePayload);
 
-      payload.solicitacao = item.name;
-      payload.grupo = item.group.title;
+    // Step 2: Filter out duplicates.
+    const { corePayload, duplicateItems } = this.checkDuplicatedItems(
+      bigQueryItems,
+      preparedPayloads,
+    );
 
-      item.column_values.forEach((column) => {
-        payload[column.title] = column.text;
-      });
-
-      const { duplicateItems, corePayload } = this.checkDuplicatedItems(
-        bigQueryItems,
-        payload,
-      );
-
-      return { duplicateItems, corePayload };
-    });
+    return { corePayload, duplicateItems };
   }
 
   private checkDuplicatedItems(
     bigQueryItems: string[],
-    payload: { [key: string]: string },
-  ): { duplicateItems: any[]; corePayload: any } {
-    const isDuplicate = bigQueryItems.some(
-      (item) => item === payload.id_de_elemento,
-    );
+    preparedPayloads: Array<{ [key: string]: string }>,
+  ) {
+    const duplicateItems: Array<{ [key: string]: string }> = [];
+    const corePayload: Array<{ [key: string]: string }> = [];
 
-    if (isDuplicate) {
-      return {
-        duplicateItems: [payload],
-        corePayload: null,
-      };
-    }
+    preparedPayloads.forEach((payload) => {
+      if (bigQueryItems.includes(payload.id_de_elemento)) {
+        duplicateItems.push(payload);
+      } else {
+        corePayload.push(payload);
+      }
+    });
 
     return {
-      duplicateItems: [],
-      corePayload: payload,
+      duplicateItems,
+      corePayload,
     };
+  }
+
+  private prepareSinglePayload(item: any): { [key: string]: string } {
+    const payload: { [key: string]: string } = {};
+    payload.solicitacao = item.name;
+    payload.grupo = item.group.title;
+
+    item.column_values.forEach((column: any) => {
+      payload[column.title] = column.text;
+    });
+
+    return payload;
   }
 }

@@ -6,9 +6,13 @@ import { CreateDatasetService } from './create-dataset.service';
 import { CreateTableService } from './create-table.service';
 
 import credentials from '../../../credentials/private.json';
+
 import { BoardVo } from 'src/domain/board/board-vo';
 import { WorkspaceVo } from 'src/domain/board/workspace-vo';
-import { BigQueryRepository } from 'src/domain/bigQuery/bigQuery-repository';
+import {
+  BigQueryRepository,
+  TransferResponse,
+} from 'src/domain/bigQuery/bigQuery-repository';
 
 @Injectable()
 export class BigQueryRepositoryService implements BigQueryRepository {
@@ -54,7 +58,7 @@ export class BigQueryRepositoryService implements BigQueryRepository {
     return tables;
   }
 
-  async transferDataToBoard(payload, table: Table): Promise<any> {
+  async transferItemsToBoard(payload, table: Table): Promise<TransferResponse> {
     try {
       await table.insert(payload);
       // When successful, return the table ID and the payload
@@ -67,6 +71,7 @@ export class BigQueryRepositoryService implements BigQueryRepository {
       if (error.name === 'PartialFailureError') {
         // Log or handle the rows that failed
         this.logger.error('Failed rows:', error.errors);
+
         return {
           tableId: table.id,
           status: 'partial_failure',
@@ -74,12 +79,39 @@ export class BigQueryRepositoryService implements BigQueryRepository {
         };
       } else {
         this.logger.error(error);
+
         return {
           tableId: table.id,
           status: 'error',
           error: error.message,
         };
       }
+    }
+  }
+
+  async updateBoardItems(payload: any[], board: BoardVo) {
+    try {
+      const itemIds = payload.map((item) => item.id_de_elemento);
+
+      const query = `SELECT * FROM ${
+        board.name
+      } WHERE id_de_elemento IN (${itemIds.join(',')})`;
+
+      // // Run the update queries
+      // for (const query of updateQueries) {
+      //   const [job] = await this.bigQueryClient.createQueryJob({
+      //     query: query,
+      //   });
+      //   const [rows] = await job.getQueryResults();
+      //   // Handle or log the results if needed
+      // }
+
+      console.log(query);
+      // return { success: true, message: 'Updated successfully.' };
+    } catch (error) {
+      // Handle or throw the error as per your app's error handling strategy
+      console.error('Error updating items in BigQuery:', error);
+      throw new Error('Failed to update items in BigQuery.');
     }
   }
 

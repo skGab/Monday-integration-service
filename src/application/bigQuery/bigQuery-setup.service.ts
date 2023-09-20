@@ -19,7 +19,14 @@ export class BigQuerySetupService {
     const bigQueryTables = await this.bigQueryRepository.createBoards(
       validBoards,
     );
-    return { bigQueryTables, validBoards };
+
+    // PREPARE BOARDS/TABLE TO INSERTION
+    const boardTablePairs = validBoards.map((board, index) => ({
+      board,
+      table: bigQueryTables[index],
+    }));
+
+    return { boardTablePairs };
   }
 
   private sanitize(mondayBoards: BoardVo[]) {
