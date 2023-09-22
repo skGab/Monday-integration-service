@@ -4,9 +4,10 @@ import { InfrastructureModule } from 'src/infra/infrastructure.module';
 import { TransferBoardsUsecase } from './board/transfer-boards-usecase.service';
 import { HandleBigQueryWorkspacesService } from './workspace/handleBigQuery-workspaces.service';
 import { WorkSpaceController } from './workspace/workspace.controller';
-import { WorkSpaceNameValidator } from './workspace/workspaceName-validator.service';
-import { PrepareBoardsService } from './board/prepare-boards.service';
+import { WorkSpaceNameValidator } from './workspace/workspaceName-validator';
+import { PrepareBoardsService } from './board/services/prepare-boards.service';
 import { BigQuerySetupService } from './bigQuery/bigQuery-setup.service';
+// import { SchedulerService } from './board/services/schendule.service';
 
 @Module({
   // CONTROLLERS
@@ -19,6 +20,7 @@ import { BigQuerySetupService } from './bigQuery/bigQuery-setup.service';
     BigQuerySetupService,
     WorkSpaceNameValidator,
     HandleBigQueryWorkspacesService,
+    // SchedulerService,
   ],
 
   imports: [InfrastructureModule],

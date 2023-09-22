@@ -26,6 +26,7 @@ export class CreateDatasetService {
       return dataset;
     } catch (error) {
       this.logger.error(error);
+      return null;
     }
   }
 }

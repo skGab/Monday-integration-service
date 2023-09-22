@@ -18,9 +18,9 @@ export class WorkSpaceController {
   @Get()
   async CheckingForWorkspaces() {
     try {
-      const workspaces = await this.handleBigQueryWorkspacesService.run();
+      // const workspaces = await this.handleBigQueryWorkspacesService.run();
 
-      return workspaces;
+      // return workspaces;
     } catch (error) {
       this.logger.error(error.message);
 

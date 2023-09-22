@@ -1,19 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { BigQueryRepository } from 'src/domain/bigQuery/bigQuery-repository';
-import { MondayRepository } from 'src/domain/monday/monday-repository';
-import { WorkSpaceNameValidator } from './workspaceName-validator.service';
+import { WorkSpaceNameValidator } from './workspaceName-validator';
+import { WorkspaceVo } from 'src/domain/board/workspace-vo';
 
 @Injectable()
 export class HandleBigQueryWorkspacesService {
   constructor(
-    private mondayRepositoryService: MondayRepository,
     private bigQueryRepository: BigQueryRepository,
     private workspaceNameValidator: WorkSpaceNameValidator,
   ) {}
-  async run() {
-    // GET WORKSPACES
-    const mondayWorkSpaces = await this.mondayRepositoryService.getWorkSpaces();
-
+  async run(mondayWorkSpaces: WorkspaceVo[]) {
     // VALIDATE WORKSPACES NAME
     const validWorkspacesNames =
       this.workspaceNameValidator.validate(mondayWorkSpaces);

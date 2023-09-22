@@ -1,4 +1,5 @@
-import { HandleBigQueryWorkspacesService } from '../workspace/handleBigQuery-workspaces.service';
+import { TransferBoardsUsecase } from './transfer-boards-usecase.service';
+// import { SchedulerService } from './services/schendule.service';
 import {
   Controller,
   Get,
@@ -6,54 +7,35 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
-import { TransferBoardsUsecase } from './transfer-boards-usecase.service';
 
 @Controller('boards')
 export class BoardController {
   logger = new Logger(BoardController.name);
 
   constructor(
-    private transferBoardsUseCase: TransferBoardsUsecase,
-    private handleBigQueryWorkspacesService: HandleBigQueryWorkspacesService,
+    // private schedulerService: SchedulerService,
+    private transferBoardsUsecase: TransferBoardsUsecase,
   ) {}
-
-  @Get('transfer')
-  async transferBoardsToBigQuery() {
-    try {
-      const workspaces = await this.handleBigQueryWorkspacesService.run();
-
-      return workspaces;
-    } catch (error) {
-      this.logger.error(error.message);
-
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: 'Error durante a transferencia de quadros',
-        },
-
-        HttpStatus.BAD_REQUEST,
-        {
-          cause: error,
-        },
-      );
-    }
-  }
 
   // SERVICE LOGS
   @Get('logs')
-  async getBoardsFromMonday() {
+  async transferBoardsToBigQuery() {
     try {
-      const boards = await this.transferBoardsUseCase.run();
+      // const status = this.schedulerService.getCurrentStatus();
+      const status = this.transferBoardsUsecase.run();
 
-      return boards;
+      if (status === null)
+        // COLOCAM NA LIB DE ERROR
+        return 'Algo aconteceu durante a busca de dados no Monday';
+
+      return status;
     } catch (error) {
       this.logger.error(error.message);
 
       throw new HttpException(
         {
-          status: HttpStatus.BAD_REQUEST,
-          error: 'Error durante a busca de quadros',
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: 'Error durante a transferencia de quadros',
         },
         HttpStatus.BAD_REQUEST,
         {

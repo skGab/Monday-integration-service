@@ -1,11 +1,12 @@
 import { BoardVo } from 'src/domain/board/board-vo';
+import { ItemVo } from 'src/domain/board/item.vo';
 
 export class PreparePayload {
   run(bigQueryItems: string[], board: BoardVo) {
-    // Step 1: Prepare individual payloads for each item.
+    // Prepare individual payloads for each item.
     const preparedPayloads = board.items.map(this.prepareSinglePayload);
 
-    // Step 2: Filter out duplicates.
+    // Filter out duplicates.
     const { corePayload, duplicateItems } = this.checkDuplicatedItems(
       bigQueryItems,
       preparedPayloads,
@@ -35,7 +36,7 @@ export class PreparePayload {
     };
   }
 
-  private prepareSinglePayload(item: any): { [key: string]: string } {
+  private prepareSinglePayload(item: ItemVo): { [key: string]: string } {
     const payload: { [key: string]: string } = {};
     payload.solicitacao = item.name;
     payload.grupo = item.group.title;

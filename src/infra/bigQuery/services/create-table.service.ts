@@ -20,7 +20,16 @@ export class CreateTableService {
         const tableId = board.name;
 
         // Ensure dataset exists
-        await this.createDatasetService.run(location, bigQuery, datasetId);
+        const dataset = await this.createDatasetService.run(
+          location,
+          bigQuery,
+          datasetId,
+        );
+
+        if (dataset === null) {
+          this.logger.error('Nenhum dataset disponivel para criação da tabela');
+          return null;
+        }
 
         // Check if the board already exists
         const table = bigQuery.dataset(datasetId).table(tableId);
@@ -33,12 +42,16 @@ export class CreateTableService {
             .dataset(datasetId)
             .createTable(tableId, { schema: schema });
 
-          console.log('Nova tabela criada', newTable.id);
+          console.log('--------------------------------------------');
+          console.log('Nova tabela criada: ', newTable.id);
+          console.log('--------------------------------------------');
 
           return newTable;
         }
 
-        console.log('Tabela existe', table.id);
+        console.log('--------------------------------------------');
+        console.log('Tabela existente: ', table.id);
+        console.log('--------------------------------------------');
 
         return table;
       });
@@ -46,6 +59,7 @@ export class CreateTableService {
       return await Promise.all(promises);
     } catch (error) {
       this.logger.error(error);
+      return null;
     }
   }
 

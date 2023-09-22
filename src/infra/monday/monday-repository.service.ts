@@ -18,10 +18,16 @@ export class MondayRepositoryService {
         data: { boards },
       } = data;
 
+      if (boards.length == 0 || !boards) {
+        // PUT ON JSON FILE WITH LOGGING LIB
+        this.logger.error('Nenhum quadro encontrado durante a busca');
+        return null;
+      }
+
       return boards;
     } catch (error) {
-      return null;
       this.logger.error(error);
+      return null;
     }
   }
 
@@ -33,9 +39,20 @@ export class MondayRepositoryService {
         data: { workspaces },
       } = data;
 
+      if (workspaces.length == 0 || !workspaces) {
+         // PUT ON JSON FILE WITH LOGGING LIB
+        this.logger.error(
+          'Nenhuma area de trabalho encontrada durante a busca',
+        );
+        return null;
+      }
+
+      console.log(workspaces)
       return workspaces;
     } catch (error) {
+       // PUT ON JSON FILE WITH LOGGING LIB
       this.logger.error(error);
+      return null;
     }
   }
 }

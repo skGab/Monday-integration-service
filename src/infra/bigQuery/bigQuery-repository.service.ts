@@ -1,9 +1,12 @@
+import { TransferItemsService } from './services/transfer-items.service';
+import { GetItemsService } from './services/get-items.service';
+import { UpdateItemsService } from './services/update-items.service';
 import { BigQuery, Table } from '@google-cloud/bigquery';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { CreateDatasetService } from './create-dataset.service';
-import { CreateTableService } from './create-table.service';
+import { CreateDatasetService } from './services/create-dataset.service';
+import { CreateTableService } from './services/create-table.service';
 
 import credentials from '../../../credentials/private.json';
 
@@ -24,6 +27,9 @@ export class BigQueryRepositoryService implements BigQueryRepository {
     private readonly createDatasetService: CreateDatasetService,
     private readonly createTableService: CreateTableService,
     private readonly configService: ConfigService,
+    private readonly updateItemsService: UpdateItemsService,
+    private readonly getItemsService: GetItemsService,
+    private readonly transferItemsService: TransferItemsService,
   ) {
     this.bigQueryClient = new BigQuery({
       projectId: this.configService.get<string>('BIGQUERY_PROJECT_ID'),
@@ -31,7 +37,15 @@ export class BigQueryRepositoryService implements BigQueryRepository {
     });
   }
 
-  async createWorkspaces(workspaces: WorkspaceVo[]): Promise<string[]> {
+  // CREATE WORKSPACES
+  async createWorkspaces(workspaces: WorkspaceVo[]): Promise<string[] | null> {
+    if (!workspaces || workspaces.length == 0) {
+      this.logger.error(
+        'Nenhuma area de trabalho encontrada para criação de datasets no BigQuery',
+      );
+      return null;
+    }
+
     const promises = workspaces.map(async (workspace) => {
       const response = await this.createDatasetService.run(
         this.location,
@@ -48,7 +62,15 @@ export class BigQueryRepositoryService implements BigQueryRepository {
     });
   }
 
-  async createBoards(boards: BoardVo[]): Promise<Table[]> {
+  // CREATE BOARDS
+  async createBoards(boards: BoardVo[]): Promise<Table[] | null> {
+    if (!boards || boards.length == 0) {
+      this.logger.error(
+        'Nenhum quadro encontrado para criação de tabelas no BigQuery',
+      );
+      return null;
+    }
+
     const tables = await this.createTableService.run(
       this.location,
       this.bigQueryClient,
@@ -58,80 +80,58 @@ export class BigQueryRepositoryService implements BigQueryRepository {
     return tables;
   }
 
-  async transferItemsToBoard(payload, table: Table): Promise<TransferResponse> {
-    try {
-      await table.insert(payload);
-      // When successful, return the table ID and the payload
-      return {
-        tableId: table.id,
-        status: 'success',
-        insertedPayload: payload,
-      };
-    } catch (error) {
-      if (error.name === 'PartialFailureError') {
-        // Log or handle the rows that failed
-        this.logger.error('Failed rows:', error.errors);
-
-        return {
-          tableId: table.id,
-          status: 'partial_failure',
-          errors: error.errors,
-        };
-      } else {
-        this.logger.error(error);
-
-        return {
-          tableId: table.id,
-          status: 'error',
-          error: error.message,
-        };
-      }
+  // TRANSFER ITEMS
+  async transferItemsToBoard(
+    payload: any[],
+    table: Table,
+  ): Promise<TransferResponse | null> {
+    if (!table) {
+      this.logger.error('Nenhuma tabela encotrada para inserção de items');
+      return null;
     }
+
+    if (!payload || payload.length == 0) {
+      this.logger.error('Payload vazio para inserção no BigQuery');
+      return null;
+    }
+
+    const itemsId = await this.transferItemsService.run(payload, table);
+
+    return itemsId;
   }
 
-  async updateBoardItems(payload: any[], board: BoardVo) {
-    try {
-      const itemIds = payload.map((item) => item.id_de_elemento);
-
-      const query = `SELECT * FROM ${
-        board.name
-      } WHERE id_de_elemento IN (${itemIds.join(',')})`;
-
-      // // Run the update queries
-      // for (const query of updateQueries) {
-      //   const [job] = await this.bigQueryClient.createQueryJob({
-      //     query: query,
-      //   });
-      //   const [rows] = await job.getQueryResults();
-      //   // Handle or log the results if needed
-      // }
-
-      console.log(query);
-      // return { success: true, message: 'Updated successfully.' };
-    } catch (error) {
-      // Handle or throw the error as per your app's error handling strategy
-      console.error('Error updating items in BigQuery:', error);
-      throw new Error('Failed to update items in BigQuery.');
+  // UPDATE ITEMS
+  async updateBoardItems(
+    payload: any[],
+    board: BoardVo,
+  ): Promise<any[] | null> {
+    if (!board) {
+      this.logger.error(
+        'Nenhum item encontrado para criação de tabelas no BigQuery',
+      );
+      return null;
     }
+
+    const tables = await this.updateItemsService.run(payload, board);
+
+    return tables;
   }
 
-  async getItemsFromBoard(board: BoardVo): Promise<string[]> {
-    try {
-      // Construct a SQL query based on your board. This is just a placeholder
-      const sqlQuery = `SELECT id_de_elemento FROM ${board.workspace.name}.${board.name}`;
-
-      const options = {
-        query: sqlQuery,
-        location: this.location,
-      };
-
-      // Run the query on BigQuery
-      const [rows] = await this.bigQueryClient.query(options);
-
-      // Extract the id_de_elemento values and return
-      return rows.map((row) => row.id_de_elemento);
-    } catch (error) {
-      this.logger.error(error);
+  // GET ITEMS
+  async getItemsFromBoard(board: BoardVo): Promise<string[] | null> {
+    if (!board) {
+      this.logger.error(
+        'Nenhum quadro encontrado para busca de Ids no BigQuery',
+      );
+      return null;
     }
+
+    const itemsId = await this.getItemsService.run(
+      this.location,
+      board,
+      this.bigQueryClient,
+    );
+
+    return itemsId;
   }
 }

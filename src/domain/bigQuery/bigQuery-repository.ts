@@ -11,20 +11,22 @@ export abstract class TransferResponse {
 
 export abstract class BigQueryRepository {
   // GET ITEMS FROM BOARD
-  abstract getItemsFromBoard(board: BoardVo): Promise<string[]>;
+  abstract getItemsFromBoard(board: BoardVo): Promise<string[] | null>;
 
   // TRANSFER ITEMS TO BOARD
   abstract transferItemsToBoard(
     payload: any[],
     table: any,
-  ): Promise<TransferResponse>;
+  ): Promise<TransferResponse | null>;
 
   // UPDATE BOARD ITEMS
-  abstract updateBoardItems(payload: any[], table: any);
+  abstract updateBoardItems(payload: any[], table: any): Promise<any | null>;
 
   // CREATE WORKSPACES
-  abstract createWorkspaces(workspaces: WorkspaceVo[]): Promise<string[]>;
+  abstract createWorkspaces(
+    workspaces: WorkspaceVo[],
+  ): Promise<string[] | null>;
 
   // CREATE BOARDS
-  abstract createBoards(boards: BoardVo[]): Promise<any>;
+  abstract createBoards(boards: BoardVo[]): Promise<any | null>;
 }
