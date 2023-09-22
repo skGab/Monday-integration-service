@@ -6,7 +6,7 @@ import { BigQuery } from '@google-cloud/bigquery';
 
 // INFRA
 import { CreateDatasetService } from './bigQuery/services/create-dataset.service';
-import { CreateTableService } from './bigQuery/services/create-table.service';
+import { CreateTableService } from './bigQuery/table/create-table.service';
 import { BigQueryRepositoryService } from './bigQuery/bigQuery-repository.service';
 import { MondayRepositoryService } from './monday/monday-repository.service';
 
@@ -14,9 +14,9 @@ import { MondayRepositoryService } from './monday/monday-repository.service';
 import { MondayRepository } from 'src/domain/monday/monday-repository';
 import { BigQueryRepository } from 'src/domain/bigQuery/bigQuery-repository';
 import { CallApiService } from './monday/call-api.service';
-import { TransferItemsService } from './bigQuery/services/transfer-items.service';
-import { GetItemsService } from './bigQuery/services/get-items.service';
-import { UpdateItemsService } from './bigQuery/services/update-items.service';
+import { TransferRowsService } from './bigQuery/services/transfer-rows.service';
+import { GetRowsService } from './bigQuery/services/get-rows.service';
+import { UpdateRowsService } from './bigQuery/services/update-rows.service';
 
 @Module({
   // CONFIGURATION
@@ -29,13 +29,13 @@ import { UpdateItemsService } from './bigQuery/services/update-items.service';
   // SERVICES
   providers: [
     // WITHOUT CONTRACTS
+    CallApiService,
     BigQuery,
     CreateDatasetService,
     CreateTableService,
-    CallApiService,
-    TransferItemsService,
-    GetItemsService,
-    UpdateItemsService,
+    TransferRowsService,
+    GetRowsService,
+    UpdateRowsService,
 
     // WITH CONTRACTS
     {

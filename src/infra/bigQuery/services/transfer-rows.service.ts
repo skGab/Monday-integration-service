@@ -3,10 +3,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { TransferResponse } from 'src/domain/bigQuery/bigQuery-repository';
 
 @Injectable()
-export class TransferItemsService {
-  private readonly logger = new Logger(TransferItemsService.name);
+export class TransferRowsService {
+  private readonly logger = new Logger(TransferRowsService.name);
 
-  async run(payload, table: Table): Promise<TransferResponse | null> {
+  async run(payload: any[], table: Table): Promise<TransferResponse | null> {
     try {
       if (!table) {
         this.logger.error(

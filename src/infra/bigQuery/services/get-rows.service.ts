@@ -1,14 +1,14 @@
 import { BigQuery } from '@google-cloud/bigquery';
 import { Injectable, Logger } from '@nestjs/common';
-import { BoardVo } from 'src/domain/board/board-vo';
+import { Board } from 'src/domain/board/board';
 
 @Injectable()
-export class GetItemsService {
-  private readonly logger = new Logger(GetItemsService.name);
+export class GetRowsService {
+  private readonly logger = new Logger(GetRowsService.name);
 
   async run(
     location: string,
-    board: BoardVo,
+    board: Board,
     bigQueryClient: BigQuery,
   ): Promise<string[] | null> {
     try {

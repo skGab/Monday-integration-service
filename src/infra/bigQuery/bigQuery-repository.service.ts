@@ -1,21 +1,21 @@
-import { TransferItemsService } from './services/transfer-items.service';
-import { GetItemsService } from './services/get-items.service';
-import { UpdateItemsService } from './services/update-items.service';
+import { TransferRowsService } from './services/transfer-rows.service';
+import { GetRowsService } from './services/get-rows.service';
+import { UpdateRowsService } from './services/update-rows.service';
 import { BigQuery, Table } from '@google-cloud/bigquery';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { CreateDatasetService } from './services/create-dataset.service';
-import { CreateTableService } from './services/create-table.service';
+import { CreateTableService } from './table/create-table.service';
 
 import credentials from '../../../credentials/private.json';
 
-import { BoardVo } from 'src/domain/board/board-vo';
 import { WorkspaceVo } from 'src/domain/board/workspace-vo';
 import {
   BigQueryRepository,
   TransferResponse,
 } from 'src/domain/bigQuery/bigQuery-repository';
+import { Board } from 'src/domain/board/board';
 
 @Injectable()
 export class BigQueryRepositoryService implements BigQueryRepository {
@@ -27,9 +27,9 @@ export class BigQueryRepositoryService implements BigQueryRepository {
     private readonly createDatasetService: CreateDatasetService,
     private readonly createTableService: CreateTableService,
     private readonly configService: ConfigService,
-    private readonly updateItemsService: UpdateItemsService,
-    private readonly getItemsService: GetItemsService,
-    private readonly transferItemsService: TransferItemsService,
+    private readonly updateRowsService: UpdateRowsService,
+    private readonly getRowsService: GetRowsService,
+    private readonly transferRowsService: TransferRowsService,
   ) {
     this.bigQueryClient = new BigQuery({
       projectId: this.configService.get<string>('BIGQUERY_PROJECT_ID'),
@@ -37,8 +37,8 @@ export class BigQueryRepositoryService implements BigQueryRepository {
     });
   }
 
-  // CREATE WORKSPACES
-  async createWorkspaces(workspaces: WorkspaceVo[]): Promise<string[] | null> {
+  // CREATE DATASETS/WORKSPACES
+  async createDatasets(workspaces: WorkspaceVo[]): Promise<string[] | null> {
     if (!workspaces || workspaces.length == 0) {
       this.logger.error(
         'Nenhuma area de trabalho encontrada para criação de datasets no BigQuery',
@@ -62,8 +62,8 @@ export class BigQueryRepositoryService implements BigQueryRepository {
     });
   }
 
-  // CREATE BOARDS
-  async createBoards(boards: BoardVo[]): Promise<Table[] | null> {
+  // CREATE Tables/Boards
+  async createTables(boards: Board[]): Promise<Table[] | null> {
     if (!boards || boards.length == 0) {
       this.logger.error(
         'Nenhum quadro encontrado para criação de tabelas no BigQuery',
@@ -81,7 +81,7 @@ export class BigQueryRepositoryService implements BigQueryRepository {
   }
 
   // TRANSFER ITEMS
-  async transferItemsToBoard(
+  async insertRows(
     payload: any[],
     table: Table,
   ): Promise<TransferResponse | null> {
@@ -95,16 +95,13 @@ export class BigQueryRepositoryService implements BigQueryRepository {
       return null;
     }
 
-    const itemsId = await this.transferItemsService.run(payload, table);
+    const itemsId = await this.transferRowsService.run(payload, table);
 
     return itemsId;
   }
 
   // UPDATE ITEMS
-  async updateBoardItems(
-    payload: any[],
-    board: BoardVo,
-  ): Promise<any[] | null> {
+  async updateRows(payload: any[], board: Board): Promise<any[] | null> {
     if (!board) {
       this.logger.error(
         'Nenhum item encontrado para criação de tabelas no BigQuery',
@@ -112,13 +109,13 @@ export class BigQueryRepositoryService implements BigQueryRepository {
       return null;
     }
 
-    const tables = await this.updateItemsService.run(payload, board);
+    const tables = await this.updateRowsService.run(payload, board);
 
     return tables;
   }
 
   // GET ITEMS
-  async getItemsFromBoard(board: BoardVo): Promise<string[] | null> {
+  async getRows(board: Board): Promise<string[] | null> {
     if (!board) {
       this.logger.error(
         'Nenhum quadro encontrado para busca de Ids no BigQuery',
@@ -126,7 +123,7 @@ export class BigQueryRepositoryService implements BigQueryRepository {
       return null;
     }
 
-    const itemsId = await this.getItemsService.run(
+    const itemsId = await this.getRowsService.run(
       this.location,
       board,
       this.bigQueryClient,

@@ -5,8 +5,8 @@ import { TransferBoardsUsecase } from './board/transfer-boards-usecase.service';
 import { HandleBigQueryWorkspacesService } from './workspace/handleBigQuery-workspaces.service';
 import { WorkSpaceController } from './workspace/workspace.controller';
 import { WorkSpaceNameValidator } from './workspace/workspaceName-validator';
-import { PrepareBoardsService } from './board/services/prepare-boards.service';
 import { BigQuerySetupService } from './bigQuery/bigQuery-setup.service';
+import { InsertionHandleService } from './board/services/insertion-handle.service';
 // import { SchedulerService } from './board/services/schendule.service';
 
 @Module({
@@ -16,7 +16,7 @@ import { BigQuerySetupService } from './bigQuery/bigQuery-setup.service';
   // SERVICES
   providers: [
     TransferBoardsUsecase,
-    PrepareBoardsService,
+    InsertionHandleService,
     BigQuerySetupService,
     WorkSpaceNameValidator,
     HandleBigQueryWorkspacesService,

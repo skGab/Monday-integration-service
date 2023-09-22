@@ -1,4 +1,4 @@
-import { BoardVo } from 'src/domain/board/board-vo';
+import { BoardVo } from 'src/domain/board/board';
 import { ItemVo } from 'src/domain/board/item.vo';
 
 export class PreparePayload {

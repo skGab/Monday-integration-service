@@ -1,4 +1,4 @@
-import { BoardVo } from '../board/board-vo';
+import { Board } from '../board/board';
 import { WorkspaceVo } from '../board/workspace-vo';
 
 export abstract class TransferResponse {
@@ -10,23 +10,21 @@ export abstract class TransferResponse {
 }
 
 export abstract class BigQueryRepository {
-  // GET ITEMS FROM BOARD
-  abstract getItemsFromBoard(board: BoardVo): Promise<string[] | null>;
+  // CREATE WORKSPACES
+  abstract createDatasets(workspaces: WorkspaceVo[]): Promise<string[] | null>;
+
+  // CREATE BOARDS
+  abstract createTables(boards: Board[]): Promise<any | null>;
 
   // TRANSFER ITEMS TO BOARD
-  abstract transferItemsToBoard(
+  abstract insertRows(
     payload: any[],
     table: any,
   ): Promise<TransferResponse | null>;
 
   // UPDATE BOARD ITEMS
-  abstract updateBoardItems(payload: any[], table: any): Promise<any | null>;
+  abstract updateRows(payload: any[], table: any): Promise<any[] | null>;
 
-  // CREATE WORKSPACES
-  abstract createWorkspaces(
-    workspaces: WorkspaceVo[],
-  ): Promise<string[] | null>;
-
-  // CREATE BOARDS
-  abstract createBoards(boards: BoardVo[]): Promise<any | null>;
+  // GET ITEMS FROM BOARD
+  abstract getRows(board: Board): Promise<string[] | null>;
 }

@@ -1,8 +1,8 @@
 import { CallApiService } from './call-api.service';
 import { Injectable, Logger } from '@nestjs/common';
-import { BoardVo } from 'src/domain/board/board-vo';
 import { WorkspaceVo } from 'src/domain/board/workspace-vo';
 import { lastValueFrom } from 'rxjs';
+import { Board } from 'src/domain/board/board';
 
 @Injectable()
 export class MondayRepositoryService {
@@ -10,7 +10,7 @@ export class MondayRepositoryService {
 
   constructor(private callApiService: CallApiService) {}
 
-  async getBoards(): Promise<BoardVo[] | null> {
+  async getBoards(): Promise<Board[] | null> {
     try {
       const { data } = await lastValueFrom(this.callApiService.run());
 
@@ -40,17 +40,16 @@ export class MondayRepositoryService {
       } = data;
 
       if (workspaces.length == 0 || !workspaces) {
-         // PUT ON JSON FILE WITH LOGGING LIB
+        // PUT ON JSON FILE WITH LOGGING LIB
         this.logger.error(
           'Nenhuma area de trabalho encontrada durante a busca',
         );
         return null;
       }
 
-      console.log(workspaces)
       return workspaces;
     } catch (error) {
-       // PUT ON JSON FILE WITH LOGGING LIB
+      // PUT ON JSON FILE WITH LOGGING LIB
       this.logger.error(error);
       return null;
     }

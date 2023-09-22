@@ -1,4 +1,4 @@
-import { BoardVo } from '../board/board-vo';
+import { BoardVo } from '../board/board';
 import { WorkspaceVo } from '../board/workspace-vo';
 
 export abstract class MondayResponseVo {
