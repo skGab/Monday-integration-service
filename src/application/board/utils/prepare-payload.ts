@@ -1,14 +1,14 @@
-import { BoardVo } from 'src/domain/board/board';
-import { ItemVo } from 'src/domain/board/item.vo';
+import { Board } from 'src/domain/board/entities/board';
+import { Item } from 'src/domain/board/entities/item';
 
 export class PreparePayload {
-  run(bigQueryItems: string[], board: BoardVo) {
+  run(bigQueryItemsId: string[], board: Board) {
     // Prepare individual payloads for each item.
     const preparedPayloads = board.items.map(this.prepareSinglePayload);
 
     // Filter out duplicates.
     const { corePayload, duplicateItems } = this.checkDuplicatedItems(
-      bigQueryItems,
+      bigQueryItemsId,
       preparedPayloads,
     );
 
@@ -16,14 +16,14 @@ export class PreparePayload {
   }
 
   private checkDuplicatedItems(
-    bigQueryItems: string[],
+    bigQueryItemsId: string[],
     preparedPayloads: Array<{ [key: string]: string }>,
   ) {
     const duplicateItems: Array<{ [key: string]: string }> = [];
     const corePayload: Array<{ [key: string]: string }> = [];
 
     preparedPayloads.forEach((payload) => {
-      if (bigQueryItems.includes(payload.id_de_elemento)) {
+      if (bigQueryItemsId.includes(payload.id_de_elemento)) {
         duplicateItems.push(payload);
       } else {
         corePayload.push(payload);
@@ -36,7 +36,7 @@ export class PreparePayload {
     };
   }
 
-  private prepareSinglePayload(item: ItemVo): { [key: string]: string } {
+  private prepareSinglePayload(item: Item): { [key: string]: string } {
     const payload: { [key: string]: string } = {};
     payload.solicitacao = item.name;
     payload.grupo = item.group.title;

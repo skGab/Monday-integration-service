@@ -7,7 +7,7 @@ import { WorkSpaceController } from './workspace/workspace.controller';
 import { WorkSpaceNameValidator } from './workspace/workspaceName-validator';
 import { BigQuerySetupService } from './bigQuery/bigQuery-setup.service';
 import { InsertionHandleService } from './board/services/insertion-handle.service';
-// import { SchedulerService } from './board/services/schendule.service';
+import { FechBoardsService } from './board/services/fetch-boards.service';
 
 @Module({
   // CONTROLLERS
@@ -20,6 +20,7 @@ import { InsertionHandleService } from './board/services/insertion-handle.servic
     BigQuerySetupService,
     WorkSpaceNameValidator,
     HandleBigQueryWorkspacesService,
+    FechBoardsService,
     // SchedulerService,
   ],
 

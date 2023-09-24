@@ -1,6 +1,8 @@
 import { BigQueryRepository } from 'src/domain/bigQuery/bigQuery-repository';
 import { Injectable } from '@nestjs/common';
 import { PreparePayload } from '../utils/prepare-payload';
+import { Payload } from 'src/domain/response/payload';
+import { Board } from 'src/domain/board/entities/board';
 
 @Injectable()
 export class InsertionHandleService {
@@ -10,21 +12,27 @@ export class InsertionHandleService {
     this.preparePayload = new PreparePayload();
   }
 
-  async run(payload: any, bqTables: any[]) {
+  async run(payload: Payload, boardTablePairs: any[]) {
     try {
-      const transferPromises = bqTables.map(async (table) =>
-        this.setupColumnsAndTables(table),
-      );
+      const transferPromises = boardTablePairs.map(async ({ board, table }) => {
+        const { corePayload, duplicateItems } =
+          await this.setupColumnsAndTables(board);
+
+        return await this.transfer(corePayload, duplicateItems, board, table);
+      });
+
+      if (transferPromises === null) return null;
+
       const promises = await Promise.all(transferPromises);
 
-      payload.status.push({
-        step: 'SetupColumnsAndTables',
+      payload.updateStatus({
+        step: 'InsertionService',
         success: true,
       });
 
       return { success: true, data: promises.map((p) => p.status) };
     } catch (error) {
-      payload.status.push({
+      payload.updateStatus({
         step: 'SetupColumnsAndTables',
         success: false,
         error: error.message,
@@ -33,20 +41,27 @@ export class InsertionHandleService {
     }
   }
 
-  private async setupColumnsAndTables({ board, table }) {
+  private async setupColumnsAndTables(board: Board) {
     // GET ITEMS FROM BIGQUERY
-    const bigQueryItems = await this.bigQueryRepositoryService.getRows(board);
+    const bigQueryItemsID = await this.bigQueryRepositoryService.getRows(board);
 
-    if (bigQueryItems === null) {
-      throw new Error(`Failed to get items from BigQuery for board: ${board}`);
-    }
+    if (bigQueryItemsID === null) return null;
 
     // PREPARE DATA TO BE INSERT OR UPDATE
     const { corePayload, duplicateItems } = this.preparePayload.run(
-      bigQueryItems,
+      bigQueryItemsID,
       board,
     );
 
+    return { corePayload, duplicateItems };
+  }
+
+  private async transfer(
+    duplicateItems: any[],
+    corePayload: any[],
+    board: Board,
+    table: any,
+  ) {
     // UPDATE IMPLEMENTATION ON BIGQUERY
     if (duplicateItems.length !== 0) {
       // const updateResult =
@@ -59,12 +74,14 @@ export class InsertionHandleService {
       //   throw new Error(`Failed to update items for board: ${board}`);
       // }
 
-      const response = duplicateItems.map((item) => item.solicitacao);
+      const response = duplicateItems.map(
+        (item: { solicitacao: any }) => item.solicitacao,
+      );
 
       console.log('--------------------------------------------');
       console.log(
         'Items da tabela',
-        board.name,
+        board.getBoardName(),
         'já existentes no BigQuery',
         response,
       );
@@ -72,7 +89,7 @@ export class InsertionHandleService {
 
       // return updateResult;
       return {
-        status: `Items da tabela ${board.name} já existentes no BigQuery`,
+        status: `Items da tabela ${board.getBoardName()} já existentes no BigQuery`,
         body: response,
       };
     } else {
@@ -88,9 +105,7 @@ export class InsertionHandleService {
         table,
       );
 
-      if (insertResult === null) {
-        throw new Error(`Failed to insert items for board: ${board}`);
-      }
+      if (insertResult === null) return null;
 
       return insertResult;
     } else {

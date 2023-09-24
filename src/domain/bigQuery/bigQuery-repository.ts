@@ -1,5 +1,5 @@
-import { Board } from '../board/board';
-import { WorkspaceVo } from '../board/workspace-vo';
+import { Board } from '../board/entities/board';
+import { Workspace } from '../board/entities/workspace';
 
 export abstract class TransferResponse {
   tableId: string;
@@ -11,7 +11,7 @@ export abstract class TransferResponse {
 
 export abstract class BigQueryRepository {
   // CREATE WORKSPACES
-  abstract createDatasets(workspaces: WorkspaceVo[]): Promise<string[] | null>;
+  abstract createDatasets(workspaces: Workspace[]): Promise<string[] | null>;
 
   // CREATE BOARDS
   abstract createTables(boards: Board[]): Promise<any | null>;

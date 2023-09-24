@@ -1,39 +1,43 @@
 import { BigQueryRepository } from 'src/domain/bigQuery/bigQuery-repository';
 import { Injectable } from '@nestjs/common';
-import { Board } from 'src/domain/board/board';
+import { Board } from 'src/domain/board/entities/board';
 import { SanitizeColumn } from '../board/utils/sanitize-column';
+import { Payload } from 'src/domain/response/payload';
 
 @Injectable()
 export class BigQuerySetupService {
   private sanitizeColumn: SanitizeColumn;
 
-  constructor(private bigQueryRepositoryService: BigQueryRepository) {}
+  constructor(private bigQueryRepositoryService: BigQueryRepository) {
+    this.sanitizeColumn = new SanitizeColumn();
+  }
 
-  async run(payload: any, mondayBoards: Board[]) {
+  async run(payload: Payload, mondayBoards: Board[]) {
     try {
       const { boardTablePairs } = await this.setupBoards(mondayBoards);
 
       if (boardTablePairs === null) {
-        payload.status.push({
+        payload.updateStatus({
           step: 'setupBoards',
           success: false,
-          error: 'Something went wrong during board and table preparation',
+          error: 'Algo deu errado durante a configuração de quadros e tabelas',
         });
         return { success: false };
       }
 
-      payload.bqTables = boardTablePairs.map((pair) => pair.table.id);
-      payload.status.push({
+      boardTablePairs.map((pair) => payload.addTable(pair.table.id));
+
+      payload.updateStatus({
         step: 'setupBoards',
         success: true,
       });
 
       return {
         success: true,
-        data: boardTablePairs.map((pair) => pair.table.id),
+        data: boardTablePairs,
       };
     } catch (error) {
-      payload.status.push({
+      payload.updateStatus({
         step: 'setupBoards',
         success: false,
         error: error.message,
@@ -51,9 +55,7 @@ export class BigQuerySetupService {
       validBoards,
     );
 
-    if (bigQueryTables === null) {
-      throw new Error(`Falha durante a busca/criação de tabelas/boards`);
-    }
+    if (bigQueryTables === null) return null;
 
     // PREPARE BOARDS/TABLE TO INSERTION
     const boardTablePairs = validBoards.map((board, index) => ({

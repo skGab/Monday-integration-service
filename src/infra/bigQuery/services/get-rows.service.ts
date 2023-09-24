@@ -1,6 +1,6 @@
 import { BigQuery } from '@google-cloud/bigquery';
 import { Injectable, Logger } from '@nestjs/common';
-import { Board } from 'src/domain/board/board';
+import { Board } from 'src/domain/board/entities/board';
 
 @Injectable()
 export class GetRowsService {
@@ -18,7 +18,7 @@ export class GetRowsService {
       }
 
       // Construct a SQL query based on your board. This is just a placeholder
-      const sqlQuery = `SELECT id_de_elemento FROM ${board.workspace.name}.${board.name}`;
+      const sqlQuery = `SELECT id_de_elemento FROM ${board.workspace.getName()}.${board.getBoardName()}`;
 
       const options = {
         query: sqlQuery,

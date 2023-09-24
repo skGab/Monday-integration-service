@@ -10,12 +10,12 @@ import { CreateTableService } from './table/create-table.service';
 
 import credentials from '../../../credentials/private.json';
 
-import { WorkspaceVo } from 'src/domain/board/workspace-vo';
+import { Workspace } from 'src/domain/board/entities/workspace';
 import {
   BigQueryRepository,
   TransferResponse,
 } from 'src/domain/bigQuery/bigQuery-repository';
-import { Board } from 'src/domain/board/board';
+import { Board } from 'src/domain/board/entities/board';
 
 @Injectable()
 export class BigQueryRepositoryService implements BigQueryRepository {
@@ -38,7 +38,7 @@ export class BigQueryRepositoryService implements BigQueryRepository {
   }
 
   // CREATE DATASETS/WORKSPACES
-  async createDatasets(workspaces: WorkspaceVo[]): Promise<string[] | null> {
+  async createDatasets(workspaces: Workspace[]): Promise<string[] | null> {
     if (!workspaces || workspaces.length == 0) {
       this.logger.error(
         'Nenhuma area de trabalho encontrada para criação de datasets no BigQuery',
@@ -50,7 +50,7 @@ export class BigQueryRepositoryService implements BigQueryRepository {
       const response = await this.createDatasetService.run(
         this.location,
         this.bigQueryClient,
-        workspace.name,
+        workspace.getName(),
       );
       return response;
     });

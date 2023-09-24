@@ -1,7 +1,7 @@
 import { CreateDatasetService } from '../services/create-dataset.service';
 import { BigQuery } from '@google-cloud/bigquery';
 import { Injectable, Logger } from '@nestjs/common';
-import { Board } from 'src/domain/board/board';
+import { Board } from 'src/domain/board/entities/board';
 
 @Injectable()
 export class CheckPlacesService {
@@ -11,8 +11,8 @@ export class CheckPlacesService {
 
   async run(board: Board, location: string, bigQuery: BigQuery) {
     // Getting the board and workspace reference
-    const datasetId = board.workspace.name;
-    const tableId = board.name;
+    const datasetId = board.workspace.getName();
+    const tableId = board.getBoardName();
 
     // Ensure dataset exists
     const dataset = await this.createDatasetService.run(

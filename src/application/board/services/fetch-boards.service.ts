@@ -1,16 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { MondayRepository } from 'src/domain/monday/monday-repository';
+import { Payload } from 'src/domain/response/payload';
 
 @Injectable()
 export class FechBoardsService {
   constructor(private mondayRepositoryService: MondayRepository) {}
 
-  async run(payload: any) {
+  async run(payload: Payload) {
     try {
       const mondayBoards = await this.mondayRepositoryService.getBoards();
 
       if (mondayBoards === null) {
-        payload.status.push({
+        payload.updateStatus({
           step: 'FetchBoards',
           success: false,
           error: 'No Monday boards found',
@@ -18,16 +19,16 @@ export class FechBoardsService {
         return { success: false };
       }
 
-      payload.mondayBoards = mondayBoards;
+      payload.addBoard(mondayBoards);
 
-      payload.status.push({
+      payload.updateStatus({
         step: 'FetchBoards',
         success: true,
       });
 
       return { success: true, data: mondayBoards };
     } catch (error) {
-      payload.status.push({
+      payload.updateStatus({
         step: 'FetchBoards',
         success: false,
         error: error.message,

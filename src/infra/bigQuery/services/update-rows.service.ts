@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Board } from 'src/domain/board/board';
+import { Board } from 'src/domain/board/entities/board';
 
 @Injectable()
 export class UpdateRowsService {
@@ -12,9 +12,9 @@ export class UpdateRowsService {
 
       const itemIds = payload.map((item) => item.id_de_elemento);
 
-      const query = `SELECT * FROM ${
-        board.name
-      } WHERE id_de_elemento IN (${itemIds.join(',')})`;
+      const query = `SELECT * FROM ${board.getBoardName()} WHERE id_de_elemento IN (${itemIds.join(
+        ',',
+      )})`;
 
       // // Run the update queries
       // for (const query of updateQueries) {

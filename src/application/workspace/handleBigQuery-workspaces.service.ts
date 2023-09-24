@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { BigQueryRepository } from 'src/domain/bigQuery/bigQuery-repository';
 import { WorkSpaceNameValidator } from './workspaceName-validator';
-import { WorkspaceVo } from 'src/domain/board/workspace-vo';
+import { Workspace } from 'src/domain/board/entities/workspace';
 import { MondayRepository } from 'src/domain/monday/monday-repository';
+import { Payload } from 'src/domain/response/payload';
 
 @Injectable()
 export class HandleBigQueryWorkspacesService {
@@ -12,7 +13,7 @@ export class HandleBigQueryWorkspacesService {
     private mondayRepositoryService: MondayRepository,
   ) {}
 
-  async run(payload: any) {
+  async run(payload: Payload) {
     try {
       // Fetch workspaces from Monday
       const mondayWorkSpaces =
@@ -22,8 +23,9 @@ export class HandleBigQueryWorkspacesService {
       const data = await this.handleWorkspaces(mondayWorkSpaces);
 
       // Update payload
-      payload.bqDatasets = data;
-      payload.status.push({
+      payload.addDataset(data[0]);
+
+      payload.updateStatus({
         step: 'Workspaces',
         success: true,
       });
@@ -31,7 +33,7 @@ export class HandleBigQueryWorkspacesService {
       return { success: true };
     } catch (error) {
       // Update payload in case of error
-      payload.status.push({
+      payload.updateStatus({
         step: 'Workspaces',
         success: false,
         error: error.message,
@@ -41,7 +43,7 @@ export class HandleBigQueryWorkspacesService {
     }
   }
 
-  private async handleWorkspaces(mondayWorkSpaces: WorkspaceVo[]) {
+  private async handleWorkspaces(mondayWorkSpaces: Workspace[]) {
     // VALIDATE WORKSPACES NAME
     const validWorkspacesNames =
       this.workspaceNameValidator.validate(mondayWorkSpaces);

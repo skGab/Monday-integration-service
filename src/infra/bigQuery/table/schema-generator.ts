@@ -1,4 +1,4 @@
-import { Board } from 'src/domain/board/board';
+import { Board } from 'src/domain/board/entities/board';
 
 export class SchemaGenerator {
   private schema;

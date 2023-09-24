@@ -5,18 +5,19 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { BigQuery } from '@google-cloud/bigquery';
 
 // INFRA
+import { CallApiService } from './monday/call-api.service';
 import { CreateDatasetService } from './bigQuery/services/create-dataset.service';
 import { CreateTableService } from './bigQuery/table/create-table.service';
 import { BigQueryRepositoryService } from './bigQuery/bigQuery-repository.service';
 import { MondayRepositoryService } from './monday/monday-repository.service';
+import { TransferRowsService } from './bigQuery/services/transfer-rows.service';
+import { GetRowsService } from './bigQuery/services/get-rows.service';
+import { UpdateRowsService } from './bigQuery/services/update-rows.service';
+import { CheckPlacesService } from './bigQuery/table/check-places.service';
 
 // DOMAIN
 import { MondayRepository } from 'src/domain/monday/monday-repository';
 import { BigQueryRepository } from 'src/domain/bigQuery/bigQuery-repository';
-import { CallApiService } from './monday/call-api.service';
-import { TransferRowsService } from './bigQuery/services/transfer-rows.service';
-import { GetRowsService } from './bigQuery/services/get-rows.service';
-import { UpdateRowsService } from './bigQuery/services/update-rows.service';
 
 @Module({
   // CONFIGURATION
@@ -28,16 +29,20 @@ import { UpdateRowsService } from './bigQuery/services/update-rows.service';
 
   // SERVICES
   providers: [
-    // WITHOUT CONTRACTS
-    CallApiService,
     BigQuery,
+
+    // CRUD
     CreateDatasetService,
     CreateTableService,
     TransferRowsService,
     GetRowsService,
     UpdateRowsService,
 
-    // WITH CONTRACTS
+    // UTIL SERVICES
+    CallApiService,
+    CheckPlacesService,
+
+    // CONTRACTS
     {
       provide: MondayRepository,
       useClass: MondayRepositoryService,
