@@ -1,7 +1,7 @@
 import { CheckPlacesService } from './check-places.service';
 import { BigQuery, Table } from '@google-cloud/bigquery';
 import { Injectable, Logger } from '@nestjs/common';
-import { Board } from 'src/domain/board/entities/board';
+import { Board } from 'src/domain/entities/board/board';
 import { SchemaGenerator } from './schema-generator';
 
 @Injectable()

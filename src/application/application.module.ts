@@ -1,13 +1,16 @@
 import { Module } from '@nestjs/common';
-import { BoardController } from './board/board.controller';
+
+import { BoardController } from './controllers/board.controller';
+import { WorkSpaceController } from './controllers/workspace.controller';
+
+import { FetchBoardsService } from './services/fetch-boards.service';
+import { CreateWorkspaces } from './services/bigQuery/create-workspaces.service';
+
+import { InsertionHandleService } from './usecase/handles/insertion-handle.service';
+import { TransferUsecase } from './usecase/transfer-usecase.service';
+import { BigQueryHandleService } from './usecase/handles/bigQuery-handle.service';
+
 import { InfrastructureModule } from 'src/infra/infrastructure.module';
-import { TransferBoardsUsecase } from './board/transfer-boards-usecase.service';
-import { HandleBigQueryWorkspacesService } from './workspace/handleBigQuery-workspaces.service';
-import { WorkSpaceController } from './workspace/workspace.controller';
-import { WorkSpaceNameValidator } from './workspace/workspaceName-validator';
-import { BigQuerySetupService } from './bigQuery/bigQuery-setup.service';
-import { InsertionHandleService } from './board/services/insertion-handle.service';
-import { FechBoardsService } from './board/services/fetch-boards.service';
 
 @Module({
   // CONTROLLERS
@@ -15,12 +18,11 @@ import { FechBoardsService } from './board/services/fetch-boards.service';
 
   // SERVICES
   providers: [
-    TransferBoardsUsecase,
+    TransferUsecase,
     InsertionHandleService,
-    BigQuerySetupService,
-    WorkSpaceNameValidator,
-    HandleBigQueryWorkspacesService,
-    FechBoardsService,
+    BigQueryHandleService,
+    CreateWorkspaces,
+    FetchBoardsService,
     // SchedulerService,
   ],
 

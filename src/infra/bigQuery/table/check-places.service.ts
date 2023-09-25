@@ -1,7 +1,7 @@
-import { CreateDatasetService } from '../services/create-dataset.service';
+import { CreateDatasetService } from '../create-dataset.service';
 import { BigQuery } from '@google-cloud/bigquery';
 import { Injectable, Logger } from '@nestjs/common';
-import { Board } from 'src/domain/board/entities/board';
+import { Board } from 'src/domain/entities/board/board';
 
 @Injectable()
 export class CheckPlacesService {
