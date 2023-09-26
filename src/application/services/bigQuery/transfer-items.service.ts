@@ -1,4 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import {
+  ResponseFactory,
+  ServiceResponse,
+} from 'src/domain/factory/response-factory';
 
 import {
   BigQueryRepository,
@@ -9,17 +13,24 @@ import {
 export class TransferItemsService {
   constructor(private bigQueryRepositoryService: BigQueryRepository) {}
 
-  async run(corePayload: any[], table: any): Promise<TransferResponse> {
+  async run(
+    coreItems: { [key: string]: string }[],
+    table: any,
+  ): Promise<ServiceResponse<TransferResponse | string>> {
     // INSERT IMPLEMENTATION ON BIGQUERY
-    if (corePayload.length !== 0) {
+    if (coreItems.length !== 0) {
       const response = await this.bigQueryRepositoryService.insertRows(
-        corePayload,
+        coreItems,
         table,
       );
 
       if (response === null) return null;
 
-      return response;
+      return ResponseFactory.createSuccess(response);
     }
+
+    return ResponseFactory.createSuccess(
+      'Não há novos items para serem inseridos',
+    );
   }
 }

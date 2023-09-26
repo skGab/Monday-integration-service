@@ -2,17 +2,25 @@ import { Injectable } from '@nestjs/common';
 
 import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
 import { Board } from 'src/domain/entities/board/board';
+import {
+  ResponseFactory,
+  ServiceResponse,
+} from 'src/domain/factory/response-factory';
 
 import { PreparePayload } from '../utils/prepare-payload';
 
+type FilteredData = {
+  coreItems: { [key: string]: string }[]; // Replace 'YourCoreItemType' with the actual type
+  duplicateItems: { [key: string]: string }[]; // Replace 'YourDuplicateItemType' with the actual type
+};
+
 @Injectable()
 export class FilterDuplicatesService {
-  constructor(
-    private bigQueryRepositoryService: BigQueryRepository,
-    private preparePayload: PreparePayload,
-  ) {}
+  private preparePayload = new PreparePayload();
 
-  async run(board: Board) {
+  constructor(private bigQueryRepositoryService: BigQueryRepository) {}
+
+  async run(board: Board): Promise<ServiceResponse<FilteredData>> {
     // GET ITEMS FROM BIGQUERY
     const bigQueryItemsID = await this.bigQueryRepositoryService.getRows(board);
 
@@ -24,6 +32,9 @@ export class FilterDuplicatesService {
       board,
     );
 
-    return { coreItems, duplicateItems };
+    return ResponseFactory.createSuccess({
+      coreItems,
+      duplicateItems,
+    });
   }
 }

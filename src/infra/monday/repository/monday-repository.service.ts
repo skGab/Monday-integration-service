@@ -8,7 +8,6 @@ import { ApiCallService } from '../api/api-call.service';
 @Injectable()
 export class MondayRepositoryService {
   private logger = new Logger(MondayRepositoryService.name);
-  readonly EntityFactory = EntityFactory;
 
   constructor(private apiCallService: ApiCallService) {}
 
@@ -49,9 +48,11 @@ export class MondayRepositoryService {
         return null;
       }
 
-      return workspaces
-        .map(EntityFactory.createWorkspace)
+      const response = workspaces
+        .map((workspace) => EntityFactory.createWorkspace(workspace))
         .filter((workspace) => workspace !== null);
+
+      return response;
     } catch (error) {
       // PUT ON JSON FILE WITH LOGGING LIB
       this.logger.error(error);

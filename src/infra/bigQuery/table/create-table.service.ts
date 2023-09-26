@@ -27,16 +27,8 @@ export class CreateTableService {
             .dataset(datasetId)
             .createTable(tableId, { schema: schema });
 
-          console.log('--------------------------------------------');
-          console.log('Nova tabela criada: ', newTable.id);
-          console.log('--------------------------------------------');
-
           return newTable;
         }
-
-        console.log('--------------------------------------------');
-        console.log('Tabela existente: ', table.id);
-        console.log('--------------------------------------------');
 
         return table;
       });

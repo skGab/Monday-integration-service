@@ -1,8 +1,10 @@
+import { ServiceResponse } from './../../../domain/factory/response-factory';
 import { Injectable } from '@nestjs/common';
 import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
 import { Board } from 'src/domain/entities/board/board';
 import { SanitizeColumn } from '../../utils/sanitize-column';
 import { PayloadDto } from 'src/application/dto/payload.dto';
+import { ResponseFactory } from 'src/domain/factory/response-factory';
 
 export abstract class BoardTablePairs {
   public board: Board;
@@ -17,37 +19,40 @@ export class BigQueryHandleService {
     this.sanitizeColumn = new SanitizeColumn();
   }
 
-  async run(payload: PayloadDto, mondayBoards: Board[]) {
+  async run(
+    payload: PayloadDto,
+    mondayBoards: Board[],
+  ): Promise<ServiceResponse<BoardTablePairs[]>> {
     try {
       const { boardTablePairs } = await this.setupBoards(mondayBoards);
 
       if (boardTablePairs === null) {
         payload.updateStatus({
-          step: 'setupBoards',
+          step: 'Config Quadros e Tabelas',
           success: false,
           error: 'Algo deu errado durante a configuração de quadros e tabelas',
         });
-        return { success: false };
+        return {
+          success: false,
+          error: 'Algo deu errado durante a configuração de quadros e tabelas',
+        };
       }
 
       boardTablePairs.map((pair) => payload.addTable(pair.table.id));
 
       payload.updateStatus({
-        step: 'setupBoards',
+        step: 'Config Quadros e Tabelas',
         success: true,
       });
 
-      return {
-        success: true,
-        data: boardTablePairs,
-      };
+      return ResponseFactory.createSuccess(boardTablePairs);
     } catch (error) {
       payload.updateStatus({
         step: 'setupBoards',
         success: false,
         error: error.message,
       });
-      return { success: false };
+      return ResponseFactory.createFailure(error.message);
     }
   }
 

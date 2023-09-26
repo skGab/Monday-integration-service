@@ -18,6 +18,7 @@ import { CheckPlacesService } from './bigQuery/table/check-places.service';
 // DOMAIN
 import { MondayRepository } from 'src/domain/repository/monday-repository';
 import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
+import { EntityFactory } from 'src/domain/factory/entity-factory';
 
 @Module({
   // CONFIGURATION
@@ -41,6 +42,8 @@ import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
     // UTIL SERVICES
     ApiCallService,
     CheckPlacesService,
+
+    EntityFactory,
 
     // CONTRACTS
     {

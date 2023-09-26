@@ -1,18 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
-import { WorkSpaceNameValidator } from '../../utils/workspaceName-validator';
 import { Workspace } from 'src/domain/entities/board/workspace';
 import { PayloadDto } from 'src/application/dto/payload.dto';
-import { MondayRepositoryService } from 'src/infra/monday/repository/monday-repository.service';
+import { MondayRepository } from 'src/domain/repository/monday-repository';
+import {
+  ResponseFactory,
+  ServiceResponse,
+} from 'src/domain/factory/response-factory';
 
 @Injectable()
 export class CreateWorkspaces {
   constructor(
     private bigQueryRepositoryService: BigQueryRepository,
-    private mondayRepositoryService: MondayRepositoryService,
+    private mondayRepositoryService: MondayRepository,
   ) {}
 
-  async run(payload: PayloadDto) {
+  async run(payload: PayloadDto): Promise<ServiceResponse<string[]>> {
     try {
       // GET MONDAY WORKSPACES
       const mondayWorkSpaces =
@@ -25,20 +28,20 @@ export class CreateWorkspaces {
       payload.addDataset(data);
 
       payload.updateStatus({
-        step: 'Workspaces',
+        step: 'Criação de Datasets',
         success: true,
       });
 
-      return { success: true };
+      return ResponseFactory.createSuccess(data);
     } catch (error) {
       // Update payload in case of error
       payload.updateStatus({
-        step: 'Workspaces',
+        step: 'Criação de Datasets',
         success: false,
         error: error.message,
       });
 
-      return { success: false };
+      return ResponseFactory.createFailure(error.messagee);
     }
   }
 

@@ -5,15 +5,12 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { HandleBigQueryWorkspacesService } from '../services/bigQuery/create-workspaces.service';
 
 @Controller('workspaces')
 export class WorkSpaceController {
   logger = new Logger(WorkSpaceController.name);
 
-  constructor(
-    private handleBigQueryWorkspacesService: HandleBigQueryWorkspacesService,
-  ) {}
+  constructor() {}
 
   @Get()
   async CheckingForWorkspaces() {

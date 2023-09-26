@@ -1,5 +1,4 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
-import { TransferBoardsUsecase } from '../usecase/transfer-usecase.service';
 
 // @Injectable()
 // export class SchedulerService implements OnModuleInit {

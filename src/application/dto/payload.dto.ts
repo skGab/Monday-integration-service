@@ -1,5 +1,5 @@
+import { Injectable } from '@nestjs/common';
 import { Board } from 'src/domain/entities/board/board';
-import { ResponseFactory } from 'src/domain/factory/response-factory';
 import { TransferResponse } from 'src/domain/repository/bigQuery-repository';
 
 interface Status {
@@ -11,6 +11,7 @@ interface Status {
 interface BodyDto {
   count: number;
   names: string[];
+  message?: string;
 }
 
 interface TransferDto {
@@ -20,10 +21,10 @@ interface TransferDto {
 }
 
 export class PayloadDto {
-  private datasetsNames: string[];
-  private tablesNames: string[];
-  private boards: BodyDto[] = [];
-  private transfers: TransferDto[];
+  private boards: BodyDto;
+  private datasetsNames: string[] = [];
+  private tablesNames: string[] = [];
+  private transfers: TransferDto;
   private status: Status[] = [];
 
   updateStatus(newStatus: Status): void {
@@ -34,23 +35,48 @@ export class PayloadDto {
     this.tablesNames.push(table);
   }
 
-  addBoard(mondayBoards: Board[]) {
-    this.boards.map((board) => {
-      board.count = mondayBoards.length;
-      board.names = mondayBoards.map((mBoard) => mBoard.getBoardName());
-    });
+  addBoard(mondayBoards: Board[]): void {
+    const board = {
+      count: mondayBoards.length,
+      names: mondayBoards.map((mBoard) => mBoard.getBoardName()),
+    };
+
+    this.boards = board;
   }
 
-  addDataset(datasets: string[]) {
-    datasets.map((dataset) => this.datasetsNames.push(dataset));
+  addDataset(datasets: string[]): void {
+    this.datasetsNames = [...this.datasetsNames, ...datasets];
   }
 
-  addTransfer(newItemsStatus: TransferResponse) {
-    this.transfers.map((transfer) => {
-      transfer.newItems.count = newItemsStatus.insertedPayload.length;
-      transfer.newItems.names = newItemsStatus.insertedPayload.map(
-        (item) => item.solicitacao,
-      );
-    });
+  addTransfer(
+    newItemsStatus?: TransferResponse,
+    updatedItemsStatus?: TransferResponse,
+    boardName?: string,
+  ): void {
+    const transfer: TransferDto = {
+      newItems: { count: 0, names: [] },
+      updatedItems: { count: 0, names: [] },
+      excludedItems: { count: 0, names: [] },
+    };
+
+    if (!newItemsStatus) {
+      transfer.newItems.message = 'Nenhum Item novo para ser inserido';
+    } else {
+      transfer.newItems = {
+        count: newItemsStatus.insertedPayload.length,
+        names: newItemsStatus.insertedPayload.map((item) => item.solicitacao),
+      };
+    }
+
+    // if (updatedItemsStatus) {
+    //   transfer.updatedItems = {
+    //     count: updatedItemsStatus.updatedPayload.length, // Assuming you have updatedPayload
+    //     names: updatedItemsStatus.updatedPayload.map(
+    //       (item) => item.solicitacao,
+    //     ), // Assuming you have updatedPayload
+    //   };
+    // }
+
+    this.transfers = transfer;
   }
 }

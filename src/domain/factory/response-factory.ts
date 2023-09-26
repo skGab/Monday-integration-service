@@ -1,30 +1,26 @@
-type ServiceResponse<T> = SuccessResponse<T> | FailureResponse;
-
 interface SuccessResponse<T> {
-  status: true;
-  message: string;
+  success: true;
   data: T;
 }
 
 interface FailureResponse {
-  status: false;
-  message: string;
+  success: false;
   error: any;
 }
 
+export type ServiceResponse<T> = SuccessResponse<T> | FailureResponse;
+
 export class ResponseFactory {
-  static createSuccess<T>(message: string, data: T): ServiceResponse<T> {
+  static createSuccess<T>(data: T): ServiceResponse<T> {
     return {
-      status: true,
-      message,
+      success: true,
       data,
     };
   }
 
-  static createFailure(message: string, error: any): ServiceResponse<null> {
+  static createFailure(error: any): ServiceResponse<null> {
     return {
-      status: false,
-      message,
+      success: false,
       error,
     };
   }

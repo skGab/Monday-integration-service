@@ -1,13 +1,20 @@
 import { Injectable } from '@nestjs/common';
 
 import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
-import { ResponseFactory } from 'src/domain/factory/response-factory';
+import {
+  ResponseFactory,
+  ServiceResponse,
+} from 'src/domain/factory/response-factory';
+import { Item } from 'src/domain/entities/board/item';
 
 @Injectable()
 export class UpdateItemsService {
   constructor(private bigQueryRepositoryService: BigQueryRepository) {}
 
-  async run(duplicateItems: any[], table: any): Promise<ResponseFactory> {
+  async run(
+    duplicateItems: { [key: string]: string }[],
+    table: any,
+  ): Promise<ServiceResponse<string[]>> {
     // UPDATE IMPLEMENTATION ON BIGQUERY
     if (duplicateItems.length !== 0) {
       // const updateResult =
@@ -20,12 +27,10 @@ export class UpdateItemsService {
       //   throw new Error(`Failed to update items for board: ${board}`);
       // }
 
-      const response = duplicateItems.map(
-        (item: { solicitacao: any }) => item.solicitacao,
-      );
+      const response = duplicateItems.map((item) => item.name);
 
       // return updateResult;
-      return ResponseFactory.createSuccess('Success', response);
+      return ResponseFactory.createSuccess(response);
     }
   }
 }

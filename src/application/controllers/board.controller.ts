@@ -1,5 +1,4 @@
-import { TransferBoardsUsecase } from '../usecase/transfer-usecase.service';
-// import { SchedulerService } from './services/schendule.service';
+import { TransferUsecase } from './../usecase/transfer-usecase.service';
 import {
   Controller,
   Get,
@@ -14,7 +13,7 @@ export class BoardController {
 
   constructor(
     // private schedulerService: SchedulerService,
-    private transferBoardsUsecase: TransferBoardsUsecase,
+    private transferUsecase: TransferUsecase,
   ) {}
 
   // SERVICE LOGS
@@ -22,7 +21,7 @@ export class BoardController {
   async transferBoardsToBigQuery() {
     try {
       // const status = this.schedulerService.getCurrentStatus();
-      const status = this.transferBoardsUsecase.run();
+      const status = this.transferUsecase.run();
 
       if (status === null)
         // COLOCAM NA LIB DE ERROR
