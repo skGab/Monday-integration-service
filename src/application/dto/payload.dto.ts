@@ -8,24 +8,27 @@ interface Status {
   error?: string;
 }
 
-interface BodyDto {
+interface Body {
   count: number;
   names: string[];
   message?: string;
 }
 
-interface TransferDto {
-  newItems: BodyDto;
-  updatedItems: BodyDto;
-  excludedItems: BodyDto;
+interface Transfer {
+  newItems: Body;
+  updatedItems: Body;
+  excludedItems: Body;
 }
 
 export class PayloadDto {
-  private boards: BodyDto;
+  private boards: Body;
   private datasetsNames: string[] = [];
   private tablesNames: string[] = [];
-  private transfers: TransferDto;
+  private transfers: Transfer;
   private status: Status[] = [];
+
+  // prazo de entrega realizado
+  // prazo de entrega solicitado
 
   updateStatus(newStatus: Status): void {
     this.status.push(newStatus);
@@ -50,10 +53,9 @@ export class PayloadDto {
 
   addTransfer(
     newItemsStatus?: TransferResponse,
-    updatedItemsStatus?: TransferResponse,
-    boardName?: string,
+    updatedItemsStatus?: string[],
   ): void {
-    const transfer: TransferDto = {
+    const transfer: Transfer = {
       newItems: { count: 0, names: [] },
       updatedItems: { count: 0, names: [] },
       excludedItems: { count: 0, names: [] },

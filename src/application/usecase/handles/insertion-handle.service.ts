@@ -7,6 +7,7 @@ import {
   ResponseFactory,
   ServiceResponse,
 } from 'src/domain/factory/response-factory';
+import { BoardTablePairs } from './bigQuery-handle.service';
 
 @Injectable()
 export class InsertionHandleService {
@@ -18,7 +19,7 @@ export class InsertionHandleService {
 
   async run(
     payload: PayloadDto,
-    boardTablePairs: any,
+    boardTablePairs: BoardTablePairs[],
   ): Promise<ServiceResponse<any>> {
     try {
       const transferPromises = boardTablePairs.map(async ({ board, table }) => {
@@ -28,10 +29,10 @@ export class InsertionHandleService {
           const { coreItems, duplicateItems } = response.data;
 
           // TRANSFER NEW ITEMS
-          await this.handleTransfer(payload, coreItems, table, board);
+          await this.handleTransfer(payload, coreItems, table);
 
           // UPDATE ITEMS
-          // await this.handleUpdate(payload, duplicateItems, table);
+          await this.handleUpdate(payload, duplicateItems, table);
         }
       });
 
@@ -55,8 +56,7 @@ export class InsertionHandleService {
   private async handleTransfer(
     payload: PayloadDto,
     coreItems: any[],
-    table: string,
-    board: string, // I added this because it seems you want to use the board name
+    table: unknown,
   ): Promise<void> {
     const NewItemsStatus = await this.transferItemsService.run(
       coreItems,
@@ -67,26 +67,27 @@ export class InsertionHandleService {
       if (typeof NewItemsStatus.data === 'string') {
         payload.addTransfer(); // You might want to revise this part based on your logic.
       } else {
-        payload.addTransfer(NewItemsStatus.data, undefined, board); // Pass the board name here
+        payload.addTransfer(NewItemsStatus.data, undefined); // Pass the board name here
       }
     }
   }
 
-  // private async handleUpdate(
-  //   payload: PayloadDto,
-  //   duplicateItems: any[],
-  //   table: string,
-  // ) {
-  //   const UpdateStatus = await this.updateItemsService.run(
-  //     duplicateItems,
-  //     table,
-  //   );
-  //   if (UpdateStatus.success) {
-  //     if (typeof UpdateStatus.data === 'string') {
-  //       payload.addTransfer(); // Modify this to handle updated items
-  //     } else {
-  //       payload.addTransfer(UpdateStatus.data); // Modify this to handle updated items
-  //     }
-  //   }
-  // }
+  private async handleUpdate(
+    payload: PayloadDto,
+    duplicateItems: any[],
+    table: unknown,
+  ) {
+    const UpdateStatus = await this.updateItemsService.run(
+      duplicateItems,
+      table,
+    );
+
+    if (UpdateStatus.success) {
+      if (typeof UpdateStatus.data === 'string') {
+        payload.addTransfer(); // Modify this to handle updated items
+      } else {
+        payload.addTransfer(undefined, UpdateStatus.data); // Modify this to handle updated items
+      }
+    }
+  }
 }

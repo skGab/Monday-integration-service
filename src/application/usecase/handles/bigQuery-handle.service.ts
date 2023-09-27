@@ -48,7 +48,7 @@ export class BigQueryHandleService {
       return ResponseFactory.createSuccess(boardTablePairs);
     } catch (error) {
       payload.updateStatus({
-        step: 'setupBoards',
+        step: 'Config Quadros e Tabelas',
         success: false,
         error: error.message,
       });

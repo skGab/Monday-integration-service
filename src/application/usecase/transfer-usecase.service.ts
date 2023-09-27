@@ -1,8 +1,7 @@
+import { MondayHandleService } from './handles/monday-handle.service';
 import { PayloadDto } from 'src/application/dto/payload.dto';
-import { CreateWorkspaces } from './handles/create-workspaces.service';
+import { WorkspaceHandleService } from './handles/workspace-handle.service';
 import { Injectable } from '@nestjs/common';
-
-import { FetchBoardsService } from './handles/fetch-boards.service';
 
 import { BigQueryHandleService } from './handles/bigQuery-handle.service';
 import { InsertionHandleService } from './handles/insertion-handle.service';
@@ -10,14 +9,13 @@ import { InsertionHandleService } from './handles/insertion-handle.service';
 @Injectable()
 export class TransferUsecase {
   constructor(
-    private fechBoardsService: FetchBoardsService,
-    private createWorkspaces: CreateWorkspaces,
+    private mondayHandleService: MondayHandleService,
+    private workspaceHandleService: WorkspaceHandleService,
     private insertionHandleService: InsertionHandleService,
     private bigQueryHandleService: BigQueryHandleService,
   ) {}
 
-  // 2
-  // TRATAÇÃO E VISUALIZAÇÃO DO PAYLOAD NO TERMINAL
+  // PRECISO CONTINUAR REFATORANDO A CAMADA DE APLICAÇÃO
 
   // 3
   // MONTAR LOGICA DE ATUALIZAÇÃO
@@ -27,35 +25,78 @@ export class TransferUsecase {
     const payload = new PayloadDto();
     try {
       // CREATE DATASETS ON BIGQUERY AND UPDATE PAYLOAD
-      await this.createWorkspaces.run(payload);
+      const workspacesCreated = await this.workspaceHandleService.run(payload);
+      if (!workspacesCreated) {
+        return this.fail(payload, 'Failed to create workspaces');
+      }
 
       // GET MONDAY BOARDS AND UPDATE PAYLOAD
-      const boardsStatus = await this.fechBoardsService.run(payload);
-
-      if (boardsStatus.success) {
-        // CREATING TABLES FROM BOARDS ON BIGQUERY AND UPDATE THE PAYLOAD
-        const setupStatus = await this.bigQueryHandleService.run(
-          payload,
-          boardsStatus.data,
-        );
-
-        // CRUD OPERATIONS ON THE BIGQUERY
-        // INSERT, UPDATE, EXCLUDE
-        if (setupStatus.success && setupStatus.data) {
-          await this.insertionHandleService.run(payload, setupStatus.data);
-        }
+      const boardsFetched = await this.mondayHandleService.run(payload);
+      if (!boardsFetched.success) {
+        return this.fail(payload, 'Failed to fetch boards');
       }
-      // Log the final payload
+
+      console.log(boardsFetched);
+
+      // // CREATING TABLES ON BIGQUERY
+      // const tablesCreated = await this.createBigQueryTablesFromBoards(
+      //   payload,
+      //   boardsFetched.data,
+      // );
+      // if (!tablesCreated.success) {
+      //   return this.fail(payload, 'Failed to create tables');
+      // }
+
+      // // CRUD OPERATIONS ON BIGQUERY
+      // const dataInserted = await this.performCRUDOnBigQuery(
+      //   payload,
+      //   tablesCreated.data,
+      // );
+      // if (!dataInserted) {
+      //   return this.fail(payload, 'Failed CRUD operations');
+      // }
+
       console.log(payload);
       return payload;
     } catch (error) {
-      // If any general error occurs, update payload and return
-      payload.updateStatus({
-        step: 'General',
-        success: false,
-        error: error.message,
-      });
-      return payload;
+      return this.fail(payload, error.message);
     }
+  }
+
+  private async createBigQueryTablesFromBoards(
+    payload: PayloadDto,
+    boards: any,
+  ): Promise<{ success: boolean; data: any }> {
+    const boardTablePairs = await this.bigQueryHandleService.run(
+      payload,
+      boards.data,
+    );
+
+    if (!boardTablePairs.success) return { success: false, data: [] };
+
+    return { success: true, data: boardTablePairs };
+  }
+
+  private async performCRUDOnBigQuery(
+    payload: PayloadDto,
+    tables: any,
+  ): Promise<boolean> {
+    const response = await this.insertionHandleService.run(
+      payload,
+      tables.data,
+    );
+
+    if (!response.success) return false;
+
+    return true;
+  }
+
+  private fail(payload: PayloadDto, errorMsg: string): PayloadDto {
+    payload.updateStatus({
+      step: 'General',
+      success: false,
+      error: errorMsg,
+    });
+    return payload;
   }
 }

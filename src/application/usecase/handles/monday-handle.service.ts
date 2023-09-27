@@ -8,14 +8,14 @@ import { Board } from 'src/domain/entities/board/board';
 import { MondayRepository } from 'src/domain/repository/monday-repository';
 
 @Injectable()
-export class FetchBoardsService {
+export class MondayHandleService {
   constructor(private mondayRepositoryService: MondayRepository) {}
 
   async run(payload: PayloadDto): Promise<ServiceResponse<Board[]>> {
     try {
       const mondayBoards = await this.mondayRepositoryService.getBoards();
 
-      if (mondayBoards === null) {
+      if (!mondayBoards.length) {
         payload.updateStatus({
           step: 'Busca de Quadros',
           success: false,
@@ -34,7 +34,6 @@ export class FetchBoardsService {
         success: true,
       });
 
-      // return { success: true, data: mondayBoards };
       return ResponseFactory.createSuccess(mondayBoards);
     } catch (error) {
       payload.updateStatus({

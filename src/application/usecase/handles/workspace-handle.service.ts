@@ -9,13 +9,13 @@ import {
 } from 'src/domain/factory/response-factory';
 
 @Injectable()
-export class CreateWorkspaces {
+export class WorkspaceHandleService {
   constructor(
     private bigQueryRepositoryService: BigQueryRepository,
     private mondayRepositoryService: MondayRepository,
   ) {}
 
-  async run(payload: PayloadDto): Promise<ServiceResponse<string[]>> {
+  async run(payload: PayloadDto): Promise<boolean> {
     try {
       // GET MONDAY WORKSPACES
       const mondayWorkSpaces =
@@ -32,7 +32,11 @@ export class CreateWorkspaces {
         success: true,
       });
 
-      return ResponseFactory.createSuccess(data);
+      const response = ResponseFactory.createSuccess(data);
+
+      if (response.success) return true;
+
+      return false;
     } catch (error) {
       // Update payload in case of error
       payload.updateStatus({
@@ -41,7 +45,7 @@ export class CreateWorkspaces {
         error: error.message,
       });
 
-      return ResponseFactory.createFailure(error.messagee);
+      return false;
     }
   }
 

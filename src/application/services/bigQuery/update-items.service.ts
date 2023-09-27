@@ -26,8 +26,8 @@ export class UpdateItemsService {
       // if (updateResult === null) {
       //   throw new Error(`Failed to update items for board: ${board}`);
       // }
-
-      const response = duplicateItems.map((item) => item.name);
+      const response = duplicateItems.map((item) => item.solicitacao);
+      // console.log(duplicateItems);
 
       // return updateResult;
       return ResponseFactory.createSuccess(response);
