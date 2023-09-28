@@ -1,6 +1,15 @@
-import { Injectable } from '@nestjs/common';
 import { Board } from 'src/domain/entities/board/board';
+import { Item } from 'src/domain/entities/board/item';
+import {
+  ResponseFactory,
+  ServiceResponse,
+} from 'src/domain/factory/response-factory';
 import { TransferResponse } from 'src/domain/repository/bigQuery-repository';
+
+type FilteredData = {
+  coreItems: { [key: string]: string }[]; // Replace 'YourCoreItemType' with the actual type
+  duplicateItems: { [key: string]: string }[]; // Replace 'YourDuplicateItemType' with the actual type
+};
 
 interface Status {
   step: string;
@@ -53,7 +62,7 @@ export class PayloadDto {
 
   addTransfer(
     newItemsStatus?: TransferResponse,
-    updatedItemsStatus?: string[],
+    updatedItemsStatus?: TransferResponse | string[],
   ): void {
     const transfer: Transfer = {
       newItems: { count: 0, names: [] },
@@ -70,15 +79,84 @@ export class PayloadDto {
       };
     }
 
-    // if (updatedItemsStatus) {
-    //   transfer.updatedItems = {
-    //     count: updatedItemsStatus.updatedPayload.length, // Assuming you have updatedPayload
-    //     names: updatedItemsStatus.updatedPayload.map(
-    //       (item) => item.solicitacao,
-    //     ), // Assuming you have updatedPayload
-    //   };
-    // }
+    if (!updatedItemsStatus) {
+      transfer.updatedItems.message = 'Nenhum Item para ser atualizado';
+    } else {
+      if (Array.isArray(updatedItemsStatus)) {
+        transfer.updatedItems = {
+          count: updatedItemsStatus.length,
+          names: updatedItemsStatus,
+        };
+      } else {
+      }
+    }
 
     this.transfers = transfer;
+  }
+
+  filterItems(
+    board: Board,
+    bigQueryItemsID: string[],
+  ): ServiceResponse<FilteredData> {
+    // GET ITEMS FROM BIGQUERY
+
+    if (bigQueryItemsID === null) return null;
+
+    // PREPARE DATA TO BE INSERT OR UPDATE
+    const { coreItems, duplicateItems } = this.preparePayload(
+      bigQueryItemsID,
+      board,
+    );
+
+    return ResponseFactory.createSuccess({
+      coreItems,
+      duplicateItems,
+    });
+  }
+
+  private preparePayload(bigQueryItemsId: string[], board: Board) {
+    // Prepare individual payloads for each item.
+    const prepareItems = board.items.map(this.prepareSinglePayload);
+
+    // Filter out duplicates.
+    const { coreItems, duplicateItems } = this.checkDuplicatedItems(
+      bigQueryItemsId,
+      prepareItems,
+    );
+
+    return { coreItems, duplicateItems };
+  }
+
+  private checkDuplicatedItems(
+    bigQueryItemsId: string[],
+    preparedPayloads: Array<{ [key: string]: string }>,
+  ) {
+    const duplicateItems: Array<{ [key: string]: string }> = [];
+    const coreItems: Array<{ [key: string]: string }> = [];
+
+    preparedPayloads.forEach((payload) => {
+      if (bigQueryItemsId.includes(payload.id_de_elemento)) {
+        duplicateItems.push(payload);
+      } else {
+        coreItems.push(payload);
+      }
+    });
+
+    return {
+      duplicateItems,
+      coreItems,
+    };
+  }
+
+  private prepareSinglePayload(item: Item): { [key: string]: string } {
+    const payload: { [key: string]: string } = {};
+    payload.solicitacao = item.name;
+    payload.grupo = item.group.title;
+
+    item.column_values.forEach((column: any) => {
+      payload[column.title] = column.text;
+    });
+
+    return payload;
   }
 }

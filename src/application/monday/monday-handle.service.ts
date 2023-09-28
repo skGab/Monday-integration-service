@@ -1,7 +1,7 @@
 import {
   ResponseFactory,
   ServiceResponse,
-} from '../../../domain/factory/response-factory';
+} from '../../domain/factory/response-factory';
 import { Injectable } from '@nestjs/common';
 import { PayloadDto } from 'src/application/dto/payload.dto';
 import { Board } from 'src/domain/entities/board/board';

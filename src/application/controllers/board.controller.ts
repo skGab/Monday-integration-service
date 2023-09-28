@@ -1,4 +1,3 @@
-import { TransferUsecase } from './../usecase/transfer-usecase.service';
 import {
   Controller,
   Get,
@@ -6,6 +5,7 @@ import {
   HttpStatus,
   Logger,
 } from '@nestjs/common';
+import { PipeLineOrchestratorUsecase } from '../usecase/pipeLine-orchestrator.service';
 
 @Controller('boards')
 export class BoardController {
@@ -13,7 +13,7 @@ export class BoardController {
 
   constructor(
     // private schedulerService: SchedulerService,
-    private transferUsecase: TransferUsecase,
+    private pipeLineOrchestratorUsecase: PipeLineOrchestratorUsecase,
   ) {}
 
   // SERVICE LOGS
@@ -21,7 +21,7 @@ export class BoardController {
   async transferBoardsToBigQuery() {
     try {
       // const status = this.schedulerService.getCurrentStatus();
-      const status = this.transferUsecase.run();
+      const status = this.pipeLineOrchestratorUsecase.run();
 
       if (status === null)
         // COLOCAM NA LIB DE ERROR

@@ -28,7 +28,7 @@ export class WorkspaceHandleService {
       payload.addDataset(data);
 
       payload.updateStatus({
-        step: 'Criação de Datasets',
+        step: 'Criacao de Datasets',
         success: true,
       });
 
@@ -40,7 +40,7 @@ export class WorkspaceHandleService {
     } catch (error) {
       // Update payload in case of error
       payload.updateStatus({
-        step: 'Criação de Datasets',
+        step: 'Criacao de Datasets',
         success: false,
         error: error.message,
       });

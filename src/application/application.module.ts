@@ -3,17 +3,16 @@ import { Module } from '@nestjs/common';
 import { BoardController } from './controllers/board.controller';
 import { WorkSpaceController } from './controllers/workspace.controller';
 
-import { InsertionHandleService } from './usecase/handles/insertion-handle.service';
-import { TransferUsecase } from './usecase/transfer-usecase.service';
-import { BigQueryHandleService } from './usecase/handles/bigQuery-handle.service';
+import { BigQueryHandleService } from './bigQuery/bigQuery-handle.service';
 
 import { InfrastructureModule } from 'src/infra/infrastructure.module';
 
-import { TransferItemsService } from './services/bigQuery/transfer-items.service';
-import { UpdateItemsService } from './services/bigQuery/update-items.service';
-import { FilterDuplicatesService } from './services/filter-duplicates.service';
-import { WorkspaceHandleService } from './usecase/handles/workspace-handle.service';
-import { MondayHandleService } from './usecase/handles/monday-handle.service';
+import { TransferItemsService } from './bigQuery/utils/create-items.service';
+import { UpdateItemsService } from './bigQuery/utils/update-items.service';
+import { WorkspaceHandleService } from './monday/workspace-handle.service';
+import { MondayHandleService } from './monday/monday-handle.service';
+import { PerformCrudOperations } from './bigQuery/perform-CRUD.service';
+import { PipeLineOrchestratorUsecase } from './usecase/pipeLine-orchestrator.service';
 
 @Module({
   // CONTROLLERS
@@ -21,17 +20,15 @@ import { MondayHandleService } from './usecase/handles/monday-handle.service';
 
   // SERVICES
   providers: [
-    TransferUsecase,
-    InsertionHandleService,
+    PipeLineOrchestratorUsecase,
 
-    BigQueryHandleService,
-    WorkspaceHandleService,
     MondayHandleService,
-    // SchedulerService,
+    WorkspaceHandleService,
+    BigQueryHandleService,
+    PerformCrudOperations,
 
     TransferItemsService,
     UpdateItemsService,
-    FilterDuplicatesService,
   ],
 
   imports: [InfrastructureModule],

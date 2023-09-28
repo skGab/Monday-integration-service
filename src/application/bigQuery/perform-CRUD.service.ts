@@ -1,40 +1,44 @@
-import { UpdateItemsService } from './../../services/bigQuery/update-items.service';
+import { UpdateItemsService } from './utils/update-items.service';
 import { Injectable } from '@nestjs/common';
-import { FilterDuplicatesService } from '../../services/filter-duplicates.service';
 import { PayloadDto } from 'src/application/dto/payload.dto';
-import { TransferItemsService } from '../../services/bigQuery/transfer-items.service';
+import { TransferItemsService } from './utils/create-items.service';
 import {
   ResponseFactory,
   ServiceResponse,
 } from 'src/domain/factory/response-factory';
-import { BoardTablePairs } from './bigQuery-handle.service';
+import { BigQueryResponse } from './bigQuery-handle.service';
 
 @Injectable()
-export class InsertionHandleService {
+export class PerformCrudOperations {
   constructor(
     private readonly transferItemsService: TransferItemsService,
     private readonly updateItemsService: UpdateItemsService,
-    private readonly filterDuplicatesService: FilterDuplicatesService,
   ) {}
 
   async run(
     payload: PayloadDto,
-    boardTablePairs: BoardTablePairs[],
+    bigQueryResponse: BigQueryResponse,
   ): Promise<ServiceResponse<any>> {
     try {
-      const transferPromises = boardTablePairs.map(async ({ board, table }) => {
-        const response = await this.filterDuplicatesService.run(board);
+      const transferPromises = bigQueryResponse.boardTablePairs.map(
+        async ({ board, table }) => {
+          // FILTER ITEMS
+          const response = payload.filterItems(
+            board,
+            bigQueryResponse.bigQueryItemsId,
+          );
 
-        if (response.success) {
-          const { coreItems, duplicateItems } = response.data;
+          if (response.success) {
+            const { coreItems, duplicateItems } = response.data;
 
-          // TRANSFER NEW ITEMS
-          await this.handleTransfer(payload, coreItems, table);
+            // TRANSFER NEW ITEMS
+            await this.handleTransfer(payload, coreItems, table);
 
-          // UPDATE ITEMS
-          await this.handleUpdate(payload, duplicateItems, table);
-        }
-      });
+            // UPDATE ITEMS
+            await this.handleUpdate(payload, duplicateItems, table);
+          }
+        },
+      );
 
       if (transferPromises === null) return null;
 
@@ -84,9 +88,9 @@ export class InsertionHandleService {
 
     if (UpdateStatus.success) {
       if (typeof UpdateStatus.data === 'string') {
-        payload.addTransfer(); // Modify this to handle updated items
+        payload.addTransfer();
       } else {
-        payload.addTransfer(undefined, UpdateStatus.data); // Modify this to handle updated items
+        payload.addTransfer(undefined, UpdateStatus.data);
       }
     }
   }
