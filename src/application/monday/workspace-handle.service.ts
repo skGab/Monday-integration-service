@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
 import { Workspace } from 'src/domain/entities/board/workspace';
-import { PayloadDto } from 'src/application/dto/payload.dto';
 import { MondayRepository } from 'src/domain/repository/monday-repository';
 import {
   ResponseFactory,
   ServiceResponse,
 } from 'src/domain/factory/response-factory';
+import { DatasetVo } from 'src/domain/valueObjects/dataset.vo';
 
 @Injectable()
 export class WorkspaceHandleService {
@@ -15,45 +15,43 @@ export class WorkspaceHandleService {
     private mondayRepositoryService: MondayRepository,
   ) {}
 
-  async run(payload: PayloadDto): Promise<boolean> {
+  async run(): Promise<ServiceResponse<DatasetVo>> {
     try {
       // GET MONDAY WORKSPACES
       const mondayWorkSpaces =
         await this.mondayRepositoryService.getWorkSpaces();
 
       // CREATE THEM ON BIGQUERY
-      const data = await this.create(mondayWorkSpaces);
+      const datasets = await this.create(mondayWorkSpaces);
 
-      // UPDATE THE PAYLOAD
-      payload.addDataset(data);
+      // // UPDATE THE PAYLOAD
+      // payload.addDataset(data);
 
-      payload.updateStatus({
-        step: 'Criacao de Datasets',
-        success: true,
-      });
+      // payload.updateStatus({
+      //   step: 'Criacao de Datasets',
+      //   success: true,
+      // });
 
-      const response = ResponseFactory.createSuccess(data);
-
-      if (response.success) return true;
-
-      return false;
+      return ResponseFactory.createSuccess(datasets);
     } catch (error) {
       // Update payload in case of error
-      payload.updateStatus({
-        step: 'Criacao de Datasets',
-        success: false,
-        error: error.message,
-      });
+      // payload.updateStatus({
+      //   step: 'Criacao de Datasets',
+      //   success: false,
+      //   error: error.message,
+      // });
 
-      return false;
+      return ResponseFactory.createFailure(error.message);
     }
   }
 
-  private async create(mondayWorkSpaces: Workspace[]) {
+  private async create(mondayWorkSpaces: Workspace[]): Promise<DatasetVo> {
     // CREATE WORKSPACES ON BIGQUERY IF NOT EXISTS
     const bigQueryWorkspaces =
       await this.bigQueryRepositoryService.createDatasets(mondayWorkSpaces);
 
-    return bigQueryWorkspaces;
+    const datasets = new DatasetVo(bigQueryWorkspaces);
+
+    return datasets;
   }
 }

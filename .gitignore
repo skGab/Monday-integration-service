@@ -398,4 +398,4 @@ Temporary Items
 dist
 .webpack
 .serverless/**/*.zip
-credentials
+infra/security/credentials.json

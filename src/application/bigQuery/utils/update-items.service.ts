@@ -1,14 +1,11 @@
 import { Injectable } from '@nestjs/common';
 
-import {
-  BigQueryRepository,
-  TransferResponse,
-} from 'src/domain/repository/bigQuery-repository';
+import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
 import {
   ResponseFactory,
   ServiceResponse,
 } from 'src/domain/factory/response-factory';
-import { Item } from 'src/domain/entities/board/item';
+import { TransferResponse } from 'src/domain/entities/transfer';
 
 @Injectable()
 export class UpdateItemsService {
@@ -20,15 +17,11 @@ export class UpdateItemsService {
   ): Promise<ServiceResponse<TransferResponse | string[]>> {
     // UPDATE IMPLEMENTATION ON BIGQUERY
     if (duplicateItems.length !== 0) {
-      // const updateResult =
-      //   await this.bigQueryRepositoryService.updateBoardItems(
-      //     duplicateItems,
-      //     board,
-      //   );
+      const updateResult = await this.bigQueryRepositoryService.updateRows(
+        duplicateItems,
+        table,
+      );
 
-      // if (updateResult === null) {
-      //   throw new Error(`Failed to update items for board: ${board}`);
-      // }
       const response = duplicateItems.map((item) => item.solicitacao);
 
       // return updateResult;

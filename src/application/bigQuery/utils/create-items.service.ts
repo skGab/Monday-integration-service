@@ -1,13 +1,12 @@
+import { Table } from '@google-cloud/bigquery';
 import { Injectable } from '@nestjs/common';
+import { TransferResponse } from 'src/domain/entities/transfer';
 import {
   ResponseFactory,
   ServiceResponse,
 } from 'src/domain/factory/response-factory';
 
-import {
-  BigQueryRepository,
-  TransferResponse,
-} from 'src/domain/repository/bigQuery-repository';
+import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
 
 @Injectable()
 export class TransferItemsService {
@@ -15,7 +14,7 @@ export class TransferItemsService {
 
   async run(
     coreItems: { [key: string]: string }[],
-    table: any,
+    table: Table,
   ): Promise<ServiceResponse<TransferResponse | string>> {
     // INSERT IMPLEMENTATION ON BIGQUERY
     if (coreItems.length !== 0) {
@@ -24,12 +23,12 @@ export class TransferItemsService {
         table,
       );
 
-      if (response === null) return null;
+      if (response === null) return ResponseFactory.createFailure(null);
 
       return ResponseFactory.createSuccess(response);
     }
 
-    return ResponseFactory.createSuccess(
+    return ResponseFactory.createFailure(
       'Não há novos items para serem inseridos',
     );
   }

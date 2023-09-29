@@ -1,13 +1,6 @@
 import { Board } from '../entities/board/board';
 import { Workspace } from '../entities/board/workspace';
-
-export abstract class TransferResponse {
-  tableId: string;
-  status: 'success' | 'partial_failure' | 'error';
-  insertedPayload?: { [key: string]: string }[];
-  errors?: any[]; // Assuming that errors are an array. You can refine this further.
-  error?: string;
-}
+import { TransferResponse } from '../entities/transfer';
 
 export abstract class BigQueryRepository {
   // CREATE WORKSPACES
@@ -26,7 +19,7 @@ export abstract class BigQueryRepository {
   abstract updateRows(
     payload: { [key: string]: string }[],
     table: any,
-  ): Promise<any[] | null>;
+  ): Promise<TransferResponse | null>;
 
   // GET ITEMS FROM BOARD
   abstract getRows(board: Board): Promise<string[] | null>;

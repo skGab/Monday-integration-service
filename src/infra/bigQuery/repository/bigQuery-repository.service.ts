@@ -8,14 +8,12 @@ import { ConfigService } from '@nestjs/config';
 import { CreateDatasetService } from '../create-dataset.service';
 import { CreateTableService } from '../table/create-table.service';
 
-import credentials from '../../../../credentials/private.json';
+import Credentials from '../../security/credentials.json';
 
 import { Workspace } from 'src/domain/entities/board/workspace';
-import {
-  BigQueryRepository,
-  TransferResponse,
-} from 'src/domain/repository/bigQuery-repository';
+import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
 import { Board } from 'src/domain/entities/board/board';
+import { TransferResponse } from 'src/domain/entities/transfer';
 
 @Injectable()
 export class BigQueryRepositoryService implements BigQueryRepository {
@@ -33,7 +31,7 @@ export class BigQueryRepositoryService implements BigQueryRepository {
   ) {
     this.bigQueryClient = new BigQuery({
       projectId: this.configService.get<string>('BIGQUERY_PROJECT_ID'),
-      credentials: credentials,
+      credentials: Credentials,
     });
   }
 
@@ -101,7 +99,10 @@ export class BigQueryRepositoryService implements BigQueryRepository {
   }
 
   // UPDATE ITEMS
-  async updateRows(payload: any[], board: Board): Promise<any[] | null> {
+  async updateRows(
+    payload: any[],
+    board: Board,
+  ): Promise<TransferResponse | null> {
     if (!board) {
       this.logger.error(
         'Nenhum item encontrado para criação de tabelas no BigQuery',
@@ -109,9 +110,9 @@ export class BigQueryRepositoryService implements BigQueryRepository {
       return null;
     }
 
-    const tables = await this.updateRowsService.run(payload, board);
+    const response = await this.updateRowsService.run(payload, board);
 
-    return tables;
+    return response;
   }
 
   // GET ITEMS

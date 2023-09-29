@@ -11,17 +11,24 @@ interface FailureResponse {
 export type ServiceResponse<T> = SuccessResponse<T> | FailureResponse;
 
 export class ResponseFactory {
-  static createSuccess<T>(data: T): ServiceResponse<T> {
-    return {
-      success: true,
-      data,
-    };
-  }
+  // static createSuccess<T>(data: T): ServiceResponse<T> {
+  //   return {
+  //     success: true,
+  //     data,
+  //   };
+  // }
+  // static createFailure(error: any): ServiceResponse<null> {
+  //   return {
+  //     success: false,
+  //     error,
+  //   };
+  // }
 
-  static createFailure(error: any): ServiceResponse<null> {
-    return {
-      success: false,
-      error,
-    };
+  static run(promise) {
+    return Promise.allSettled(
+      [promise].then(function ([{ value, reason }]) {
+        return { data: value, error: reason };
+      }),
+    );
   }
 }

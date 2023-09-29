@@ -2,7 +2,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AxiosRequestConfig } from 'axios';
-import { MondayResponseDto } from 'src/application/dto/mondayResponse.dto';
+import { MondayResponseVo } from 'src/domain/valueObjects/monday-response.vo';
 
 @Injectable()
 export class ApiCallService {
@@ -26,7 +26,7 @@ export class ApiCallService {
     };
 
     const config: AxiosRequestConfig = { headers: headers };
-    const observable = this.httpService.post<MondayResponseDto | null>(
+    const observable = this.httpService.post<MondayResponseVo | null>(
       url,
       body,
       config,

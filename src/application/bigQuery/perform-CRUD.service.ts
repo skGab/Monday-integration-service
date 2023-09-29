@@ -1,29 +1,41 @@
-import { UpdateItemsService } from './utils/update-items.service';
 import { Injectable } from '@nestjs/common';
-import { PayloadDto } from 'src/application/dto/payload.dto';
-import { TransferItemsService } from './utils/create-items.service';
+
 import {
   ResponseFactory,
   ServiceResponse,
 } from 'src/domain/factory/response-factory';
+
 import { BigQueryResponse } from './bigQuery-handle.service';
+
+import { BodyShape } from 'src/domain/entities/payload';
+import { Transfer } from 'src/domain/entities/transfer';
+
+import { UpdateItemsService } from './utils/update-items.service';
+import { TransferItemsService } from './utils/create-items.service';
+
+import { PayloadTransformationService } from './../usecase/payload-transformation.service';
+import { Table } from '@google-cloud/bigquery';
 
 @Injectable()
 export class PerformCrudOperations {
+  private newItems: BodyShape;
+  private updatedItems: BodyShape;
+  private excludedItems: BodyShape;
+
   constructor(
     private readonly transferItemsService: TransferItemsService,
     private readonly updateItemsService: UpdateItemsService,
+    private readonly payloadTransformationService: PayloadTransformationService,
   ) {}
 
   async run(
-    payload: PayloadDto,
     bigQueryResponse: BigQueryResponse,
-  ): Promise<ServiceResponse<any>> {
+  ): Promise<ServiceResponse<Transfer>> {
     try {
       const transferPromises = bigQueryResponse.boardTablePairs.map(
         async ({ board, table }) => {
           // FILTER ITEMS
-          const response = payload.filterItems(
+          const response = this.payloadTransformationService.filterItems(
             board,
             bigQueryResponse.bigQueryItemsId,
           );
@@ -32,66 +44,69 @@ export class PerformCrudOperations {
             const { coreItems, duplicateItems } = response.data;
 
             // TRANSFER NEW ITEMS
-            await this.handleTransfer(payload, coreItems, table);
+            this.newItems = await this.handleTransfer(coreItems, table);
 
             // UPDATE ITEMS
-            await this.handleUpdate(payload, duplicateItems, table);
+            // await this.handleUpdate(payload, duplicateItems, table);
           }
         },
       );
 
-      if (transferPromises === null) return null;
+      // if (transferPromises === null) return null;
 
-      const response = await Promise.all(transferPromises);
+      await Promise.all(transferPromises);
 
-      payload.updateStatus({ step: 'Inserção de dados', success: true });
+      // Assuming newItems, updatedItems, excludedItems got updated somewhere
+      const transfer = new Transfer(
+        this.newItems,
+        this.updatedItems,
+        this.excludedItems,
+      );
 
-      return ResponseFactory.createSuccess(response);
+      console.log();
+
+      return ResponseFactory.createSuccess(transfer);
     } catch (error) {
-      payload.updateStatus({
-        step: 'Inserção de dados',
-        success: false,
-        error: error.message,
-      });
       return ResponseFactory.createFailure(error.message);
     }
   }
 
-  private async handleTransfer(
-    payload: PayloadDto,
-    coreItems: any[],
-    table: unknown,
-  ): Promise<void> {
-    const NewItemsStatus = await this.transferItemsService.run(
-      coreItems,
-      table,
-    );
+  private async handleTransfer(coreItems: any[], table: Table): Promise<any> {
+    // const NewItemsStatus = await this.transferItemsService.run(
+    //   coreItems,
+    //   table,
+    // );
 
-    if (NewItemsStatus.success) {
-      if (typeof NewItemsStatus.data === 'string') {
-        payload.addTransfer(); // You might want to revise this part based on your logic.
+    const newItemStatus: ServiceResponse<string> =
+      ResponseFactory.createSuccess('');
+
+    if (newItemStatus.success) {
+      if (typeof newItemStatus.data === 'string') {
+        throw new Error('Falha durante a transferencia');
       } else {
-        payload.addTransfer(NewItemsStatus.data, undefined); // Pass the board name here
+        return newItemStatus.data;
       }
+    } else {
+      throw new Error('Falha durante a transferencia');
     }
   }
 
-  private async handleUpdate(
-    payload: PayloadDto,
-    duplicateItems: any[],
-    table: unknown,
-  ) {
-    const UpdateStatus = await this.updateItemsService.run(
-      duplicateItems,
-      table,
-    );
+  // private async handleUpdate(
+  //   payload: Payload,
+  //   duplicateItems: any[],
+  //   table: unknown,
+  // ) {
+  //   const UpdateStatus = await this.updateItemsService.run(
+  //     duplicateItems,
+  //     table,
+  //   );
 
-    if (UpdateStatus.success) {
-      if (typeof UpdateStatus.data === 'string') {
-        payload.addTransfer();
-      } else {
-        payload.addTransfer(undefined, UpdateStatus.data);
-      }
-    }
-  }
+  //   if (UpdateStatus.success) {
+  //     if (typeof UpdateStatus.data === 'string') {
+  //       payload.addTransfer();
+  //     } else {
+  //       payload.addTransfer(undefined, UpdateStatus.data);
+  //     }
+  //   }
+  // }
 }

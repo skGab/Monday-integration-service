@@ -13,6 +13,7 @@ import { WorkspaceHandleService } from './monday/workspace-handle.service';
 import { MondayHandleService } from './monday/monday-handle.service';
 import { PerformCrudOperations } from './bigQuery/perform-CRUD.service';
 import { PipeLineOrchestratorUsecase } from './usecase/pipeLine-orchestrator.service';
+import { PayloadTransformationService } from './usecase/payload-transformation.service';
 
 @Module({
   // CONTROLLERS
@@ -27,6 +28,7 @@ import { PipeLineOrchestratorUsecase } from './usecase/pipeLine-orchestrator.ser
     BigQueryHandleService,
     PerformCrudOperations,
 
+    PayloadTransformationService,
     TransferItemsService,
     UpdateItemsService,
   ],

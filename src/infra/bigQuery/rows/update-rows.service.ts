@@ -1,12 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Board } from 'src/domain/entities/board/board';
+import { TransferResponse } from 'src/domain/entities/transfer';
 
 @Injectable()
 export class UpdateRowsService {
   private readonly logger = new Logger(UpdateRowsService.name);
 
   // UPDATE ITEMS
-  async run(payload: any[], board: Board): Promise<any[] | null> {
+  async run(payload: any[], board: Board): Promise<TransferResponse | null> {
     try {
       // if (!payload) return null;
 
