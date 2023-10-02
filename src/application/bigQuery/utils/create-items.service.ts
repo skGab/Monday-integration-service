@@ -15,21 +15,16 @@ export class TransferItemsService {
   async run(
     coreItems: { [key: string]: string }[],
     table: Table,
-  ): Promise<ServiceResponse<TransferResponse | string>> {
-    // INSERT IMPLEMENTATION ON BIGQUERY
-    if (coreItems.length !== 0) {
-      const response = await this.bigQueryRepositoryService.insertRows(
+  ): Promise<ServiceResponse<TransferResponse>> {
+    try {
+      const response = this.bigQueryRepositoryService.insertRows(
         coreItems,
         table,
       );
 
-      if (response === null) return ResponseFactory.createFailure(null);
-
-      return ResponseFactory.createSuccess(response);
+      return ResponseFactory.run(response);
+    } catch (error) {
+      return { error: error };
     }
-
-    return ResponseFactory.createFailure(
-      'Não há novos items para serem inseridos',
-    );
   }
 }

@@ -11,36 +11,20 @@ export class MondayHandleService {
   constructor(private mondayRepositoryService: MondayRepository) {}
 
   async run(): Promise<ServiceResponse<Board[]>> {
-    try {
-      const mondayBoards = await this.mondayRepositoryService.getBoards();
+    const mondayBoards = this.mondayRepositoryService.getBoards();
 
-      if (!mondayBoards.length) {
-        // payload.updateStatus({
-        //   step: 'Busca de Quadros',
-        //   success: false,
-        //   error: 'Nenhum quadro encontrado durante a busca',
-        // });
-        return {
-          success: false,
-          error: 'Nenhum quadro encontrado durante a busca',
-        };
-      }
+    // payload.addBoard(mondayBoards);
 
-      // payload.addBoard(mondayBoards);
+    // payload.updateStatus({
+    //   step: 'Busca de Quadros',
+    //   success: true,
+    // });
 
-      // payload.updateStatus({
-      //   step: 'Busca de Quadros',
-      //   success: true,
-      // });
-
-      return ResponseFactory.createSuccess(mondayBoards);
-    } catch (error) {
-      // payload.updateStatus({
-      //   step: 'Busca de Quadros',
-      //   success: false,
-      //   error: error.message,
-      // });
-      return ResponseFactory.createFailure(error.message);
-    }
+    return ResponseFactory.run(mondayBoards);
+    // payload.updateStatus({
+    //   step: 'Busca de Quadros',
+    //   success: false,
+    //   error: error.message,
+    // });
   }
 }

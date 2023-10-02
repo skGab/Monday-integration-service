@@ -17,7 +17,7 @@ export class UpdateItemsService {
   ): Promise<ServiceResponse<TransferResponse | string[]>> {
     // UPDATE IMPLEMENTATION ON BIGQUERY
     if (duplicateItems.length !== 0) {
-      const updateResult = await this.bigQueryRepositoryService.updateRows(
+      const updateResult = this.bigQueryRepositoryService.updateRows(
         duplicateItems,
         table,
       );
@@ -25,7 +25,7 @@ export class UpdateItemsService {
       const response = duplicateItems.map((item) => item.solicitacao);
 
       // return updateResult;
-      return ResponseFactory.createSuccess(response);
+      return ResponseFactory.run(Promise.resolve(response));
     }
   }
 }

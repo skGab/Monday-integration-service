@@ -31,64 +31,45 @@ export class PerformCrudOperations {
   async run(
     bigQueryResponse: BigQueryResponse,
   ): Promise<ServiceResponse<Transfer>> {
-    try {
-      const transferPromises = bigQueryResponse.boardTablePairs.map(
-        async ({ board, table }) => {
-          // FILTER ITEMS
-          const response = this.payloadTransformationService.filterItems(
-            board,
-            bigQueryResponse.bigQueryItemsId,
-          );
+    const transferPromises = bigQueryResponse.boardTablePairs.map(
+      async ({ board, table }) => {
+        // FILTER ITEMS
+        const { data, error } = this.payloadTransformationService.filterItems(
+          board,
+          bigQueryResponse.bigQueryItemsId,
+        );
 
-          if (response.success) {
-            const { coreItems, duplicateItems } = response.data;
+        if (error) return { error: error };
 
-            // TRANSFER NEW ITEMS
-            this.newItems = await this.handleTransfer(coreItems, table);
+        const { coreItems, duplicateItems } = data;
 
-            // UPDATE ITEMS
-            // await this.handleUpdate(payload, duplicateItems, table);
-          }
-        },
-      );
+        // TRANSFER NEW ITEMS
+        this.newItems = await this.handleTransfer(coreItems, table);
 
-      // if (transferPromises === null) return null;
+        // UPDATE ITEMS
+        // await this.handleUpdate(payload, duplicateItems, table);
+      },
+    );
 
-      await Promise.all(transferPromises);
+    await Promise.all(transferPromises);
 
-      // Assuming newItems, updatedItems, excludedItems got updated somewhere
-      const transfer = new Transfer(
-        this.newItems,
-        this.updatedItems,
-        this.excludedItems,
-      );
+    // Assuming newItems, updatedItems, excludedItems got updated somewhere
+    const transfer = new Transfer(
+      this.newItems,
+      this.updatedItems,
+      this.excludedItems,
+    );
 
-      console.log();
-
-      return ResponseFactory.createSuccess(transfer);
-    } catch (error) {
-      return ResponseFactory.createFailure(error.message);
-    }
+    return ResponseFactory.run(Promise.resolve(transfer));
   }
 
   private async handleTransfer(coreItems: any[], table: Table): Promise<any> {
-    // const NewItemsStatus = await this.transferItemsService.run(
-    //   coreItems,
-    //   table,
-    // );
+    const { data: newItemStatus, error } = await this.transferItemsService.run(
+      coreItems,
+      table,
+    );
 
-    const newItemStatus: ServiceResponse<string> =
-      ResponseFactory.createSuccess('');
-
-    if (newItemStatus.success) {
-      if (typeof newItemStatus.data === 'string') {
-        throw new Error('Falha durante a transferencia');
-      } else {
-        return newItemStatus.data;
-      }
-    } else {
-      throw new Error('Falha durante a transferencia');
-    }
+    return newItemStatus;
   }
 
   // private async handleUpdate(

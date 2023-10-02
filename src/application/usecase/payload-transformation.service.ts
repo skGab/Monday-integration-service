@@ -19,18 +19,19 @@ export class PayloadTransformationService {
   ): ServiceResponse<FilteredData> {
     // GET ITEMS FROM BIGQUERY
 
-    if (bigQueryItemsID === null) return null;
+    try {
+      if (bigQueryItemsID === null) return null;
 
-    // PREPARE DATA TO BE INSERT OR UPDATE
-    const { coreItems, duplicateItems } = this.preparePayload(
-      bigQueryItemsID,
-      board,
-    );
+      // PREPARE DATA TO BE INSERT OR UPDATE
+      const { coreItems, duplicateItems } = this.preparePayload(
+        bigQueryItemsID,
+        board,
+      );
 
-    return ResponseFactory.createSuccess({
-      coreItems,
-      duplicateItems,
-    });
+      return { data: { coreItems, duplicateItems } };
+    } catch (error) {
+      return { error: error };
+    }
   }
 
   private preparePayload(bigQueryItemsId: string[], board: Board) {

@@ -26,32 +26,34 @@ export class PipeLineOrchestratorUsecase {
   async run(): Promise<Payload> {
     try {
       // CREATE DATASETS ON BIGQUERY AND UPDATE PAYLOAD
-      const workspacesCreated = await this.workspaceHandleService.run();
+      const { data: workspacesCreated, error: workspaceError } =
+        await this.workspaceHandleService.run();
 
-      if (!workspacesCreated.success) {
-        throw Error(workspacesCreated as any).message;
+      if (workspaceError) {
+        throw Error(workspaceError);
       }
 
       // GET MONDAY BOARDS AND UPDATE PAYLOAD
-      const mondayBoards = await this.mondayHandleService.run();
+      const { data: mondayBoards, error: mondayErrors } =
+        await this.mondayHandleService.run();
 
-      if (!mondayBoards.success) {
-        throw Error('Erro durante a busca de quadros');
+      if (mondayErrors) {
+        throw Error(mondayErrors);
       }
 
       // CREATING TABLES AND BOARDS ASSOCTIATION
-      const bigQueryResponse = await this.bigQueryHandleService.run(
-        mondayBoards.data,
-      );
-      if (!bigQueryResponse.success) {
-        throw Error('Erro durante a criacao e associacao de tabelas');
+      const { data: bigQueryResponse, error: bigQueryError } =
+        await this.bigQueryHandleService.run(mondayBoards);
+
+      if (bigQueryError) {
+        throw Error(bigQueryError);
       }
 
       // CRUD OPERATIONS ON BIGQUERY
-      const transferStatus = await this.performCrudOperations.run(
-        bigQueryResponse.data,
-      );
-      if (!transferStatus.success) {
+      const { data: transferStatus, error: TransferStatusError } =
+        await this.performCrudOperations.run(bigQueryResponse);
+
+      if (TransferStatusError) {
         this.Logger.error(transferStatus);
       }
 
@@ -61,11 +63,11 @@ export class PipeLineOrchestratorUsecase {
 
       // INSTANCIA DO PAYLOAD
       const payload = new Payload(
-        bigQueryResponse.data.tables,
-        workspacesCreated.data,
-        transferStatus.data,
+        bigQueryResponse.tables,
+        workspacesCreated,
+        transferStatus,
       );
-      payload.addBoard(mondayBoards.data);
+      payload.addBoard(mondayBoards);
 
       console.log(payload);
       return payload;

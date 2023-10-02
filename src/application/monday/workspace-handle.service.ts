@@ -16,33 +16,28 @@ export class WorkspaceHandleService {
   ) {}
 
   async run(): Promise<ServiceResponse<DatasetVo>> {
-    try {
-      // GET MONDAY WORKSPACES
-      const mondayWorkSpaces =
-        await this.mondayRepositoryService.getWorkSpaces();
+    // GET MONDAY WORKSPACES
+    const mondayWorkSpaces = await this.mondayRepositoryService.getWorkSpaces();
 
-      // CREATE THEM ON BIGQUERY
-      const datasets = await this.create(mondayWorkSpaces);
+    // CREATE THEM ON BIGQUERY
+    const datasetInstancePromise = this.create(mondayWorkSpaces);
 
-      // // UPDATE THE PAYLOAD
-      // payload.addDataset(data);
+    // // UPDATE THE PAYLOAD
+    // payload.addDataset(data);
 
-      // payload.updateStatus({
-      //   step: 'Criacao de Datasets',
-      //   success: true,
-      // });
+    // payload.updateStatus({
+    //   step: 'Criacao de Datasets',
+    //   success: true,
+    // });
 
-      return ResponseFactory.createSuccess(datasets);
-    } catch (error) {
-      // Update payload in case of error
-      // payload.updateStatus({
-      //   step: 'Criacao de Datasets',
-      //   success: false,
-      //   error: error.message,
-      // });
+    // Update payload in case of error
+    // payload.updateStatus({
+    //   step: 'Criacao de Datasets',
+    //   success: false,
+    //   error: error.message,
+    // });
 
-      return ResponseFactory.createFailure(error.message);
-    }
+    return ResponseFactory.run(datasetInstancePromise);
   }
 
   private async create(mondayWorkSpaces: Workspace[]): Promise<DatasetVo> {
@@ -50,8 +45,8 @@ export class WorkspaceHandleService {
     const bigQueryWorkspaces =
       await this.bigQueryRepositoryService.createDatasets(mondayWorkSpaces);
 
-    const datasets = new DatasetVo(bigQueryWorkspaces);
+    const dataset = new DatasetVo(bigQueryWorkspaces);
 
-    return datasets;
+    return dataset;
   }
 }

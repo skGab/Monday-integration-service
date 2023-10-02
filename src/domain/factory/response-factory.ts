@@ -1,34 +1,13 @@
-interface SuccessResponse<T> {
-  success: true;
-  data: T;
+export interface ServiceResponse<T> {
+  data?: T;
+  error?: any;
 }
-
-interface FailureResponse {
-  success: false;
-  error: any;
-}
-
-export type ServiceResponse<T> = SuccessResponse<T> | FailureResponse;
 
 export class ResponseFactory {
-  // static createSuccess<T>(data: T): ServiceResponse<T> {
-  //   return {
-  //     success: true,
-  //     data,
-  //   };
-  // }
-  // static createFailure(error: any): ServiceResponse<null> {
-  //   return {
-  //     success: false,
-  //     error,
-  //   };
-  // }
-
-  static run(promise) {
-    return Promise.allSettled(
-      [promise].then(function ([{ value, reason }]) {
-        return { data: value, error: reason };
-      }),
-    );
+  static async run<T>(promise: Promise<T>): Promise<ServiceResponse<T>> {
+    return Promise.allSettled([promise]).then((results) => {
+      const [{ value, reason }] = results as any;
+      return { data: value, error: reason };
+    });
   }
 }

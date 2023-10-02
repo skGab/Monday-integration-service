@@ -22,51 +22,30 @@ export class BigQueryHandleService {
   constructor(private bigQueryRepositoryService: BigQueryRepository) {}
 
   async run(mondayBoards: Board[]): Promise<ServiceResponse<BigQueryResponse>> {
+    return ResponseFactory.run(this.internalRun(mondayBoards));
+  }
+
+  private async internalRun(mondayBoards: Board[]): Promise<BigQueryResponse> {
     const bigQueryItemsId: string[] = [];
 
-    try {
-      // GETTING ROWS ON BIGQUERY FROM BOARDS
-      for (const board of mondayBoards) {
-        const ids = await this.bigQueryRepositoryService.getRows(board);
-        bigQueryItemsId.push(...ids);
-      }
-
-      // SET UP BOARDS AND TABLES
-      const boardTablePairs = await this.setupBoards(mondayBoards);
-
-      // CHECK IF BOARD SETUP WAS SUCCESSFUL
-      if (boardTablePairs === null || boardTablePairs.length === 0) {
-        // payload.updateStatus({
-        //   step: 'Config Quadros e Tabelas',
-        //   success: false,
-        //   error: 'Algo deu errado durante a configuração de quadros e tabelas',
-        // });
-        return ResponseFactory.createFailure([]);
-      }
-
-      // MAP THOUGH BOARDTABLEPAIRS AND UPDATE THE PAYLOAD TABLES
-      const tablesNames = boardTablePairs.map((pair) => pair.table.id);
-      const tables = new TableVo(tablesNames);
-
-      // payload.updateStatus({
-      //   step: 'Config Quadros e Tabelas',
-      //   success: true,
-      // });
-
-      // response
-      return ResponseFactory.createSuccess({
-        boardTablePairs,
-        bigQueryItemsId,
-        tables,
-      });
-    } catch (error) {
-      // payload.updateStatus({
-      //   step: 'Config Quadros e Tabelas',
-      //   success: false,
-      //   error: error.message,
-      // });
-      return ResponseFactory.createFailure(error.message);
+    // GETTING ROWS ON BIGQUERY FROM BOARDS
+    for (const board of mondayBoards) {
+      const ids = await this.bigQueryRepositoryService.getRows(board);
+      bigQueryItemsId.push(...ids);
     }
+
+    // SET UP BOARDS AND TABLES
+    const boardTablePairs = await this.setupBoards(mondayBoards);
+
+    // MAP THOUGH BOARDTABLEPAIRS AND UPDATE THE PAYLOAD TABLES
+    const tablesNames = boardTablePairs.map((pair) => pair.table.id);
+    const tables = new TableVo(tablesNames);
+
+    return {
+      boardTablePairs,
+      bigQueryItemsId,
+      tables,
+    };
   }
 
   private async setupBoards(mondayBoards: Board[]): Promise<BoardTablePairs[]> {
