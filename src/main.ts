@@ -12,7 +12,7 @@ async function bootstrap() {
     {
       snapshot: true,
       abortOnError: false,
-      logger: ['error', 'warn'],
+      logger: ['error', 'warn', 'log'],
     },
   );
 

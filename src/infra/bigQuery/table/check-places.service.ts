@@ -2,12 +2,16 @@ import { CreateDatasetService } from '../create-dataset.service';
 import { BigQuery } from '@google-cloud/bigquery';
 import { Injectable, Logger } from '@nestjs/common';
 import { Board } from 'src/domain/entities/board/board';
+import { ErrorDispatch } from 'src/domain/events/error-dispatch.events';
 
 @Injectable()
 export class CheckPlacesService {
   private logger = new Logger(CheckPlacesService.name);
 
-  constructor(private createDatasetService: CreateDatasetService) {}
+  constructor(
+    private createDatasetService: CreateDatasetService,
+    private readonly errorDispatch: ErrorDispatch,
+  ) {}
 
   async run(board: Board, location: string, bigQuery: BigQuery) {
     // Getting the board and workspace reference

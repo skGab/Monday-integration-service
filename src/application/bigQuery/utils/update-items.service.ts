@@ -5,7 +5,8 @@ import {
   ResponseFactory,
   ServiceResponse,
 } from 'src/domain/factory/response-factory';
-import { TransferResponse } from 'src/domain/entities/transfer';
+import { BodyShape } from 'src/domain/entities/payload';
+import { Table } from '@google-cloud/bigquery';
 
 @Injectable()
 export class UpdateItemsService {
@@ -13,19 +14,29 @@ export class UpdateItemsService {
 
   async run(
     duplicateItems: { [key: string]: string }[],
-    table: any,
-  ): Promise<ServiceResponse<TransferResponse | string[]>> {
-    // UPDATE IMPLEMENTATION ON BIGQUERY
-    if (duplicateItems.length !== 0) {
-      const updateResult = this.bigQueryRepositoryService.updateRows(
-        duplicateItems,
-        table,
+    table: Table,
+  ): Promise<ServiceResponse<BodyShape>> {
+    if (duplicateItems.length === 0) {
+      return ResponseFactory.run(
+        Promise.resolve({
+          names: [],
+          count: 0,
+        }),
       );
-
-      const response = duplicateItems.map((item) => item.solicitacao);
-
-      // return updateResult;
-      return ResponseFactory.run(Promise.resolve(response));
     }
+
+    // UPDATE IMPLEMENTATION ON BIGQUERY
+    const data = await this.bigQueryRepositoryService.updateRows(
+      duplicateItems,
+      table,
+    );
+
+    // RETURN UPDATE RESULTS
+    const response = {
+      names: data.insertedPayload.map((item) => item.solicitacao),
+      count: data.insertedPayload.length,
+    };
+
+    return ResponseFactory.run(Promise.resolve(response));
   }
 }

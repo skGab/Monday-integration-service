@@ -11,7 +11,7 @@ export class MondayRepositoryService {
 
   constructor(private apiCallService: ApiCallService) {}
 
-  async getBoards(): Promise<Board[] | null> {
+  async getBoards(): Promise<Board[]> {
     try {
       const { data } = await lastValueFrom(this.apiCallService.run());
 
@@ -19,20 +19,16 @@ export class MondayRepositoryService {
         data: { boards },
       } = data;
 
-      if (!boards || boards.length === 0) {
-        // PUT ON JSON FILE WITH LOGGING LIB
-        this.logger.error('Nenhum quadro encontrado durante a busca');
-        return null;
-      }
+      if (!boards || boards.length === 0)
+        throw Error('Nenhum quadro encontrado durante a busca');
 
       return boards.map((board) => EntityFactory.createBoard(board));
     } catch (error) {
-      this.logger.error(error);
-      return null;
+      throw error;
     }
   }
 
-  async getWorkSpaces(): Promise<Workspace[] | null> {
+  async getWorkSpaces(): Promise<Workspace[]> {
     try {
       const { data } = await lastValueFrom(this.apiCallService.run());
 
@@ -40,13 +36,8 @@ export class MondayRepositoryService {
         data: { workspaces },
       } = data;
 
-      if (workspaces.length == 0 || !workspaces) {
-        // PUT ON JSON FILE WITH LOGGING LIB
-        this.logger.error(
-          'Nenhuma area de trabalho encontrada durante a busca',
-        );
-        return null;
-      }
+      if (workspaces.length == 0 || !workspaces)
+        throw Error('Nenhuma area de trabalho encontrada durante a busca');
 
       const response = workspaces
         .map((workspace) => EntityFactory.createWorkspace(workspace))
@@ -54,9 +45,7 @@ export class MondayRepositoryService {
 
       return response;
     } catch (error) {
-      // PUT ON JSON FILE WITH LOGGING LIB
-      this.logger.error(error);
-      return null;
+      throw error;
     }
   }
 }

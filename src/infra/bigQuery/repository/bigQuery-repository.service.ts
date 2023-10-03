@@ -1,7 +1,6 @@
-import { TransferRowsService } from '../rows/transfer-rows.service';
 import { GetRowsService } from '../rows/get-rows.service';
 import { UpdateRowsService } from '../rows/update-rows.service';
-import { BigQuery, Table } from '@google-cloud/bigquery';
+import { BigQuery, Dataset, Table } from '@google-cloud/bigquery';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
@@ -14,6 +13,9 @@ import { Workspace } from 'src/domain/entities/board/workspace';
 import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
 import { Board } from 'src/domain/entities/board/board';
 import { TransferResponse } from 'src/domain/entities/transfer';
+import { InsertRowsService } from '../rows/insert-rows.service';
+import { errorMonitor } from 'events';
+import { Item } from 'src/domain/entities/board/item';
 
 @Injectable()
 export class BigQueryRepositoryService implements BigQueryRepository {
@@ -27,7 +29,7 @@ export class BigQueryRepositoryService implements BigQueryRepository {
     private readonly configService: ConfigService,
     private readonly updateRowsService: UpdateRowsService,
     private readonly getRowsService: GetRowsService,
-    private readonly transferRowsService: TransferRowsService,
+    private readonly insertRowsService: InsertRowsService,
   ) {
     this.bigQueryClient = new BigQuery({
       projectId: this.configService.get<string>('BIGQUERY_PROJECT_ID'),
@@ -36,32 +38,27 @@ export class BigQueryRepositoryService implements BigQueryRepository {
   }
 
   // CREATE DATASETS/WORKSPACES
-  async createDatasets(workspaces: Workspace[]): Promise<string[] | null> {
-    if (!workspaces || workspaces.length == 0) {
-      this.logger.error(
-        'Nenhuma area de trabalho encontrada para criação de datasets no BigQuery',
-      );
-      return null;
+  async createDatasets(mondayWorkspaces: Workspace[]): Promise<Dataset[]> {
+    try {
+      const promises = mondayWorkspaces.map(async (workspace) => {
+        const response = await this.createDatasetService.run(
+          this.location,
+          this.bigQueryClient,
+          workspace.getName(),
+        );
+        return response;
+      });
+
+      const datasets = await Promise.all(promises);
+
+      return datasets;
+    } catch (error) {
+      throw error;
     }
-
-    const promises = workspaces.map(async (workspace) => {
-      const response = await this.createDatasetService.run(
-        this.location,
-        this.bigQueryClient,
-        workspace.getName(),
-      );
-      return response;
-    });
-
-    const datasets = await Promise.all(promises);
-
-    return datasets.map((dataset) => {
-      return dataset.id;
-    });
   }
 
   // CREATE Tables/Boards
-  async createTables(boards: Board[]): Promise<Table[] | null> {
+  async createTables(boards: Board[]): Promise<Table[]> {
     if (!boards || boards.length == 0) {
       this.logger.error(
         'Nenhum quadro encontrado para criação de tabelas no BigQuery',
@@ -79,40 +76,28 @@ export class BigQueryRepositoryService implements BigQueryRepository {
   }
 
   // TRANSFER ITEMS
-  async insertRows(
-    payload: any[],
-    table: Table,
-  ): Promise<TransferResponse | null> {
-    if (!table) {
-      this.logger.error('Nenhuma tabela encotrada para inserção de items');
-      return null;
+  async insertRows(coreItems: any[], table: Table): Promise<TransferResponse> {
+    try {
+      const response = await this.insertRowsService.run(coreItems, table);
+
+      return response;
+    } catch (error) {
+      throw error;
     }
-
-    if (!payload || payload.length == 0) {
-      this.logger.error('Payload vazio para inserção no BigQuery');
-      return null;
-    }
-
-    const itemsId = await this.transferRowsService.run(payload, table);
-
-    return itemsId;
   }
 
   // UPDATE ITEMS
   async updateRows(
-    payload: any[],
-    board: Board,
-  ): Promise<TransferResponse | null> {
-    if (!board) {
-      this.logger.error(
-        'Nenhum item encontrado para criação de tabelas no BigQuery',
-      );
-      return null;
+    duplicateItems: any[],
+    table: Table,
+  ): Promise<TransferResponse> {
+    try {
+      const response = await this.updateRowsService.run(duplicateItems, table);
+
+      return response;
+    } catch (error) {
+      throw error;
     }
-
-    const response = await this.updateRowsService.run(payload, board);
-
-    return response;
   }
 
   // GET ITEMS

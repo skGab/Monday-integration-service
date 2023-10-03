@@ -11,21 +11,21 @@ import { BodyShape } from 'src/domain/entities/payload';
 import { Transfer } from 'src/domain/entities/transfer';
 
 import { UpdateItemsService } from './utils/update-items.service';
-import { TransferItemsService } from './utils/create-items.service';
+import { CreateItemsService } from './utils/create-items.service';
 
-import { PayloadTransformationService } from './../usecase/payload-transformation.service';
+import { PayloadTransformationService } from './utils/payload-transformation.service';
 import { Table } from '@google-cloud/bigquery';
 
 @Injectable()
-export class PerformCrudOperations {
+export class PerformCrudService {
   private newItems: BodyShape;
   private updatedItems: BodyShape;
   private excludedItems: BodyShape;
 
   constructor(
-    private readonly transferItemsService: TransferItemsService,
     private readonly updateItemsService: UpdateItemsService,
     private readonly payloadTransformationService: PayloadTransformationService,
+    private readonly createItemsService: CreateItemsService,
   ) {}
 
   async run(
@@ -44,10 +44,16 @@ export class PerformCrudOperations {
         const { coreItems, duplicateItems } = data;
 
         // TRANSFER NEW ITEMS
-        this.newItems = await this.handleTransfer(coreItems, table);
+        const { data: insertedItems, error: insertError } =
+          await this.createItemsService.run(coreItems, table);
+
+        this.newItems = insertedItems;
 
         // UPDATE ITEMS
-        // await this.handleUpdate(payload, duplicateItems, table);
+        const { data: updatedItems, error: updateError } =
+          await this.updateItemsService.run(duplicateItems, table);
+
+        this.updatedItems = updatedItems;
       },
     );
 
@@ -62,32 +68,4 @@ export class PerformCrudOperations {
 
     return ResponseFactory.run(Promise.resolve(transfer));
   }
-
-  private async handleTransfer(coreItems: any[], table: Table): Promise<any> {
-    const { data: newItemStatus, error } = await this.transferItemsService.run(
-      coreItems,
-      table,
-    );
-
-    return newItemStatus;
-  }
-
-  // private async handleUpdate(
-  //   payload: Payload,
-  //   duplicateItems: any[],
-  //   table: unknown,
-  // ) {
-  //   const UpdateStatus = await this.updateItemsService.run(
-  //     duplicateItems,
-  //     table,
-  //   );
-
-  //   if (UpdateStatus.success) {
-  //     if (typeof UpdateStatus.data === 'string') {
-  //       payload.addTransfer();
-  //     } else {
-  //       payload.addTransfer(undefined, UpdateStatus.data);
-  //     }
-  //   }
-  // }
 }
