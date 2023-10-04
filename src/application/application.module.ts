@@ -5,16 +5,18 @@ import { WorkSpaceController } from './controllers/workspace.controller';
 
 import { InfrastructureModule } from 'src/infra/infrastructure.module';
 
-import { BigQueryHandleService } from './bigQuery/bigQuery-handle.service';
-import { PerformCrudService } from './bigQuery/perform-crud.service';
-import { CreateItemsService } from './bigQuery/utils/create-items.service';
-import { UpdateItemsService } from './bigQuery/utils/update-items.service';
-import { PayloadTransformationService } from './bigQuery/utils/payload-transformation.service';
+import { BigQueryHandleService } from './handles/bigQuery-handle.service';
+import { CreateItemsService } from './bigQuery/crud/create-items.service';
+import { UpdateItemsService } from './bigQuery/crud/update-items.service';
+import { FilterItemsService } from './bigQuery/filter-items.service';
 
-import { MondayHandleService } from './monday/monday-handle.service';
+import { MondayHandleService } from './handles/monday-handle.service';
 
 import { PipeLineOrchestratorUsecase } from './usecase/pipeLine-orchestrator.service';
-import { CreateWorkspaceService } from './bigQuery/utils/create-workspace.service';
+import { CreateWorkspaceService } from './bigQuery/crud/create-workspace.service';
+import { CreateBoardsService } from './bigQuery/crud/create-boards.service';
+import { GetItemsService } from './bigQuery/crud/get-items.service';
+import { CrudOnItemsService } from './bigQuery/crud-on-items.service';
 
 @Module({
   // CONTROLLERS
@@ -27,9 +29,11 @@ import { CreateWorkspaceService } from './bigQuery/utils/create-workspace.servic
     MondayHandleService,
     CreateWorkspaceService,
     BigQueryHandleService,
-    PerformCrudService,
+    CrudOnItemsService,
+    CreateBoardsService,
+    GetItemsService,
 
-    PayloadTransformationService,
+    FilterItemsService,
     CreateItemsService,
     UpdateItemsService,
   ],

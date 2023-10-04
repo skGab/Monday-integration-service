@@ -1,4 +1,4 @@
-import { BodyShape } from './payload';
+import { BodyShape } from '../entities/payload';
 
 export abstract class TransferResponse {
   tableId: string;
@@ -6,7 +6,7 @@ export abstract class TransferResponse {
   insertedPayload?: { [key: string]: string }[];
 }
 
-export class Transfer {
+export class CrudOperationsVo {
   constructor(
     public newItems: BodyShape,
     public updatedItems: BodyShape,

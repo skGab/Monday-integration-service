@@ -13,7 +13,7 @@ export class CreateWorkspaceService {
 
   async run(
     mondayWorkSpaces: Workspace[],
-  ): Promise<ServiceResponse<DatasetVo>> {
+  ): Promise<ServiceResponse<DatasetVo | null>> {
     // CREATE WORKSPACES ON BIGQUERY
     const datasetPromise = this.create(mondayWorkSpaces);
 
@@ -25,9 +25,13 @@ export class CreateWorkspaceService {
       mondayWorkSpaces,
     );
 
+    if (!response && response.length == 0) return null;
+
     // GETTING NAMES FROM WORKSPACES
-    const datasetsNames = response.map((dataset) => dataset.id);
-    const datasetVo = new DatasetVo(datasetsNames);
+    const datasetVo = new DatasetVo({
+      names: response.map((dataset) => dataset.id),
+      count: response.length,
+    });
 
     return datasetVo;
   }

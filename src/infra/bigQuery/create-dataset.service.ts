@@ -8,20 +8,21 @@ export class CreateDatasetService {
   async run(
     location: string,
     bigQuery: BigQuery,
-    workspace: string,
+    workspaceName: string,
   ): Promise<Dataset> {
-    const dataset = bigQuery.dataset(workspace);
+    const dataset = bigQuery.dataset(workspaceName);
     const [exists] = await dataset.exists();
 
     if (!exists) {
-      const [dataset] = await bigQuery.createDataset(workspace, {
+      const [newDataset] = await bigQuery.createDataset(workspaceName, {
         location: location,
       });
 
-      console.log('Novo WorkSpace criado:', dataset.id);
-      return dataset;
+      console.log('Novo Dataset criado:', newDataset.id);
+      return newDataset;
     }
 
+    console.log('Dataset Existente', dataset.id);
     return dataset;
   }
 }

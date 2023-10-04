@@ -1,7 +1,13 @@
-export class DatasetVo {
-  constructor(public names: string[]) {}
+import { BodyShape } from '../entities/payload';
 
-  addWorkspace(datasetsNames: string[]): void {
-    this.names = [...this.names, ...datasetsNames];
+export class DatasetVo {
+  private names: string[];
+  private count: number;
+  private message?: string;
+
+  constructor({ names, count, message }: BodyShape) {
+    this.names = names;
+    this.count = count;
+    this.message = message;
   }
 }

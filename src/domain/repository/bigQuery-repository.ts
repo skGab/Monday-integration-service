@@ -1,7 +1,7 @@
 import { Dataset, Table } from '@google-cloud/bigquery';
 import { Board } from '../entities/board/board';
 import { Workspace } from '../entities/board/workspace';
-import { TransferResponse } from '../entities/transfer';
+import { TransferResponse } from '../valueObjects/crud-operations.vo';
 
 export abstract class BigQueryRepository {
   // CREATE WORKSPACES

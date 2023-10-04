@@ -1,10 +1,11 @@
-import { MondayHandleService } from '../monday/monday-handle.service';
+import { TableVo } from './../../domain/valueObjects/table.vo';
+import { CrudOnItemsService } from './../bigQuery/crud-on-items.service';
+import { MondayHandleService } from '../handles/monday-handle.service';
 import { Injectable, Logger } from '@nestjs/common';
 
-import { BigQueryHandleService } from '../bigQuery/bigQuery-handle.service';
+import { BigQueryHandleService } from '../handles/bigQuery-handle.service';
 import { Payload } from 'src/domain/entities/payload';
-import { PerformCrudService } from '../bigQuery/perform-crud.service';
-import { CreateWorkspaceService } from '../bigQuery/utils/create-workspace.service';
+import { CreateWorkspaceService } from '../bigQuery/crud/create-workspace.service';
 
 @Injectable()
 export class PipeLineOrchestratorUsecase {
@@ -12,45 +13,55 @@ export class PipeLineOrchestratorUsecase {
 
   constructor(
     private mondayHandleService: MondayHandleService,
-    private performCrudService: PerformCrudService,
     private bigQueryHandleService: BigQueryHandleService,
-    private createWorkspaceService: CreateWorkspaceService,
   ) {}
+
+  // 1
+  // CHECK FOR PROMISE.RESOLVE ON EACH SERVICE
+  // BECAUSE THE RESPONSES COULD BE REJECTED PROMISES
+  // THAT WOULD CAUSE getDataFromServices, RETURN A REJECTED PROMISE
+  // AND WOULD FALL ON THE CONTROLLER CATCH BLOCK
+
+  // 2 CONTINUE CHECKING FOR FAST EXIST ON BIGQUERY HANDLE AND AFTER
 
   // 3
   // MONTAR LOGICA DE ATUALIZAÇÃO
   // MONTAR LOGICA DE EXCLUSÃO
 
-  // IMPLEMENTAR PROMISE RESOLVE NOS PRIMEIROS SERVIÇOS
   // IMPLEMENTAR EMISSÃO DE EVENTOS NOS SERVIÇOS INFRA
 
   async run(): Promise<Payload> {
-    // GETTING RESULTS FROM BOARDS
-    const { dataset, bigQueryResponse, operationStatus, mondayBoards } =
+    // GETTING DATA
+    const { mondayBoards, mondayWorkspaces, datasetVo } =
       await this.getDataFromServices();
 
     // INSTANCIA DO PAYLOAD
-    const payload = new Payload(
-      bigQueryResponse.tables,
-      dataset,
-      operationStatus,
-    );
-
-    payload.addBoard(mondayBoards);
+    const payload = new Payload(mondayBoards, mondayWorkspaces, datasetVo);
 
     console.log(payload);
     return payload;
   }
 
   private async getDataFromServices() {
-    //  GET MONDAY DATA
-    const {
-      data: { boards: mondayBoards, workspaces: mondayWorkspaces },
-    } = await this.mondayHandleService.run();
+    // GET MONDAY BOARDS
+    const { data: mondayBoards, error: boardsError } =
+      await this.mondayHandleService.getBoards();
+
+    if (boardsError) {
+      throw boardsError;
+    }
+
+    // GET MONDAY WORKSPACES
+    const { data: mondayWorkspaces, error: workspacesError } =
+      await this.mondayHandleService.getWorkspaces();
+
+    if (workspacesError) {
+      throw workspacesError;
+    }
 
     // CREATE DATASETS ON BIGQUERY
-    const { data: dataset, error: datasetError } =
-      await this.createWorkspaceService.run(mondayWorkspaces);
+    const { data: datasetVo, error: datasetError } =
+      await this.bigQueryHandleService.createDatasets(mondayWorkspaces);
 
     if (datasetError) {
       throw datasetError;
@@ -64,19 +75,22 @@ export class PipeLineOrchestratorUsecase {
       throw bigQueryError;
     }
 
-    // CRUD OPERATIONS ON BIGQUERY
-    const { data: operationStatus, error: TransferStatusError } =
-      await this.performCrudService.run(bigQueryResponse);
+    // PRECISO CONTINUAR SEPARANDO AS RESPONSABILIDADES
+    // MANDAR OPERAÇÕES CRUD DOS ITEMS PARA O HANDLE BIGQUERY
+    // MANDAR CRIAÇÃO DE WORKSPACES PARA O HANDLE BIGQUERY
 
-    if (TransferStatusError) {
-      throw TransferStatusError;
-    }
+    // // CRUD OPERATIONS ON BIGQUERY
+    // const { data: operationStatus, error: TransferStatusError } =
+    //   await this.performCrudService.run(bigQueryResponse);
+
+    // if (TransferStatusError) {
+    //   throw TransferStatusError;
+    // }
 
     return {
-      dataset,
-      bigQueryResponse,
-      operationStatus,
       mondayBoards,
+      mondayWorkspaces,
+      datasetVo,
     };
   }
 }

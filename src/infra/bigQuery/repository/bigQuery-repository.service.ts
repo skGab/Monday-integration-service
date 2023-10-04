@@ -12,7 +12,7 @@ import Credentials from '../../security/credentials.json';
 import { Workspace } from 'src/domain/entities/board/workspace';
 import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
 import { Board } from 'src/domain/entities/board/board';
-import { TransferResponse } from 'src/domain/entities/transfer';
+import { TransferResponse } from 'src/domain/valueObjects/crud-operations.vo';
 import { InsertRowsService } from '../rows/insert-rows.service';
 import { errorMonitor } from 'events';
 import { Item } from 'src/domain/entities/board/item';
@@ -38,27 +38,25 @@ export class BigQueryRepositoryService implements BigQueryRepository {
   }
 
   // CREATE DATASETS/WORKSPACES
-  async createDatasets(mondayWorkspaces: Workspace[]): Promise<Dataset[]> {
-    try {
-      const promises = mondayWorkspaces.map(async (workspace) => {
-        const response = await this.createDatasetService.run(
-          this.location,
-          this.bigQueryClient,
-          workspace.getName(),
-        );
-        return response;
-      });
+  async createDatasets(
+    mondayWorkspaces: Workspace[],
+  ): Promise<Dataset[] | null> {
+    const promises = mondayWorkspaces.map(async (workspace) => {
+      const response = await this.createDatasetService.run(
+        this.location,
+        this.bigQueryClient,
+        workspace.getName(),
+      );
+      return response;
+    });
 
-      const datasets = await Promise.all(promises);
+    const datasets = await Promise.all(promises);
 
-      return datasets;
-    } catch (error) {
-      throw error;
-    }
+    return datasets;
   }
 
   // CREATE Tables/Boards
-  async createTables(boards: Board[]): Promise<Table[]> {
+  async createTables(boards: Board[]): Promise<Table[] | null> {
     if (!boards || boards.length == 0) {
       this.logger.error(
         'Nenhum quadro encontrado para criação de tabelas no BigQuery',
@@ -76,7 +74,10 @@ export class BigQueryRepositoryService implements BigQueryRepository {
   }
 
   // TRANSFER ITEMS
-  async insertRows(coreItems: any[], table: Table): Promise<TransferResponse> {
+  async insertRows(
+    coreItems: any[],
+    table: Table,
+  ): Promise<TransferResponse | null> {
     try {
       const response = await this.insertRowsService.run(coreItems, table);
 
@@ -90,7 +91,7 @@ export class BigQueryRepositoryService implements BigQueryRepository {
   async updateRows(
     duplicateItems: any[],
     table: Table,
-  ): Promise<TransferResponse> {
+  ): Promise<TransferResponse | null> {
     try {
       const response = await this.updateRowsService.run(duplicateItems, table);
 

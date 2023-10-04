@@ -1,9 +1,9 @@
 import { DatasetVo } from '../valueObjects/dataset.vo';
 import { TableVo } from '../valueObjects/table.vo';
 import { Board } from './board/board';
-import { Status } from './status';
-import { Transfer } from './transfer';
-
+import { CrudOperationsVo } from '../valueObjects/crud-operations.vo';
+import { ServiceStatusVo } from '../valueObjects/service-status.vo';
+import { Workspace } from './board/workspace';
 export interface BodyShape {
   count: number;
   names: string[];
@@ -11,23 +11,40 @@ export interface BodyShape {
 }
 
 export class Payload {
-  public boards: BodyShape;
-
   // prazo de entrega realizado
   // prazo de entrega solicitado
   constructor(
-    public tables: TableVo,
-    public datasets: DatasetVo,
-    public transfers: Transfer,
-    public status: Status[] = [],
-  ) {}
+    // MONDAY DATA
+    private mondayBoards: BodyShape | Board[],
+    private mondayWorkspaces: BodyShape | Workspace[],
 
-  addBoard(mondayBoards: Board[]): void {
-    const board = {
-      count: mondayBoards.length,
-      names: mondayBoards.map((mBoard) => mBoard.getBoardName()),
-    };
+    // BIG QUERY DATA
+    private bigQueryDatasets: DatasetVo,
+    private bigQueryTables?: TableVo,
 
-    this.boards = board;
+    // OPERATION STATUS
+    private crudOperations?: CrudOperationsVo,
+    private serviceStatus?: ServiceStatusVo[],
+  ) {
+    this.boardsMap(mondayBoards);
+    this.workspacesMap(mondayWorkspaces);
+  }
+
+  private boardsMap(mondayBoards: BodyShape | Board[]) {
+    if (Array.isArray(mondayBoards)) {
+      this.mondayBoards = {
+        count: mondayBoards.length,
+        names: mondayBoards.map((board) => board.getBoardName()),
+      };
+    }
+  }
+
+  private workspacesMap(mondayWorkspaces: BodyShape | Workspace[]) {
+    if (Array.isArray(mondayWorkspaces)) {
+      this.mondayWorkspaces = {
+        count: mondayWorkspaces.length,
+        names: mondayWorkspaces.map((workspace) => workspace.getName()),
+      };
+    }
   }
 }

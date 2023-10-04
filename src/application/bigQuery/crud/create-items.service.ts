@@ -1,7 +1,7 @@
 import { Table } from '@google-cloud/bigquery';
 import { Injectable } from '@nestjs/common';
 import { BodyShape } from 'src/domain/entities/payload';
-import { TransferResponse } from 'src/domain/entities/transfer';
+import { TransferResponse } from 'src/domain/valueObjects/crud-operations.vo';
 import {
   ResponseFactory,
   ServiceResponse,

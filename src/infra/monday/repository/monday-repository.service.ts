@@ -11,41 +11,37 @@ export class MondayRepositoryService {
 
   constructor(private apiCallService: ApiCallService) {}
 
-  async getBoards(): Promise<Board[]> {
-    try {
-      const { data } = await lastValueFrom(this.apiCallService.run());
+  async getBoards(): Promise<Board[] | null> {
+    const { data } = await lastValueFrom(this.apiCallService.run());
 
-      const {
-        data: { boards },
-      } = data;
+    const {
+      data: { boards },
+    } = data;
 
-      if (!boards || boards.length === 0)
-        throw Error('Nenhum quadro encontrado durante a busca');
-
-      return boards.map((board) => EntityFactory.createBoard(board));
-    } catch (error) {
-      throw error;
+    if (!boards || boards.length === 0) {
+      this.logger.log('Nenhum quadro encontrado durante a busca');
+      return null;
     }
+
+    return boards.map((board) => EntityFactory.createBoard(board));
   }
 
-  async getWorkSpaces(): Promise<Workspace[]> {
-    try {
-      const { data } = await lastValueFrom(this.apiCallService.run());
+  async getWorkSpaces(): Promise<Workspace[] | null> {
+    const { data } = await lastValueFrom(this.apiCallService.run());
 
-      const {
-        data: { workspaces },
-      } = data;
+    const {
+      data: { workspaces },
+    } = data;
 
-      if (workspaces.length == 0 || !workspaces)
-        throw Error('Nenhuma area de trabalho encontrada durante a busca');
-
-      const response = workspaces
-        .map((workspace) => EntityFactory.createWorkspace(workspace))
-        .filter((workspace) => workspace !== null);
-
-      return response;
-    } catch (error) {
-      throw error;
+    if (workspaces.length == 0 || !workspaces) {
+      this.logger.log('Nenhuma area de trabalho encontrada durante a busca');
+      return null;
     }
+
+    const response = workspaces
+      .map((workspace) => EntityFactory.createWorkspace(workspace))
+      .filter((workspace) => workspace !== null);
+
+    return response;
   }
 }
