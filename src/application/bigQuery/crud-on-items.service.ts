@@ -13,8 +13,8 @@ import { CreateItemsService } from './crud/create-items.service';
 import { Table } from '@google-cloud/bigquery';
 import { Board } from 'src/domain/entities/board/board';
 import { CrudOperationsVo } from 'src/domain/valueObjects/crud-operations.vo';
-import { BoardsAndTablesAssociation } from './utils/boardsAndTables-association copy';
-import { FilterItemsService } from './filter-items.service';
+import { BoardsAndTablesAssociation } from './utils/boards-And-Tables';
+import { FilterItemsService } from './utils/filter-items.service';
 
 @Injectable()
 export class CrudOnItemsService {

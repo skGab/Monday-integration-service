@@ -15,27 +15,45 @@ export class MondayHandleService {
 
   // GET MONDAY BOARDS
   async getBoards(): Promise<ServiceResponse<Board[] | null>> {
-    const mondayBoards = await this.mondayRepositoryService.getBoards();
+    try {
+      const mondayBoards = await this.mondayRepositoryService.getBoards();
 
-    // RETURNING NULL IF ANY BOARDS FOUND
-    if (!mondayBoards) {
-      return ResponseFactory.run(Promise.resolve(null));
+      // RETURNING NULL IF ANY BOARDS FOUND
+      if (!mondayBoards === null || mondayBoards instanceof Error) {
+        return {
+          data: null,
+          error: mondayBoards instanceof Error ? mondayBoards : undefined,
+        };
+      }
+
+      // SANITIZING BOARDS BEFORE SENDING IT
+      const { validBoards } = this.sanitize(mondayBoards);
+
+      return ResponseFactory.run(Promise.resolve(validBoards));
+    } catch (error) {
+      console.log('Get Boards method', error.message);
+      return ResponseFactory.run(Promise.reject(error.message));
     }
-
-    // SANITIZING BOARDS BEFORE SENDING IT
-    const { validBoards } = this.sanitize(mondayBoards);
-
-    return ResponseFactory.run(Promise.resolve(validBoards));
   }
 
   // GET MONDAY WORKSPACES
   async getWorkspaces(): Promise<ServiceResponse<Workspace[] | null>> {
-    const workspaces = this.mondayRepositoryService.getWorkSpaces();
+    try {
+      const workspaces = this.mondayRepositoryService.getWorkSpaces();
 
-    // RETURNING NULL IF ANY WORKSPACES FOUND
-    if (!workspaces) return ResponseFactory.run(Promise.resolve(null));
+      // RETURNING NULL IF ANY WORKSPACES FOUND
+      if (!workspaces === null || workspaces instanceof Error) {
+        return {
+          data: null,
+          error: workspaces instanceof Error ? workspaces : undefined,
+        };
+      }
 
-    return ResponseFactory.run(workspaces);
+      return ResponseFactory.run(workspaces);
+    } catch (error) {
+      console.log('Get Workspaces method', error.message);
+      return ResponseFactory.run(Promise.resolve(null));
+    }
   }
 
   // SANITIZE

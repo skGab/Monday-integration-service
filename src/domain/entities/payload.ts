@@ -16,10 +16,10 @@ export class Payload {
   constructor(
     // MONDAY DATA
     private mondayBoards: BodyShape | Board[],
-    private mondayWorkspaces: BodyShape | Workspace[],
+    private mondayWorkspaces?: BodyShape | Workspace[],
 
     // BIG QUERY DATA
-    private bigQueryDatasets: DatasetVo,
+    private bigQueryDatasets?: DatasetVo,
     private bigQueryTables?: TableVo,
 
     // OPERATION STATUS

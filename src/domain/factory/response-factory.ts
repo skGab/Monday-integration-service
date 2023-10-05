@@ -1,5 +1,5 @@
 export interface ServiceResponse<T> {
-  data?: T;
+  data: T | null;
   error?: any;
 }
 

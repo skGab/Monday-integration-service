@@ -8,7 +8,7 @@ import { InfrastructureModule } from 'src/infra/infrastructure.module';
 import { BigQueryHandleService } from './handles/bigQuery-handle.service';
 import { CreateItemsService } from './bigQuery/crud/create-items.service';
 import { UpdateItemsService } from './bigQuery/crud/update-items.service';
-import { FilterItemsService } from './bigQuery/filter-items.service';
+import { FilterItemsService } from './bigQuery/utils/filter-items.service';
 
 import { MondayHandleService } from './handles/monday-handle.service';
 

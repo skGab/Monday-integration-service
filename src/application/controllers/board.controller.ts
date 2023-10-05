@@ -6,7 +6,6 @@ import {
   Logger,
 } from '@nestjs/common';
 import { PipeLineOrchestratorUsecase } from '../usecase/pipeLine-orchestrator.service';
-import { OnEvent } from '@nestjs/event-emitter';
 
 interface ErrorEvent {
   type: 'serviceError' | 'infrastructureError';
@@ -25,31 +24,26 @@ export class BoardController {
 
   // SERVICE LOGS
   @Get('logs')
-  async transferBoardsToBigQuery() {
+  async syncData() {
     try {
       // const status = this.schedulerService.getCurrentStatus();
       const status = await this.pipeLineOrchestratorUsecase.run();
 
       return status;
     } catch (error) {
-      this.logger.error(error.message);
-
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
-          error: 'Error durante a transferencia de quadros',
+          error: 'Error durante a integração de dados',
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
-        {
-          cause: error,
-        },
       );
     }
   }
 
-  // TRATAÇÃO DE ERRROS
-  @OnEvent('infraError')
-  handleErrors(payload: any) {
-    this.logger.error(payload);
-  }
+  // // TRATAÇÃO DE ERRROS
+  // @OnEvent('infraError')
+  // handleErrors(payload: any) {
+  //   this.logger.error(payload);
+  // }
 }

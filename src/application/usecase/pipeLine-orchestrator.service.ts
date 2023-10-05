@@ -32,11 +32,10 @@ export class PipeLineOrchestratorUsecase {
 
   async run(): Promise<Payload> {
     // GETTING DATA
-    const { mondayBoards, mondayWorkspaces, datasetVo } =
-      await this.getDataFromServices();
+    const { mondayBoards } = await this.getDataFromServices();
 
     // INSTANCIA DO PAYLOAD
-    const payload = new Payload(mondayBoards, mondayWorkspaces, datasetVo);
+    const payload = new Payload(mondayBoards);
 
     console.log(payload);
     return payload;
@@ -48,36 +47,34 @@ export class PipeLineOrchestratorUsecase {
       await this.mondayHandleService.getBoards();
 
     if (boardsError) {
+      // console.log(boardsError);
       throw boardsError;
     }
 
-    // GET MONDAY WORKSPACES
-    const { data: mondayWorkspaces, error: workspacesError } =
-      await this.mondayHandleService.getWorkspaces();
+    // // GET MONDAY WORKSPACES
+    // const { data: mondayWorkspaces, error: workspacesError } =
+    //   await this.mondayHandleService.getWorkspaces();
 
-    if (workspacesError) {
-      throw workspacesError;
-    }
+    // if (workspacesError) {
+    //   console.log(workspacesError);
+    //   // throw workspacesError;
+    // }
 
-    // CREATE DATASETS ON BIGQUERY
-    const { data: datasetVo, error: datasetError } =
-      await this.bigQueryHandleService.createDatasets(mondayWorkspaces);
+    // // CREATE DATASETS ON BIGQUERY
+    // const { data: datasetVo, error: datasetError } =
+    //   await this.bigQueryHandleService.createDatasets(mondayWorkspaces);
 
-    if (datasetError) {
-      throw datasetError;
-    }
+    // if (datasetError) {
+    //   // throw datasetError;
+    // }
 
-    // CREATING TABLES AND BOARDS ASSOCTIATION
-    const { data: bigQueryResponse, error: bigQueryError } =
-      await this.bigQueryHandleService.run(mondayBoards);
+    // // CREATING TABLES AND BOARDS ASSOCTIATION
+    // const { data: bigQueryResponse, error: bigQueryError } =
+    //   await this.bigQueryHandleService.run(mondayBoards);
 
-    if (bigQueryError) {
-      throw bigQueryError;
-    }
-
-    // PRECISO CONTINUAR SEPARANDO AS RESPONSABILIDADES
-    // MANDAR OPERAÇÕES CRUD DOS ITEMS PARA O HANDLE BIGQUERY
-    // MANDAR CRIAÇÃO DE WORKSPACES PARA O HANDLE BIGQUERY
+    // if (bigQueryError) {
+    //   throw bigQueryError;
+    // }
 
     // // CRUD OPERATIONS ON BIGQUERY
     // const { data: operationStatus, error: TransferStatusError } =
@@ -89,8 +86,8 @@ export class PipeLineOrchestratorUsecase {
 
     return {
       mondayBoards,
-      mondayWorkspaces,
-      datasetVo,
+      // mondayWorkspaces,
+      // datasetVo,
     };
   }
 }
