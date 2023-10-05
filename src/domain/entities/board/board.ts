@@ -2,8 +2,6 @@ import { Item } from './item';
 import { Workspace } from './workspace';
 
 export class Board {
-  public errors: string[] = [];
-
   constructor(
     private id: string,
     private state: string,
@@ -30,15 +28,5 @@ export class Board {
   // Get board state (Active, Archived, etc.)
   getBoardState(): string {
     return this.state;
-  }
-
-  // Add an error message
-  addError(error: string): void {
-    this.errors.push(error);
-  }
-
-  // Get all error messages
-  getErrors(): string[] {
-    return this.errors;
   }
 }

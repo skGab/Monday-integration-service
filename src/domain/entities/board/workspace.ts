@@ -5,7 +5,7 @@ export class Workspace {
   constructor(private id: number, public state: string, private name: string) {}
 
   // Get dataset ID
-  getID(): number {
+  getId(): number {
     return this.id;
   }
 
@@ -13,21 +13,6 @@ export class Workspace {
   getName(): string {
     return this.name;
   }
-
-  // // Get the number of tables in each dataset
-  // getNumberOfTables(): number {
-  //   return this.tables.length;
-  // }
-
-  // // Add an error message
-  // addError(error: string): void {
-  //   this.errors.push(error);
-  // }
-
-  // // Get all error messages
-  // getErrors(): string[] {
-  //   return this.errors;
-  // }
 
   static validate(workspace: Workspace): boolean {
     const pattern = /^[a-zA-Z0-9_]+$/;

@@ -6,53 +6,75 @@ import { Injectable } from '@nestjs/common';
 import { Board } from 'src/domain/entities/board/board';
 import { MondayRepository } from 'src/domain/repository/monday-repository';
 import { Workspace } from 'src/domain/entities/board/workspace';
-import { ServiceStatusVo } from 'src/domain/valueObjects/service-status.vo';
-import { BodyShape } from 'src/domain/entities/payload';
+import { MondayDto } from '../dtos/monday.dto';
+import { WorkspaceDto } from '../dtos/workspace.dto';
 
 @Injectable()
 export class MondayHandleService {
   constructor(private mondayRepositoryService: MondayRepository) {}
 
   // GET MONDAY BOARDS
-  async getBoards(): Promise<ServiceResponse<Board[] | null>> {
+  async getBoards(): Promise<MondayDto> {
     try {
       const mondayBoards = await this.mondayRepositoryService.getBoards();
 
       // RETURNING NULL IF ANY BOARDS FOUND
-      if (!mondayBoards === null || mondayBoards instanceof Error) {
-        return {
-          data: null,
-          error: mondayBoards instanceof Error ? mondayBoards : undefined,
-        };
+      if (!mondayBoards) {
+        const mondayDto = new MondayDto(
+          null,
+          [],
+          0,
+          'Nenhum Board Encontrado durante a busca',
+        );
+
+        return mondayDto;
       }
 
       // SANITIZING BOARDS BEFORE SENDING IT
       const { validBoards } = this.sanitize(mondayBoards);
 
-      return ResponseFactory.run(Promise.resolve(validBoards));
+      const mondayDto = new MondayDto(
+        validBoards,
+        validBoards.map((board) => board.getBoardName()),
+        validBoards.length,
+        'Success',
+      );
+
+      // RETURNING MONDAY VO
+      return mondayDto;
     } catch (error) {
-      console.log('Get Boards method', error.message);
-      return ResponseFactory.run(Promise.reject(error.message));
+      // RETURNING MONDAY VO WITH ERROR
+      const mondayDto = new MondayDto(null, [], 0, error.message);
+
+      return mondayDto;
     }
   }
 
   // GET MONDAY WORKSPACES
-  async getWorkspaces(): Promise<ServiceResponse<Workspace[] | null>> {
+  async getWorkspaces(): Promise<WorkspaceDto> {
     try {
-      const workspaces = this.mondayRepositoryService.getWorkSpaces();
+      const workspaces = await this.mondayRepositoryService.getWorkSpaces();
 
       // RETURNING NULL IF ANY WORKSPACES FOUND
-      if (!workspaces === null || workspaces instanceof Error) {
-        return {
-          data: null,
-          error: workspaces instanceof Error ? workspaces : undefined,
-        };
+      if (!workspaces) {
+        return new WorkspaceDto(
+          null,
+          [],
+          0,
+          'Nenhuma area de trabalho Encontrada durante a busca',
+        );
       }
 
-      return ResponseFactory.run(workspaces);
+      // RETURNING MONDAY VO
+      return new WorkspaceDto(
+        workspaces,
+        workspaces.map((workspaces) => workspaces.getName()),
+        workspaces.length,
+        'Success',
+      );
     } catch (error) {
-      console.log('Get Workspaces method', error.message);
-      return ResponseFactory.run(Promise.resolve(null));
+      // RETURNING MONDAY VO WITH ERROR
+      return new WorkspaceDto(null, [], 0, error.message);
     }
   }
 

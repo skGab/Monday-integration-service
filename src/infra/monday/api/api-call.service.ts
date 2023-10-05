@@ -12,7 +12,7 @@ export class ApiCallService {
   ) {}
 
   run() {
-    const url = 'https://api.monday.com/v';
+    const url = 'https://api.monday.com/v2';
 
     const body = {
       query:

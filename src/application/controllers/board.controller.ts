@@ -1,9 +1,11 @@
 import {
+  ClassSerializerInterceptor,
   Controller,
   Get,
   HttpException,
   HttpStatus,
   Logger,
+  UseInterceptors,
 } from '@nestjs/common';
 import { PipeLineOrchestratorUsecase } from '../usecase/pipeLine-orchestrator.service';
 
@@ -23,14 +25,22 @@ export class BoardController {
   ) {}
 
   // SERVICE LOGS
+  @UseInterceptors(ClassSerializerInterceptor)
   @Get('logs')
   async syncData() {
     try {
       // const status = this.schedulerService.getCurrentStatus();
       const status = await this.pipeLineOrchestratorUsecase.run();
 
+      const response = {
+        status: 200,
+        message: 'Dados sincronizados',
+      };
+
+      // return status ? response : 'Nenhum dado encontrado para sincronização';
       return status;
     } catch (error) {
+      // RETURNING INTERNAL ERROR TO THE CLIENT
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -40,10 +50,4 @@ export class BoardController {
       );
     }
   }
-
-  // // TRATAÇÃO DE ERRROS
-  // @OnEvent('infraError')
-  // handleErrors(payload: any) {
-  //   this.logger.error(payload);
-  // }
 }

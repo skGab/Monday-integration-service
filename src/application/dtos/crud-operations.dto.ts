@@ -1,16 +1,19 @@
-import { BodyShape } from '../entities/payload';
-
 export abstract class TransferResponse {
   tableId: string;
   status: 'success' | 'partial_failure' | 'error';
   insertedPayload?: { [key: string]: string }[];
 }
 
-export class CrudOperationsVo {
+export interface Status {
+  count: number;
+  message: string;
+}
+
+export class CrudOperationsDto {
   constructor(
-    public newItems: BodyShape,
-    public updatedItems: BodyShape,
-    public excludedItems: BodyShape,
+    public newItems?: Status,
+    public updatedItems?: Status,
+    public excludedItems?: Status,
   ) {}
 
   // addTransfer(

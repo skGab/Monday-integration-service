@@ -1,7 +1,10 @@
 import { Table } from '@google-cloud/bigquery';
 import { Injectable } from '@nestjs/common';
-import { BodyShape } from 'src/domain/entities/payload';
-import { TransferResponse } from 'src/domain/valueObjects/crud-operations.vo';
+import { BodyShape } from 'src/application/dtos/payload.dto';
+import {
+  Status,
+  TransferResponse,
+} from 'src/application/dtos/crud-operations.dto';
 import {
   ResponseFactory,
   ServiceResponse,
@@ -17,25 +20,22 @@ export class CreateItemsService {
   async run(
     coreItems: { [key: string]: string }[],
     table: Table,
-  ): Promise<ServiceResponse<BodyShape>> {
+  ): Promise<Status> {
     // FAST EXIST IF ANY NEW DATA TO INSERT
     if (coreItems.length === 0) {
-      return ResponseFactory.run(
-        Promise.resolve({
-          names: [],
-          count: 0,
-        }),
-      );
+      return {
+        count: 0,
+        message: 'Não ha novos items para inserção',
+      };
     }
 
     const data = await this.create(coreItems, table);
+    data.insertedPayload;
 
-    const response = {
-      names: data.insertedPayload.map((item) => item.solicitacao),
+    return {
       count: data.insertedPayload.length,
+      message: 'Novos items inseridos',
     };
-
-    return ResponseFactory.run(Promise.resolve(response));
   }
 
   private async create(

@@ -5,8 +5,9 @@ import {
   ResponseFactory,
   ServiceResponse,
 } from 'src/domain/factory/response-factory';
-import { BodyShape } from 'src/domain/entities/payload';
+import { BodyShape } from 'src/application/dtos/payload.dto';
 import { Table } from '@google-cloud/bigquery';
+import { Status } from 'src/application/dtos/crud-operations.dto';
 
 @Injectable()
 export class UpdateItemsService {
@@ -15,14 +16,9 @@ export class UpdateItemsService {
   async run(
     duplicateItems: { [key: string]: string }[],
     table: Table,
-  ): Promise<ServiceResponse<BodyShape>> {
+  ): Promise<Status> {
     if (duplicateItems.length === 0) {
-      return ResponseFactory.run(
-        Promise.resolve({
-          names: [],
-          count: 0,
-        }),
-      );
+      return { count: 0, message: 'Não ha items para serem atualizados' };
     }
 
     // UPDATE IMPLEMENTATION ON BIGQUERY
@@ -31,12 +27,6 @@ export class UpdateItemsService {
       table,
     );
 
-    // RETURN UPDATE RESULTS
-    const response = {
-      names: data.insertedPayload.map((item) => item.solicitacao),
-      count: data.insertedPayload.length,
-    };
-
-    return ResponseFactory.run(Promise.resolve(response));
+    return { count: data.insertedPayload.length, message: 'Items atualizados' };
   }
 }

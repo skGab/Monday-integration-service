@@ -1,86 +1,98 @@
+import { CrudOnItemsService } from './../bigQuery/crud-on-items.service';
 import { CreateWorkspaceService } from '../bigQuery/crud/create-workspace.service';
 import { GetItemsService } from '../bigQuery/crud/get-items.service';
 import { CreateBoardsService } from '../bigQuery/crud/create-boards.service';
-import { TableVo } from '../../domain/valueObjects/table.vo';
+import { TableDto } from '../dtos/table.dto';
 import { ServiceResponse } from '../../domain/factory/response-factory';
 import { Injectable } from '@nestjs/common';
 import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
 import { Board } from 'src/domain/entities/board/board';
 import { ResponseFactory } from 'src/domain/factory/response-factory';
-import { Table } from '@google-cloud/bigquery';
+import { Table, TableMetadata } from '@google-cloud/bigquery';
 import { Workspace } from 'src/domain/entities/board/workspace';
-import { DatasetVo } from 'src/domain/valueObjects/dataset.vo';
-
-export abstract class BigQueryResponse {
-  bigQueryTables: Table[];
-  tableVo: TableVo;
-}
+import { DatasetDto } from 'src/application/dtos/dataset.dto';
+import { CrudOperationsDto } from 'src/application/dtos/crud-operations.dto';
+import { BoardsAndTablesAssociation } from '../bigQuery/utils/boards-And-Tables';
 
 @Injectable()
 export class BigQueryHandleService {
   constructor(
-    private bigQueryRepositoryService: BigQueryRepository,
     private createBoardsService: CreateBoardsService,
     private createWorkspaceService: CreateWorkspaceService,
-    private getItemsService: GetItemsService,
+    private crudOnItemsService: CrudOnItemsService,
   ) {}
 
-  async run(mondayBoards: Board[]): Promise<ServiceResponse<BigQueryResponse>> {
-    // FAST EXIST IF NO MONDAY BOARDS
-    if (!mondayBoards && mondayBoards.length == 0)
-      return ResponseFactory.run(Promise.resolve(null));
+  async createTables(mondayBoards: Board[]): Promise<TableDto> {
+    try {
+      if (!mondayBoards && mondayBoards.length == 0) {
+        return new TableDto(
+          null,
+          [],
+          0,
+          'Nenhum Board encontrado para criação de tabelas',
+        );
+      }
 
-    const { tableVo, bigQueryTables } = await this.createTables(mondayBoards);
+      // SET UP BOARDS AND TABLES
+      const tables = await this.createBoardsService.run(mondayBoards);
 
-    const response: BigQueryResponse = {
-      bigQueryTables,
-      tableVo,
-    };
+      if (!tables) {
+        return new TableDto(null, [], 0, 'Falha na criação de tabelas');
+      }
 
-    return ResponseFactory.run(Promise.resolve(response));
-  }
-
-  async createTables(mondayBoards: Board[]) {
-    // SET UP BOARDS AND TABLES
-    const { data: bigQueryTables, error: tablesError } =
-      await this.createBoardsService.run(mondayBoards);
-
-    if (tablesError) throw tablesError;
-
-    const tableVo = new TableVo({
-      names: bigQueryTables.map((table) => table.id),
-      count: bigQueryTables.length,
-    });
-
-    return { tableVo, bigQueryTables };
-  }
-
-  async createDatasets(
-    mondayWorkspaces: Workspace[],
-  ): Promise<ServiceResponse<DatasetVo | null>> {
-    // FAST EXIST IF NO MONDAY BOARDS
-    if (!mondayWorkspaces && mondayWorkspaces.length == 0) {
-      console.log('Nenhum Workspace encontrado para criação de Datasets');
-      return ResponseFactory.run(Promise.resolve(null));
+      return new TableDto(
+        tables,
+        tables.map((table) => table.id),
+        tables.length,
+        'Success',
+      );
+    } catch (error) {
+      return new TableDto(null, [], 0, error.message);
     }
-
-    // CREATE DATASETS ON BIGQUERY
-    const { data: datasetVo, error: datasetError } =
-      await this.createWorkspaceService.run(mondayWorkspaces);
-
-    if (datasetError) {
-      throw datasetError;
-    }
-
-    return ResponseFactory.run(Promise.resolve(datasetVo));
   }
 
-  async crudOperations() {
-    // // CRUD OPERATIONS ON BIGQUERY
-    // const { data: operationStatus, error: TransferStatusError } =
-    //   await this.performCrudService.run(bigQueryResponse);
-    // if (TransferStatusError) {
-    //   throw TransferStatusError;
-    // }
+  async createDatasets(mondayWorkspaces: Workspace[]): Promise<DatasetDto> {
+    try {
+      // FAST EXIST IF NO MONDAY BOARDS
+      if (!mondayWorkspaces) {
+        return new DatasetDto(
+          null,
+          [],
+          0,
+          'Nenhuma area de trabalho encontrada para criação de Datasets',
+        );
+      }
+
+      // CREATE DATASETS ON BIGQUERY
+      const datasetDto = await this.createWorkspaceService.run(
+        mondayWorkspaces,
+      );
+
+      return datasetDto;
+    } catch (error) {
+      return new DatasetDto(null, [], 0, error.message);
+    }
+  }
+
+  async crudOperations(
+    mondayBoards: Board[],
+    tables: Table[],
+  ): Promise<CrudOperationsDto> {
+    try {
+      // FAST EXIST IF NO MONDAY BOARDS
+      if (!mondayBoards || !tables) {
+        return new CrudOperationsDto(null, null, null);
+      }
+
+      // CRUD OPERATIONS ON BIGQUERY
+      const operationsStatus = await this.crudOnItemsService.run(
+        mondayBoards,
+        tables,
+      );
+
+      return operationsStatus;
+    } catch (error) {
+      return new CrudOperationsDto();
+    }
   }
 }

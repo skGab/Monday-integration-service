@@ -12,7 +12,7 @@ import Credentials from '../security/credentials.json';
 import { Workspace } from 'src/domain/entities/board/workspace';
 import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
 import { Board } from 'src/domain/entities/board/board';
-import { TransferResponse } from 'src/domain/valueObjects/crud-operations.vo';
+import { TransferResponse } from 'src/application/dtos/crud-operations.dto';
 import { InsertRowsService } from './rows/insert-rows.service';
 
 @Injectable()

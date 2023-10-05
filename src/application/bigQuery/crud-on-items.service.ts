@@ -1,26 +1,22 @@
 import { Injectable } from '@nestjs/common';
 
-import {
-  ResponseFactory,
-  ServiceResponse,
-} from 'src/domain/factory/response-factory';
-
-import { BodyShape } from 'src/domain/entities/payload';
-
 import { UpdateItemsService } from './crud/update-items.service';
 import { CreateItemsService } from './crud/create-items.service';
 
 import { Table } from '@google-cloud/bigquery';
 import { Board } from 'src/domain/entities/board/board';
-import { CrudOperationsVo } from 'src/domain/valueObjects/crud-operations.vo';
+import {
+  CrudOperationsDto,
+  Status,
+} from 'src/application/dtos/crud-operations.dto';
 import { BoardsAndTablesAssociation } from './utils/boards-And-Tables';
 import { FilterItemsService } from './utils/filter-items.service';
 
 @Injectable()
 export class CrudOnItemsService {
-  private newItems: BodyShape;
-  private updatedItems: BodyShape;
-  private excludedItems: BodyShape;
+  private newItems: Status;
+  private updatedItems: Status;
+  private excludedItems: Status;
 
   private boardsAndTablesAssociation = new BoardsAndTablesAssociation();
 
@@ -32,11 +28,12 @@ export class CrudOnItemsService {
 
   async run(
     mondayBoards: Board[],
-    bigQueryTables: Table[],
-  ): Promise<ServiceResponse<CrudOperationsVo>> {
+    tables: Table[],
+  ): Promise<CrudOperationsDto> {
+    // PREPARING BOARDS AND TALBES
     const boardTablePairs = this.boardsAndTablesAssociation.run(
       mondayBoards,
-      bigQueryTables,
+      tables,
     );
 
     // RUN OPERATIONS
@@ -49,7 +46,7 @@ export class CrudOnItemsService {
 
       if (error) {
         console.log(error);
-        return ResponseFactory.run(Promise.resolve(null));
+        return;
       }
 
       const { coreItems, duplicateItems } = data;
@@ -64,27 +61,21 @@ export class CrudOnItemsService {
     await Promise.all(transferPromises);
 
     // CREATING INSTANCE OF CRUD OPERATIONS
-    const transfer = new CrudOperationsVo(
-      this.newItems,
-      this.updatedItems,
-      this.excludedItems,
-    );
-
-    return ResponseFactory.run(Promise.resolve(transfer));
+    return new CrudOperationsDto(this.newItems, this.updatedItems);
   }
 
   private async transfer(coreItems: any[], table: Table) {
     // TRANSFER NEW ITEMS
-    const { data: insertedItems, error: insertError } =
-      await this.createItemsService.run(coreItems, table);
-
-    this.newItems = insertedItems;
+    const insertedItems = await this.createItemsService.run(coreItems, table);
+    return (this.newItems = insertedItems);
   }
 
   private async update(duplicateItems: any[], table: Table) {
     // UPDATE ITEMS
-    const { data: updatedItems, error: updateError } =
-      await this.updateItemsService.run(duplicateItems, table);
+    const updatedItems = await this.updateItemsService.run(
+      duplicateItems,
+      table,
+    );
 
     this.updatedItems = updatedItems;
   }

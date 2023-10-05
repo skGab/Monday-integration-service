@@ -1,38 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
 import { Workspace } from 'src/domain/entities/board/workspace';
-import {
-  ResponseFactory,
-  ServiceResponse,
-} from 'src/domain/factory/response-factory';
-import { DatasetVo } from 'src/domain/valueObjects/dataset.vo';
+import { DatasetDto } from 'src/application/dtos/dataset.dto';
 
 @Injectable()
 export class CreateWorkspaceService {
   constructor(private bigQueryRepositoryService: BigQueryRepository) {}
 
-  async run(
-    mondayWorkSpaces: Workspace[],
-  ): Promise<ServiceResponse<DatasetVo | null>> {
-    // CREATE WORKSPACES ON BIGQUERY
-    const datasetPromise = this.create(mondayWorkSpaces);
-
-    return ResponseFactory.run(datasetPromise);
-  }
-
-  private async create(mondayWorkSpaces: Workspace[]): Promise<DatasetVo> {
-    const response = await this.bigQueryRepositoryService.createDatasets(
+  async run(mondayWorkSpaces: Workspace[]): Promise<DatasetDto> {
+    // CREATING DATASETS
+    const datasets = await this.bigQueryRepositoryService.createDatasets(
       mondayWorkSpaces,
     );
 
-    if (!response && response.length == 0) return null;
+    // CHECKING FOR EXISTENCE BEFORE CREATE THE DTO
+    if (!datasets && datasets.length == 0) {
+      return new DatasetDto(null, [], 0, 'Falha na criação de Datasets');
+    }
 
     // GETTING NAMES FROM WORKSPACES
-    const datasetVo = new DatasetVo({
-      names: response.map((dataset) => dataset.id),
-      count: response.length,
-    });
-
-    return datasetVo;
+    return new DatasetDto(
+      datasets,
+      datasets.map((dataset) => dataset.id),
+      datasets.length,
+      'Success',
+    );
   }
 }
