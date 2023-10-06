@@ -1,25 +1,38 @@
 abstract class Column_valueVo {
-  title: string;
+  column: { title: string };
   text: string;
 }
 
-export class Item {
-  constructor(
-    public name: string,
-    public state: string,
-    public group: { title: string },
-    public column_values: Column_valueVo[],
-  ) {}
+abstract class Items {
+  state: string;
+  name: string;
+  group: {
+    title: string;
+  };
+  column_values: Column_valueVo[];
+}
 
-  sanitize(): Item {
-    const sanitizedColumns = this.column_values.map((column) => {
-      const sanitizedTitle = this.sanitizeTitle(column.title);
-      return { ...column, title: sanitizedTitle };
+export class ItemsPage {
+  constructor(public items: Items[]) {}
+
+  sanitize(): ItemsPage {
+    const sanitizedItems = this.items.map((item) => {
+      const sanitizedColumnValues = item.column_values.map((column_value) => {
+        return {
+          ...column_value,
+          column: {
+            title: this.sanitizeTitle(column_value.column.title),
+          },
+        };
+      });
+
+      return { ...item, column_values: sanitizedColumnValues };
     });
 
-    return new Item(this.name, this.state, this.group, sanitizedColumns);
+    return new ItemsPage(sanitizedItems);
   }
 
+  // REMOVING SPECIAL CHARACTERS AND SPACES FROM COLUMNS TITLES
   sanitizeTitle(title: string) {
     const specialCharsMap = {
       ç: 'c',

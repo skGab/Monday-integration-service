@@ -1,8 +1,8 @@
-import { CrudOnItemsService } from './../bigQuery/crud-on-items.service';
-import { CreateWorkspaceService } from '../bigQuery/crud/create-workspace.service';
-import { GetItemsService } from '../bigQuery/crud/get-items.service';
-import { CreateBoardsService } from '../bigQuery/crud/create-boards.service';
-import { TableDto } from '../dtos/table.dto';
+import { CrudOnItemsService } from './crud-on-items.service';
+import { CreateWorkspaceService } from './create/create-workspace.service';
+import { GetItemsService } from './items/get-items.service';
+import { CreateBoardsService } from './create/create-boards.service';
+import { TableDto } from './dtos/table.dto';
 import { ServiceResponse } from '../../domain/factory/response-factory';
 import { Injectable } from '@nestjs/common';
 import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
@@ -10,9 +10,8 @@ import { Board } from 'src/domain/entities/board/board';
 import { ResponseFactory } from 'src/domain/factory/response-factory';
 import { Table, TableMetadata } from '@google-cloud/bigquery';
 import { Workspace } from 'src/domain/entities/board/workspace';
-import { DatasetDto } from 'src/application/dtos/dataset.dto';
-import { CrudOperationsDto } from 'src/application/dtos/crud-operations.dto';
-import { BoardsAndTablesAssociation } from '../bigQuery/utils/boards-And-Tables';
+import { DatasetDto } from 'src/application/bigQuery/dtos/dataset.dto';
+import { CrudOperationsDto } from 'src/application/bigQuery/dtos/crud-operations.dto';
 
 @Injectable()
 export class BigQueryHandleService {
@@ -81,7 +80,12 @@ export class BigQueryHandleService {
     try {
       // FAST EXIST IF NO MONDAY BOARDS
       if (!mondayBoards || !tables) {
-        return new CrudOperationsDto(null, null, null);
+        return new CrudOperationsDto(
+          null,
+          null,
+          null,
+          'Não foram encontrados quadros ou tabelas para operações',
+        );
       }
 
       // CRUD OPERATIONS ON BIGQUERY
@@ -92,7 +96,7 @@ export class BigQueryHandleService {
 
       return operationsStatus;
     } catch (error) {
-      return new CrudOperationsDto();
+      return new CrudOperationsDto(null, null, null, error.message);
     }
   }
 }

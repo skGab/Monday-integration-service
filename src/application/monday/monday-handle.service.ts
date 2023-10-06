@@ -6,8 +6,8 @@ import { Injectable } from '@nestjs/common';
 import { Board } from 'src/domain/entities/board/board';
 import { MondayRepository } from 'src/domain/repository/monday-repository';
 import { Workspace } from 'src/domain/entities/board/workspace';
-import { MondayDto } from '../dtos/monday.dto';
-import { WorkspaceDto } from '../dtos/workspace.dto';
+import { MondayDto } from './monday.dto';
+import { WorkspaceDto } from './workspace.dto';
 
 @Injectable()
 export class MondayHandleService {
@@ -35,7 +35,7 @@ export class MondayHandleService {
 
       const mondayDto = new MondayDto(
         validBoards,
-        validBoards.map((board) => board.getBoardName()),
+        validBoards.map((board) => board.boardName()),
         validBoards.length,
         'Success',
       );
@@ -68,7 +68,7 @@ export class MondayHandleService {
       // RETURNING MONDAY VO
       return new WorkspaceDto(
         workspaces,
-        workspaces.map((workspaces) => workspaces.getName()),
+        workspaces.map((workspaces) => workspaces.workspaceName()),
         workspaces.length,
         'Success',
       );
@@ -81,7 +81,7 @@ export class MondayHandleService {
   // SANITIZE
   private sanitize(mondayBoards: Board[]) {
     const validBoards = mondayBoards.map((board) => {
-      board.items = board.items.map((item) => {
+      board.items_page = board.items.map((item) => {
         return item.sanitize();
       });
       return board;

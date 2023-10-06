@@ -1,11 +1,17 @@
 import { Table } from '@google-cloud/bigquery';
 import { Injectable, Logger } from '@nestjs/common';
 import { Board } from 'src/domain/entities/board/board';
-import { TransferResponse } from 'src/application/dtos/crud-operations.dto';
+import { TransferResponse } from 'src/application/bigQuery/dtos/crud-operations.dto';
 
 @Injectable()
 export class UpdateRowsService {
   private readonly logger = new Logger(UpdateRowsService.name);
+
+
+
+  
+
+
 
   // UPDATE ITEMS
   async run(duplicateItems: any[], table: Table): Promise<TransferResponse> {
@@ -26,7 +32,6 @@ export class UpdateRowsService {
     //   // Handle or log the results if needed
     // }
 
-    console.log(query);
     return {
       tableId: table.id,
       status: 'success',

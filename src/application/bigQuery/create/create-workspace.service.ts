@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
 import { Workspace } from 'src/domain/entities/board/workspace';
-import { DatasetDto } from 'src/application/dtos/dataset.dto';
+import { DatasetDto } from 'src/application/bigQuery/dtos/dataset.dto';
 
 @Injectable()
 export class CreateWorkspaceService {

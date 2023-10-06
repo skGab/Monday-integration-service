@@ -16,17 +16,19 @@ export class CreateTableService {
   async run(location: string, bigQuery: BigQuery, boards: Board[]) {
     try {
       const promises = boards.map(async (board) => {
-        // Check if the board already exists
-        const { exists, table, datasetId, tableId } =
+        // CHECKING FOR TABLE AND DATASETS EXISTENCES
+        const { exists, table, datasetName, tableName } =
           await this.checkPlacesService.run(board, location, bigQuery);
 
+        // CREATING TABLE IF NOT EXISTES
         if (!exists) {
           const schema = this.schemaGenerator.run(board);
 
           const [newTable] = await bigQuery
-            .dataset(datasetId)
-            .createTable(tableId, { schema: schema });
+            .dataset(datasetName)
+            .createTable(tableName, { schema: schema });
 
+          // RETURNING NEW TABLE
           return newTable;
         }
 

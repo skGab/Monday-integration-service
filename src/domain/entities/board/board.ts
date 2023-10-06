@@ -1,4 +1,4 @@
-import { Item } from './item';
+import { ItemsPage } from './item';
 import { Workspace } from './workspace';
 
 export class Board {
@@ -6,7 +6,8 @@ export class Board {
     private id: string,
     private state: string,
     private name: string,
-    public items: Item[],
+    public item_terminology: string,
+    public items_page: ItemsPage,
     public workspace: Workspace,
   ) {}
 
@@ -16,13 +17,8 @@ export class Board {
   }
 
   // Get board name
-  getBoardName(): string {
+  boardName(): string {
     return this.name;
-  }
-
-  // Get the number of items in each board
-  getNumberOfItems(): number {
-    return this.items.length;
   }
 
   // Get board state (Active, Archived, etc.)

@@ -4,7 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { BigQuery } from '@google-cloud/bigquery';
 
 // INFRA
-import { ApiCallService } from './monday/api/api-call.service';
+import { ApiCallService } from './monday/api-call.service';
 import { CreateDatasetService } from './bigQuery/create-dataset.service';
 import { CreateTableService } from './bigQuery/table/create-table.service';
 import { BigQueryRepositoryService } from './bigQuery/bigQuery-repository.service';

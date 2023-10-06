@@ -3,7 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Workspace } from 'src/domain/entities/board/workspace';
 import { lastValueFrom } from 'rxjs';
 import { Board } from 'src/domain/entities/board/board';
-import { ApiCallService } from './api/api-call.service';
+import { ApiCallService } from './api-call.service';
 
 @Injectable()
 export class MondayRepositoryService {

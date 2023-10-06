@@ -1,9 +1,9 @@
-import { DatasetDto } from './dataset.dto';
+import { DatasetDto } from '../bigQuery/dtos/dataset.dto';
 
-import { TableDto } from './table.dto';
-import { MondayDto } from './monday.dto';
-import { WorkspaceDto } from './workspace.dto';
-import { CrudOperationsDto } from './crud-operations.dto';
+import { TableDto } from '../bigQuery/dtos/table.dto';
+import { MondayDto } from '../monday/monday.dto';
+import { WorkspaceDto } from '../monday/workspace.dto';
+import { CrudOperationsDto } from '../bigQuery/dtos/crud-operations.dto';
 
 export interface BodyShape {
   count: number;

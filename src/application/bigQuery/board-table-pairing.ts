@@ -6,7 +6,7 @@ export interface BoardTablePairs {
   table: Table;
 }
 
-export class BoardsAndTablesAssociation {
+export class BoardTablePairing {
   run(mondayBoards: Board[], bigQueryTables: Table[]): BoardTablePairs[] {
     const boardTablePairs = mondayBoards.map((board, index) => ({
       board,

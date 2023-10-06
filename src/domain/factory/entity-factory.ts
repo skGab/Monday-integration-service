@@ -1,16 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { Board } from '../entities/board/board';
-import { Item } from '../entities/board/item';
+import { ItemsPage } from '../entities/board/item';
 import { Workspace } from '../entities/board/workspace';
 
 @Injectable()
 export class EntityFactory {
   static createBoard(rawBoard: any): Board {
+    if (!rawBoard || typeof rawBoard.name !== 'string') {
+      console.log('Falha na criação de instancias de quadros');
+      return null;
+    }
+
     return new Board(
       rawBoard.id,
       rawBoard.state,
       rawBoard.name,
-      rawBoard.items.map((item: Item) => this.createItem(item)),
+      rawBoard.item_terminology,
+      rawBoard.items_page.map((item: ItemsPage) => this.createItem(item)),
       this.createWorkspace(rawBoard.workspace),
     );
   }
@@ -18,6 +24,7 @@ export class EntityFactory {
   // In EntityFactory
   static createWorkspace(rawWorkspace: any): Workspace | null {
     if (!rawWorkspace || typeof rawWorkspace.name !== 'string') {
+      console.log('Falha na criação de instancias de areas de trabalhos');
       return null;
     }
 
@@ -27,19 +34,15 @@ export class EntityFactory {
       rawWorkspace.name,
     );
 
-    if (Workspace.validate(workspace)) {
-      return workspace;
-    } else {
-      return null;
-    }
+    return Workspace.validate(workspace) ? workspace : null;
   }
 
-  static createItem(rawItem: any): Item {
-    return new Item(
-      rawItem.name,
-      rawItem.state,
-      rawItem.group,
-      rawItem.column_values,
-    );
+  static createItem(rawItem: any): ItemsPage {
+    if (!rawItem || typeof rawItem.name !== 'string') {
+      console.log('Falha na criação de instancias de items');
+      return null;
+    }
+
+    return new ItemsPage(rawItem);
   }
 }

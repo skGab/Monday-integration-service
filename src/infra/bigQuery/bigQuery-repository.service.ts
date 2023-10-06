@@ -12,7 +12,7 @@ import Credentials from '../security/credentials.json';
 import { Workspace } from 'src/domain/entities/board/workspace';
 import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
 import { Board } from 'src/domain/entities/board/board';
-import { TransferResponse } from 'src/application/dtos/crud-operations.dto';
+import { TransferResponse } from 'src/application/bigQuery/dtos/crud-operations.dto';
 import { InsertRowsService } from './rows/insert-rows.service';
 
 @Injectable()
@@ -43,7 +43,7 @@ export class BigQueryRepositoryService implements BigQueryRepository {
       const response = await this.createDatasetService.run(
         this.location,
         this.bigQueryClient,
-        workspace.getName(),
+        workspace.workspaceName(),
       );
       return response;
     });
@@ -72,17 +72,8 @@ export class BigQueryRepositoryService implements BigQueryRepository {
   }
 
   // TRANSFER ITEMS
-  async insertRows(
-    coreItems: any[],
-    table: Table,
-  ): Promise<TransferResponse | null> {
-    try {
-      const response = await this.insertRowsService.run(coreItems, table);
-
-      return response;
-    } catch (error) {
-      throw error;
-    }
+  async insertRows(coreItems: any[], table: Table): Promise<TransferResponse> {
+    return await this.insertRowsService.run(coreItems, table);
   }
 
   // UPDATE ITEMS

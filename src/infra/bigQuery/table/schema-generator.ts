@@ -6,15 +6,17 @@ export class SchemaGenerator {
   run(board: Board) {
     const uniqueColumnTitles = new Set();
 
-    const schemaFromItems = board.items.flatMap((item) => {
+    // LOOPING THROUGHT EACH COLUMN FROM BOARDS.ITEMS
+    const schemaFromItems = board.items_page.items.flatMap((item) => {
       return item.column_values
         .map((column) => {
-          if (uniqueColumnTitles.has(column.title)) return null;
+          // CHEKING FOR REPEATED COLUMNS ON THE SCHEMA
+          if (uniqueColumnTitles.has(column.column.title)) return null;
 
-          uniqueColumnTitles.add(column.title);
+          uniqueColumnTitles.add(column.column.title);
 
           return {
-            name: column.title,
+            name: column.column.title,
             type: 'STRING',
             mode: 'NULLABLE',
           };
@@ -22,8 +24,14 @@ export class SchemaGenerator {
         .filter(Boolean);
     });
 
+    console.log(schemaFromItems);
+
     this.schema = [
-      { name: 'solicitacao', type: 'STRING', mode: 'NULLABLE' },
+      {
+        name: board.item_terminology,
+        type: 'STRING',
+        mode: 'NULLABLE',
+      },
       { name: 'grupo', type: 'STRING', mode: 'NULLABLE' },
       ...schemaFromItems,
     ];

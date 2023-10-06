@@ -1,5 +1,5 @@
 import { Board } from 'src/domain/entities/board/board';
-import { Item } from 'src/domain/entities/board/item';
+import { ItemsPage } from 'src/domain/entities/board/item';
 
 export class PreparePayload {
   run(bigQueryItemsId: string[], board: Board) {
@@ -36,7 +36,7 @@ export class PreparePayload {
     };
   }
 
-  private prepareSinglePayload(item: Item): { [key: string]: string } {
+  private prepareSinglePayload(item: ItemsPage): { [key: string]: string } {
     const payload: { [key: string]: string } = {};
     payload.solicitacao = item.name;
     payload.grupo = item.group.title;

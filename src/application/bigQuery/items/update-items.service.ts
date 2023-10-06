@@ -5,9 +5,9 @@ import {
   ResponseFactory,
   ServiceResponse,
 } from 'src/domain/factory/response-factory';
-import { BodyShape } from 'src/application/dtos/payload.dto';
+import { BodyShape } from 'src/application/core/payload.dto';
 import { Table } from '@google-cloud/bigquery';
-import { Status } from 'src/application/dtos/crud-operations.dto';
+import { Status } from 'src/application/bigQuery/dtos/crud-operations.dto';
 
 @Injectable()
 export class UpdateItemsService {
@@ -18,7 +18,7 @@ export class UpdateItemsService {
     table: Table,
   ): Promise<Status> {
     if (duplicateItems.length === 0) {
-      return { count: 0, message: 'Não ha items para serem atualizados' };
+      return { count: 0, status: 'Não ha items para serem atualizados' };
     }
 
     // UPDATE IMPLEMENTATION ON BIGQUERY
@@ -27,6 +27,6 @@ export class UpdateItemsService {
       table,
     );
 
-    return { count: data.insertedPayload.length, message: 'Items atualizados' };
+    return { count: data.insertedPayload.length, status: 'Items atualizados' };
   }
 }

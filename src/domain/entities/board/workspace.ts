@@ -1,7 +1,4 @@
 export class Workspace {
-  // public tables: any[] = [];
-  // public errors: string[] = [];
-
   constructor(private id: number, public state: string, private name: string) {}
 
   // Get dataset ID
@@ -10,12 +7,12 @@ export class Workspace {
   }
 
   // Get dataset name
-  getName(): string {
+  workspaceName(): string {
     return this.name;
   }
 
   static validate(workspace: Workspace): boolean {
     const pattern = /^[a-zA-Z0-9_]+$/;
-    return pattern.test(workspace.getName().trim());
+    return pattern.test(workspace.workspaceName().trim());
   }
 }

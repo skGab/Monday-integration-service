@@ -1,10 +1,10 @@
 import { Table } from '@google-cloud/bigquery';
 import { Injectable } from '@nestjs/common';
-import { BodyShape } from 'src/application/dtos/payload.dto';
+import { BodyShape } from 'src/application/core/payload.dto';
 import {
   Status,
   TransferResponse,
-} from 'src/application/dtos/crud-operations.dto';
+} from 'src/application/bigQuery/dtos/crud-operations.dto';
 import {
   ResponseFactory,
   ServiceResponse,
@@ -25,16 +25,15 @@ export class CreateItemsService {
     if (coreItems.length === 0) {
       return {
         count: 0,
-        message: 'Não ha novos items para inserção',
+        status: 'Não ha novos items para inserção',
       };
     }
 
     const data = await this.create(coreItems, table);
-    data.insertedPayload;
 
     return {
       count: data.insertedPayload.length,
-      message: 'Novos items inseridos',
+      status: 'Novos items inseridos',
     };
   }
 

@@ -11,28 +11,27 @@ export class GetRowsService {
     board: Board,
     bigQueryClient: BigQuery,
   ): Promise<string[] | null> {
-    try {
-      if (!board) {
-        this.logger.error('Nenhum board encontrado para a busca de items');
-        return null;
-      }
-
-      // Construct a SQL query based on your board. This is just a placeholder
-      const sqlQuery = `SELECT id_de_elemento FROM ${board.workspace.getName()}.${board.getBoardName()}`;
-
-      const options = {
-        query: sqlQuery,
-        location: location,
-      };
-
-      // Run the query on BigQuery
-      const [rows] = await bigQueryClient.query(options);
-
-      // Extract the id_de_elemento values and return
-      return rows.map((row) => row.id_de_elemento);
-    } catch (error) {
-      this.logger.error(error);
+    if (!board) {
+      this.logger.error('Nenhum board encontrado para a busca de items');
       return null;
     }
+
+    // Construct a SQL query based on your board. This is just a placeholder
+    const sqlQuery = `SELECT * FROM ${board.workspace.workspaceName()}.${board.boardName()}`;
+
+    const options = {
+      query: sqlQuery,
+      location: location,
+    };
+
+    // Run the query on BigQuery
+    const [rows] = await bigQueryClient.query(options);
+
+    if (!rows) return null;
+
+    console.log(rows);
+
+    // Extract the id_de_elemento values and return
+    return rows.map((row) => row.id_de_elemento);
   }
 }

@@ -15,14 +15,14 @@ export class CheckPlacesService {
 
   async run(board: Board, location: string, bigQuery: BigQuery) {
     // Getting the board and workspace reference
-    const datasetId = board.workspace.getName();
-    const tableId = board.getBoardName();
+    const datasetName = board.workspace.workspaceName();
+    const tableName = board.boardName();
 
     // Ensure dataset exists
     const dataset = await this.createDatasetService.run(
       location,
       bigQuery,
-      datasetId,
+      datasetName,
     );
 
     if (dataset === null) {
@@ -30,14 +30,14 @@ export class CheckPlacesService {
       return null;
     }
 
-    const table = bigQuery.dataset(datasetId).table(tableId);
+    const table = bigQuery.dataset(datasetName).table(tableName);
     const [exists] = await table.exists();
 
     return {
       exists,
       table,
-      datasetId,
-      tableId,
+      datasetName,
+      tableName,
     };
   }
 }

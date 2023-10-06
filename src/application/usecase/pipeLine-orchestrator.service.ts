@@ -1,12 +1,12 @@
-import { DatasetDto } from 'src/application/dtos/dataset.dto';
-import { TableDto } from '../dtos/table.dto';
-import { CrudOnItemsService } from './../bigQuery/crud-on-items.service';
-import { MondayHandleService } from '../handles/monday-handle.service';
+import { DatasetDto } from 'src/application/bigQuery/dtos/dataset.dto';
+import { TableDto } from '../bigQuery/dtos/table.dto';
+import { CrudOnItemsService } from '../bigQuery/crud-on-items.service';
+import { MondayHandleService } from '../monday/monday-handle.service';
 import { Injectable, Logger } from '@nestjs/common';
 
-import { BigQueryHandleService } from '../handles/bigQuery-handle.service';
-import { PayloadDto } from 'src/application/dtos/payload.dto';
-import { CreateWorkspaceService } from '../bigQuery/crud/create-workspace.service';
+import { BigQueryHandleService } from '../bigQuery/bigQuery-handle.service';
+import { PayloadDto } from 'src/application/core/payload.dto';
+import { CreateWorkspaceService } from '../bigQuery/create/create-workspace.service';
 
 @Injectable()
 export class PipeLineOrchestratorUsecase {
@@ -16,9 +16,6 @@ export class PipeLineOrchestratorUsecase {
     private mondayHandleService: MondayHandleService,
     private bigQueryHandleService: BigQueryHandleService,
   ) {}
-
-  // NEED TO REFACTOR EACH OPERATION INSIDE THIS CRUD SERVICE
-  // SO THEM I CAN PROPRELY RETURN DATA FROM IT
 
   // 3
   // MONTAR LOGICA DE ATUALIZAÇÃO
@@ -47,18 +44,18 @@ export class PipeLineOrchestratorUsecase {
   // ----------------------------------------------------------------------
   // GETTING DATA
   private async getDataFromServices() {
-    // GET MONDAY BOARDS
-    const mondayDto = await this.mondayHandleService.getBoards();
-
     // GET MONDAY WORKSPACES
     const workspaceDto = await this.mondayHandleService.getWorkspaces();
+
+    // GET MONDAY BOARDS
+    const mondayDto = await this.mondayHandleService.getBoards();
 
     // CREATE DATASETS ON BIGQUERY
     const datasetDto = await this.bigQueryHandleService.createDatasets(
       workspaceDto.data,
     );
 
-    // CREATING TABLES AND BOARDS ASSOCTIATION
+    // CREATING TABLES AND BOARDS ASSOCIATION
     const tableDto = await this.bigQueryHandleService.createTables(
       mondayDto.data,
     );
