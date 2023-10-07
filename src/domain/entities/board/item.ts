@@ -3,7 +3,7 @@ abstract class Column_valueVo {
   text: string;
 }
 
-abstract class Items {
+export abstract class Items {
   state: string;
   name: string;
   group: {

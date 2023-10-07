@@ -31,7 +31,7 @@ export class MondayHandleService {
       }
 
       // SANITIZING BOARDS BEFORE SENDING IT
-      const { validBoards } = this.sanitize(mondayBoards);
+      const validBoards = this.sanitize(mondayBoards);
 
       const mondayDto = new MondayDto(
         validBoards,
@@ -79,14 +79,21 @@ export class MondayHandleService {
   }
 
   // SANITIZE
-  private sanitize(mondayBoards: Board[]) {
+  private sanitize(mondayBoards: Board[]): Board[] {
     const validBoards = mondayBoards.map((board) => {
-      board.items_page = board.items.map((item) => {
-        return item.sanitize();
-      });
-      return board;
+      const sanitizedItemsPage = board.items_page.sanitize();
+      console.log(sanitizedItemsPage);
+
+      return new Board(
+        board.getBoardID(),
+        board.getBoardState(),
+        board.boardName(),
+        board.item_terminology,
+        sanitizedItemsPage,
+        board.workspace,
+      );
     });
 
-    return { validBoards };
+    return validBoards;
   }
 }

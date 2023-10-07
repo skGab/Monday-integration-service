@@ -1,10 +1,10 @@
 import { Board } from 'src/domain/entities/board/board';
-import { ItemsPage } from 'src/domain/entities/board/item';
+import { Items, ItemsPage } from 'src/domain/entities/board/item';
 
 export class PreparePayload {
   run(bigQueryItemsId: string[], board: Board) {
     // Prepare individual payloads for each item.
-    const prepareItems = board.items.map(this.prepareSinglePayload);
+    const prepareItems = board.items_page.items.map(this.prepareSinglePayload);
 
     // Filter out duplicates.
     const { coreItems, duplicateItems } = this.checkDuplicatedItems(
@@ -36,12 +36,14 @@ export class PreparePayload {
     };
   }
 
-  private prepareSinglePayload(item: ItemsPage): { [key: string]: string } {
+  private prepareSinglePayload(items: Items): {
+    [key: string]: string;
+  } {
     const payload: { [key: string]: string } = {};
-    payload.solicitacao = item.name;
-    payload.grupo = item.group.title;
+    payload.solicitacao = items.name;
+    payload.grupo = items.group.title;
 
-    item.column_values.forEach((column: any) => {
+    items.column_values.forEach((column: any) => {
       payload[column.title] = column.text;
     });
 
