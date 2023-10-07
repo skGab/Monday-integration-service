@@ -40,7 +40,8 @@ export class PreparePayload {
     [key: string]: string;
   } {
     const payload: { [key: string]: string } = {};
-    payload.solicitacao = items.name;
+
+    payload.name = items.name;
     payload.grupo = items.group.title;
 
     items.column_values.forEach((column: any) => {

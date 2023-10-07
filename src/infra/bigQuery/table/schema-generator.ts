@@ -9,14 +9,14 @@ export class SchemaGenerator {
     // LOOPING THROUGHT EACH COLUMN FROM BOARDS.ITEMS
     const schemaFromItems = board.items_page.items.flatMap((item) => {
       return item.column_values
-        .map((column) => {
+        .map((values) => {
           // CHEKING FOR REPEATED COLUMNS ON THE SCHEMA
-          if (uniqueColumnTitles.has(column.column.title)) return null;
+          if (uniqueColumnTitles.has(values.column.title)) return null;
 
-          uniqueColumnTitles.add(column.column.title);
+          uniqueColumnTitles.add(values.column.title);
 
           return {
-            name: column.column.title,
+            name: values.column.title,
             type: 'STRING',
             mode: 'NULLABLE',
           };
