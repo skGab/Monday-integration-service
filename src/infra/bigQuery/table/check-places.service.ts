@@ -16,7 +16,7 @@ export class CheckPlacesService {
   async run(board: Board, location: string, bigQuery: BigQuery) {
     // Getting the board and workspace reference
     const datasetName = board.workspace.workspaceName();
-    const tableName = board.boardName();
+    const tableName = board.name;
 
     // Ensure dataset exists
     const dataset = await this.createDatasetService.run(

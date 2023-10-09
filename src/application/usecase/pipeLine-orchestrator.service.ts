@@ -1,12 +1,8 @@
-import { DatasetDto } from 'src/application/bigQuery/dtos/dataset.dto';
-import { TableDto } from '../bigQuery/dtos/table.dto';
-import { CrudOnItemsService } from '../bigQuery/crud-on-items.service';
 import { MondayHandleService } from '../monday/monday-handle.service';
 import { Injectable, Logger } from '@nestjs/common';
 
 import { BigQueryHandleService } from '../bigQuery/bigQuery-handle.service';
 import { PayloadDto } from 'src/application/core/payload.dto';
-import { CreateWorkspaceService } from '../bigQuery/create/create-workspace.service';
 
 @Injectable()
 export class PipeLineOrchestratorUsecase {
@@ -16,6 +12,9 @@ export class PipeLineOrchestratorUsecase {
     private mondayHandleService: MondayHandleService,
     private bigQueryHandleService: BigQueryHandleService,
   ) {}
+
+  // IF NEW TABLE CREATED, NEED TO WAIT 2 MINUTES BEFORE INSERTING THE DATA
+  // NEED TO ADD RETRIES IF FAILED TO INSERT
 
   // 3
   // MONTAR LOGICA DE ATUALIZAÇÃO

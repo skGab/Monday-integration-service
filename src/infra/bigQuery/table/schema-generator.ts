@@ -24,11 +24,9 @@ export class SchemaGenerator {
         .filter(Boolean);
     });
 
-    console.log(schemaFromItems);
-
     this.schema = [
       {
-        name: board.item_terminology,
+        name: 'nome',
         type: 'STRING',
         mode: 'NULLABLE',
       },

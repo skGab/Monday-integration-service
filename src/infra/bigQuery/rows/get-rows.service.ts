@@ -17,7 +17,9 @@ export class GetRowsService {
     }
 
     // Construct a SQL query based on your board. This is just a placeholder
-    const sqlQuery = `SELECT * FROM ${board.workspace.workspaceName()}.${board.boardName()}`;
+    const sqlQuery = `SELECT * FROM ${board.workspace.workspaceName()}.${
+      board.name
+    }`;
 
     const options = {
       query: sqlQuery,
@@ -28,8 +30,6 @@ export class GetRowsService {
     const [rows] = await bigQueryClient.query(options);
 
     if (!rows) return null;
-
-    console.log(rows);
 
     // Extract the id_de_elemento values and return
     return rows.map((row) => row.id_de_elemento);

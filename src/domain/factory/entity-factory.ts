@@ -1,33 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { Board } from '../entities/board/board';
-import { ItemsPage } from '../entities/board/item';
+import { Items, ItemsPage } from '../entities/board/item';
 import { Workspace } from '../entities/board/workspace';
 
 @Injectable()
 export class EntityFactory {
-  static createBoard(rawBoard: any): Board {
-    if (!rawBoard || typeof rawBoard.name !== 'string') {
-      console.log('Falha na criação de instancias de quadros');
-      return null;
-    }
-
+  // BOARD INSTANCE
+  static createBoard(rawBoard: Board): Board {
     return new Board(
       rawBoard.id,
       rawBoard.state,
       rawBoard.name,
-      rawBoard.item_terminology,
-      rawBoard.items_page.map((item: ItemsPage) => this.createItem(item)),
+      this.sanitizeTitle(rawBoard.item_terminology),
+      this.createItem(rawBoard.items_page.items),
       this.createWorkspace(rawBoard.workspace),
     );
   }
 
-  // In EntityFactory
+  // WORKSPACE INSTANCE
   static createWorkspace(rawWorkspace: any): Workspace | null {
-    if (!rawWorkspace || typeof rawWorkspace.name !== 'string') {
-      console.log('Falha na criação de instancias de areas de trabalhos');
-      return null;
-    }
-
     const workspace = new Workspace(
       rawWorkspace.id,
       rawWorkspace.state,
@@ -37,12 +28,44 @@ export class EntityFactory {
     return Workspace.validate(workspace) ? workspace : null;
   }
 
-  static createItem(rawItem: any): ItemsPage {
-    if (!rawItem || typeof rawItem.name !== 'string') {
-      console.log('Falha na criação de instancias de items');
-      return null;
-    }
+  // ITEM ISNTANCE
+  static createItem(rawItem: Items[]): ItemsPage {
+    const items_page = this.sanitize(rawItem);
 
-    return new ItemsPage(rawItem);
+    return items_page;
+  }
+
+  static sanitize(items): ItemsPage {
+    const sanitizedItems = items.map((item) => {
+      const sanitizedColumnValues = item.column_values.map((column_value) => {
+        return {
+          ...column_value,
+          column: {
+            title: this.sanitizeTitle(column_value.column.title),
+          },
+        };
+      });
+
+      return { ...item, column_values: sanitizedColumnValues };
+    });
+
+    return new ItemsPage(sanitizedItems);
+  }
+
+  // REMOVING SPECIAL CHARACTERS AND SPACES FROM COLUMNS TITLES
+  static sanitizeTitle(title: string) {
+    const specialCharsMap = {
+      ç: 'c',
+      ã: 'a',
+      á: 'a',
+      ê: 'e',
+    };
+
+    return title
+      .toLowerCase() // Convert to lowercase for uniformity
+      .replace(/\s+/g, '_') // Replace spaces with underscores
+      .replace(/[çãáê]/g, (char) => specialCharsMap[char]) // Translate special characters
+      .replace(/[^a-zA-Z0-9_]/g, '') // Remove non-alphanumeric characters except underscores
+      .replace(/\u00E1/g, 'a');
   }
 }

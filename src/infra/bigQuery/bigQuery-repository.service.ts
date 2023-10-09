@@ -72,7 +72,10 @@ export class BigQueryRepositoryService implements BigQueryRepository {
   }
 
   // TRANSFER ITEMS
-  async insertRows(coreItems: any[], table: Table): Promise<TransferResponse> {
+  async insertRows(
+    coreItems: any[],
+    table: Table,
+  ): Promise<TransferResponse | null> {
     return await this.insertRowsService.run(coreItems, table);
   }
 

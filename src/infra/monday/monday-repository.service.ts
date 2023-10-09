@@ -1,6 +1,6 @@
+import { Workspace } from './../../domain/entities/board/workspace';
 import { EntityFactory } from '../../domain/factory/entity-factory';
 import { Injectable, Logger } from '@nestjs/common';
-import { Workspace } from 'src/domain/entities/board/workspace';
 import { lastValueFrom } from 'rxjs';
 import { Board } from 'src/domain/entities/board/board';
 import { ApiCallService } from './api-call.service';
@@ -12,11 +12,14 @@ export class MondayRepositoryService {
   constructor(private apiCallService: ApiCallService) {}
 
   async getBoards(): Promise<Board[] | null> {
-    const { data } = await lastValueFrom(this.apiCallService.run());
+    const response = await lastValueFrom(this.apiCallService.run());
 
-    const {
-      data: { boards },
-    } = data;
+    if ('errors' in response.data) {
+      this.logger.error(response.data.errors);
+      throw response.data.errors[0].message;
+    }
+
+    const { boards } = response.data.data;
 
     if (!boards || boards.length === 0) {
       this.logger.log('Nenhum quadro encontrado durante a busca');
@@ -27,21 +30,22 @@ export class MondayRepositoryService {
   }
 
   async getWorkSpaces(): Promise<Workspace[] | null> {
-    const { data } = await lastValueFrom(this.apiCallService.run());
+    const response = await lastValueFrom(this.apiCallService.run());
 
-    const {
-      data: { workspaces },
-    } = data;
+    if ('errors' in response.data) {
+      this.logger.error(`GraphQL Error: ${response.data.errors[0].message}`);
+      throw response.data.errors[0].message;
+    }
+
+    const { workspaces } = response.data.data;
 
     if (workspaces.length == 0 || !workspaces) {
       this.logger.log('Nenhuma area de trabalho encontrada durante a busca');
       return null;
     }
 
-    const response = workspaces
+    return workspaces
       .map((workspace) => EntityFactory.createWorkspace(workspace))
       .filter((workspace) => workspace !== null);
-
-    return response;
   }
 }

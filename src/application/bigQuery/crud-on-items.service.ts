@@ -101,6 +101,8 @@ export class CrudOnItemsService {
     try {
       const insertedItems = await this.createItemsService.run(coreItems, table);
 
+      console.log(insertedItems);
+
       return (this.newItemsStatus = insertedItems);
     } catch (err) {
       return (this.newItemsStatus = { count: 0, status: err.message });

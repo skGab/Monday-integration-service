@@ -1,10 +1,7 @@
 import { GetItemsService } from './get-items.service';
 import { Injectable } from '@nestjs/common';
 import { Board } from 'src/domain/entities/board/board';
-import {
-  ServiceResponse,
-  ResponseFactory,
-} from 'src/domain/factory/response-factory';
+
 import { PreparePayload } from './prepare-payload';
 
 export interface FilteredData {

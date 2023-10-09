@@ -1,11 +1,5 @@
-import {
-  ResponseFactory,
-  ServiceResponse,
-} from '../../domain/factory/response-factory';
 import { Injectable } from '@nestjs/common';
-import { Board } from 'src/domain/entities/board/board';
 import { MondayRepository } from 'src/domain/repository/monday-repository';
-import { Workspace } from 'src/domain/entities/board/workspace';
 import { MondayDto } from './monday.dto';
 import { WorkspaceDto } from './workspace.dto';
 
@@ -30,13 +24,10 @@ export class MondayHandleService {
         return mondayDto;
       }
 
-      // SANITIZING BOARDS BEFORE SENDING IT
-      const validBoards = this.sanitize(mondayBoards);
-
       const mondayDto = new MondayDto(
-        validBoards,
-        validBoards.map((board) => board.boardName()),
-        validBoards.length,
+        mondayBoards,
+        mondayBoards.map((board) => board.name),
+        mondayBoards.length,
         'Success',
       );
 
@@ -44,7 +35,7 @@ export class MondayHandleService {
       return mondayDto;
     } catch (error) {
       // RETURNING MONDAY VO WITH ERROR
-      const mondayDto = new MondayDto(null, [], 0, error.message);
+      const mondayDto = new MondayDto(null, [], 0, error);
 
       return mondayDto;
     }
@@ -76,24 +67,5 @@ export class MondayHandleService {
       // RETURNING MONDAY VO WITH ERROR
       return new WorkspaceDto(null, [], 0, error.message);
     }
-  }
-
-  // SANITIZE
-  private sanitize(mondayBoards: Board[]): Board[] {
-    const validBoards = mondayBoards.map((board) => {
-      const sanitizedItemsPage = board.items_page.sanitize();
-      console.log(sanitizedItemsPage);
-
-      return new Board(
-        board.getBoardID(),
-        board.getBoardState(),
-        board.boardName(),
-        board.item_terminology,
-        sanitizedItemsPage,
-        board.workspace,
-      );
-    });
-
-    return validBoards;
   }
 }

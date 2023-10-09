@@ -1,14 +1,10 @@
 import { CrudOnItemsService } from './crud-on-items.service';
 import { CreateWorkspaceService } from './create/create-workspace.service';
-import { GetItemsService } from './items/get-items.service';
 import { CreateBoardsService } from './create/create-boards.service';
 import { TableDto } from './dtos/table.dto';
-import { ServiceResponse } from '../../domain/factory/response-factory';
 import { Injectable } from '@nestjs/common';
-import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
 import { Board } from 'src/domain/entities/board/board';
-import { ResponseFactory } from 'src/domain/factory/response-factory';
-import { Table, TableMetadata } from '@google-cloud/bigquery';
+import { Table } from '@google-cloud/bigquery';
 import { Workspace } from 'src/domain/entities/board/workspace';
 import { DatasetDto } from 'src/application/bigQuery/dtos/dataset.dto';
 import { CrudOperationsDto } from 'src/application/bigQuery/dtos/crud-operations.dto';
@@ -96,7 +92,7 @@ export class BigQueryHandleService {
 
       return operationsStatus;
     } catch (error) {
-      return new CrudOperationsDto(null, null, null, error.message);
+      return new CrudOperationsDto(null, null, null, error);
     }
   }
 }

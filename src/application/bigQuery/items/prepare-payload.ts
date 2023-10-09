@@ -1,5 +1,9 @@
 import { Board } from 'src/domain/entities/board/board';
-import { Items, ItemsPage } from 'src/domain/entities/board/item';
+import {
+  Column_valueVo,
+  Items,
+  ItemsPage,
+} from 'src/domain/entities/board/item';
 
 export class PreparePayload {
   run(bigQueryItemsId: string[], board: Board) {
@@ -41,11 +45,11 @@ export class PreparePayload {
   } {
     const payload: { [key: string]: string } = {};
 
-    payload.name = items.name;
+    payload.nome = items.name;
     payload.grupo = items.group.title;
 
-    items.column_values.forEach((column: any) => {
-      payload[column.title] = column.text;
+    items.column_values.forEach((column: Column_valueVo) => {
+      payload[column.column.title] = column.text;
     });
 
     return payload;

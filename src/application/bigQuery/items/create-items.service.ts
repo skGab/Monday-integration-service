@@ -1,14 +1,9 @@
 import { Table } from '@google-cloud/bigquery';
 import { Injectable } from '@nestjs/common';
-import { BodyShape } from 'src/application/core/payload.dto';
 import {
   Status,
   TransferResponse,
 } from 'src/application/bigQuery/dtos/crud-operations.dto';
-import {
-  ResponseFactory,
-  ServiceResponse,
-} from 'src/domain/factory/response-factory';
 
 import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
 
