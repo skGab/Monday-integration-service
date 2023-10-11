@@ -1,4 +1,11 @@
-import { CoreDto } from 'src/application/dtos/core/core.dto';
-import { Table } from '@google-cloud/bigquery';
+import { BoardEntity } from 'src/domain/entities/board/board-entity';
+import { SharedShape } from '../core/payload.dto';
 
-export class TableDto extends CoreDto<Table> {}
+export class TableJobStatusDto {
+  constructor(
+    private mondayBoards: BoardEntity[],
+    private bigQueryTables: string[],
+    private newTables?: SharedShape,
+    private updatedTables?: SharedShape,
+  ) {}
+}

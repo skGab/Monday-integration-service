@@ -1,40 +1,41 @@
 import { Injectable } from '@nestjs/common';
-import { Board } from '../entities/board/board';
-import { Items, ItemsPage } from '../entities/board/item';
-import { Workspace } from '../entities/board/workspace';
+import { BoardEntity } from '../entities/board/board-entity';
+import { ItemsEntity, ItemsPage } from '../entities/board/items-entity';
+import { WorkspaceEntity } from '../entities/board/workspace-entity';
 
 @Injectable()
 export class EntityFactory {
   // BOARD INSTANCE
-  static createBoard(rawBoard: Board): Board {
-    return new Board(
+  static createBoard(rawBoard: BoardEntity): BoardEntity {
+    return new BoardEntity(
       rawBoard.id,
       rawBoard.state,
       rawBoard.name,
       this.createItem(rawBoard.items_page.items),
+      rawBoard.activity_logs,
       this.createWorkspace(rawBoard.workspace),
     );
   }
 
   // WORKSPACE INSTANCE
-  static createWorkspace(rawWorkspace: any): Workspace | null {
-    const workspace = new Workspace(
+  static createWorkspace(rawWorkspace: any): WorkspaceEntity | null {
+    const workspace = new WorkspaceEntity(
       rawWorkspace.id,
       rawWorkspace.state,
       rawWorkspace.name,
     );
 
-    return Workspace.validate(workspace) ? workspace : null;
+    return workspace.validate(workspace) ? workspace : null;
   }
 
   // ITEM ISNTANCE
-  static createItem(rawItem: Items[]): ItemsPage {
+  static createItem(rawItem: ItemsEntity[]): ItemsPage {
     const items_page = this.sanitize(rawItem);
 
     return items_page;
   }
 
-  static sanitize(items): ItemsPage {
+  static sanitize(items: ItemsEntity[]): ItemsPage {
     const sanitizedItems = items.map((item) => {
       const sanitizedColumnValues = item.column_values.map((column_value) => {
         return {

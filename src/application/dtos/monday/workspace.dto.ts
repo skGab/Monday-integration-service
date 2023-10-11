@@ -1,4 +1,4 @@
-import { Workspace } from 'src/domain/entities/board/workspace';
+import { WorkspaceEntity } from 'src/domain/entities/board/workspace-entity';
 import { CoreDto } from '../core/core.dto';
 
-export class WorkspaceDto extends CoreDto<Workspace> {}
+export class WorkspaceDto extends CoreDto<WorkspaceEntity> {}

@@ -5,8 +5,8 @@ import { SchemaGenerator } from './utils/schema-generator';
 import { BoardEntity } from 'src/domain/entities/board/board-entity';
 
 @Injectable()
-export class CreateTablesService {
-  private logger = new Logger(CreateTablesService.name);
+export class UpdateTablesService {
+  private logger = new Logger(UpdateTablesService.name);
   private schemaGenerator: SchemaGenerator;
 
   constructor(private checkPlacesService: CheckPlacesService) {
@@ -24,17 +24,9 @@ export class CreateTablesService {
         if (!exists) {
           const schema = this.schemaGenerator.run(board);
 
-          // Include the board_id label here
-          const options = {
-            schema: schema,
-            labels: {
-              board_id: board.getId(),
-            },
-          };
-
           const [newTable] = await bigQuery
             .dataset(datasetName)
-            .createTable(tableName, options);
+            .createTable(tableName, { schema: schema });
 
           console.log('Nova Tabela criada:', newTable.id);
 

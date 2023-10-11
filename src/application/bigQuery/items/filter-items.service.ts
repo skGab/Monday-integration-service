@@ -1,6 +1,6 @@
 import { GetItemsService } from './get-items.service';
 import { Injectable } from '@nestjs/common';
-import { Board } from 'src/domain/entities/board/board';
+import { BoardEntity } from 'src/domain/entities/board/board-entity';
 
 import { PreparePayload } from '../utils/prepare-payload';
 
@@ -14,7 +14,7 @@ export class FilterItemsService {
   private preparePayload = new PreparePayload();
   constructor(private getItemsService: GetItemsService) {}
 
-  async run(board: Board, mondayBoards: Board[]): Promise<FilteredData> {
+  async run(board: BoardEntity, mondayBoards: BoardEntity[]): Promise<FilteredData> {
     // GET ITEMS FROM BIGQUERY
     const bigQueryItemsId = await this.getItemsService.run(mondayBoards);
 

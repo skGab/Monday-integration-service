@@ -1,25 +1,25 @@
 import { Injectable } from '@nestjs/common';
 import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
-import { Workspace } from 'src/domain/entities/board/workspace';
-import { SharedShape } from 'src/application/dtos/bigQuery/dataset.dto';
+import { SharedShape } from 'src/application/dtos/core/payload.dto';
+import { WorkspaceEntity } from 'src/domain/entities/board/workspace-entity';
 
 @Injectable()
 export class CreateWorkspaceService {
   constructor(private bigQueryRepositoryService: BigQueryRepository) {}
 
-  async run(mondayWorkspaces: Workspace[]): Promise<SharedShape> {
+  async run(datasetsToCreate: WorkspaceEntity[]): Promise<SharedShape> {
     try {
       // FAST EXIST IF NO MONDAY BOARDS
-      if (!mondayWorkspaces)
+      if (datasetsToCreate.length === 0 || !datasetsToCreate)
         return {
           names: null,
           count: 0,
-          status: 'Nenhum workspace encontrado para criação de Datasets',
+          status: 'Não ha novos datasets para criação',
         };
 
       // CREATING DATASETS
       const datasets = await this.bigQueryRepositoryService.createDatasets(
-        mondayWorkspaces,
+        datasetsToCreate,
       );
 
       if (!datasets)

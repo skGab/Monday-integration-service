@@ -1,12 +1,12 @@
-import { Board } from 'src/domain/entities/board/board';
+import { BoardEntity } from 'src/domain/entities/board/board-entity';
 import {
   Column_valueVo,
-  Items,
+  ItemsEntity,
   ItemsPage,
-} from 'src/domain/entities/board/item';
+} from 'src/domain/entities/board/items-entity';
 
 export class PreparePayload {
-  run(bigQueryItemsId: string[], board: Board) {
+  run(bigQueryItemsId: string[], board: BoardEntity) {
     // Prepare individual payloads for each item.
     const prepareItems = board.items_page.items.map(this.prepareSinglePayload);
 
@@ -40,7 +40,7 @@ export class PreparePayload {
     };
   }
 
-  private prepareSinglePayload(items: Items): {
+  private prepareSinglePayload(items: ItemsEntity): {
     [key: string]: string;
   } {
     const payload: { [key: string]: string } = {};

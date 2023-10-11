@@ -1,7 +1,7 @@
-import { CreateDatasetService } from '../dataset/create-dataset.service';
+import { CreateDatasetService } from '../../dataset/create-dataset.service';
 import { BigQuery } from '@google-cloud/bigquery';
 import { Injectable, Logger } from '@nestjs/common';
-import { Board } from 'src/domain/entities/board/board';
+import { BoardEntity } from 'src/domain/entities/board/board-entity';
 import { ErrorDispatch } from 'src/domain/events/error-dispatch.events';
 
 @Injectable()
@@ -13,16 +13,16 @@ export class CheckPlacesService {
     private readonly errorDispatch: ErrorDispatch,
   ) {}
 
-  async run(board: Board, location: string, bigQuery: BigQuery) {
+  async run(board: BoardEntity, location: string, bigQuery: BigQuery) {
     // Getting the board and workspace reference
     const datasetName = board.workspace.name;
     const tableName = board.name;
 
     // Ensure dataset exists
-    const dataset = await this.createDatasetService.run(
+    const dataset = await this.createDatasetService.create(
       location,
       bigQuery,
-      datasetName,
+      board.workspace,
     );
 
     if (dataset === null) {

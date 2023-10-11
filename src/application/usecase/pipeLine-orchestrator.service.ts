@@ -1,8 +1,4 @@
-import { GetWorkspacesService } from './../bigQuery/workspace/get-workspaces.service';
-import { DatasetDto, SharedShape } from './../dtos/bigQuery/dataset.dto';
-import { MondayHandleService } from '../handles/monday-handle.service';
-import { Injectable, Logger } from '@nestjs/common';
-
+import { Injectable } from '@nestjs/common';
 import { BigQueryHandleService } from '../handles/bigQuery-handle.service';
 import { PayloadDto } from 'src/application/dtos/core/payload.dto';
 
@@ -12,46 +8,35 @@ export class PipeLineOrchestratorUsecase {
 
   async run(): Promise<PayloadDto> {
     // GETTING DATA
-    const { datasetDto } = await this.queuingJobs();
+    const { datasetJobStatusDto, tableJobStatusDto } = await this.queuingJobs();
 
     // INSTANCIA DO PAYLOAD
-    const payload = new PayloadDto(datasetDto);
+    const payload = new PayloadDto(datasetJobStatusDto, tableJobStatusDto);
 
+    // console.dir(payload, { depth: null });
     console.log(payload);
     return payload;
   }
 
   // GETTING DATA
   private async queuingJobs() {
-    //FINALIZAR ATUALIZAÇÃO DE DATASETS
-    const datasetDto = await this.bigQueryHandleService.handleDatasetsJob();
+    // WHEM THE REQUEST ARRIVES THIS TASK JOB SHOULD RUN FIRST,  WHEM COMPLETED
+    // SHOULD RUN THE NEXT JOB AFTER 2 MINUTES, WHEN COMPLETE
+    // SHOULD RUN THE LAST JOB AFTER 2 MINUTES
 
-    // INICIAR JOB DAS TABELAS
+    // WHAT ABOUT ANOTHER REQUEST COMES WHEM PERFOMING THE JOBS ?
 
-    return { datasetDto };
+    // DATASET JOB
+    const datasetJobStatusDto =
+      await this.bigQueryHandleService.handleDatasetsJob();
+
+    // TABLE JOB
+    const tableJobStatusDto =
+      await this.bigQueryHandleService.handleTablesJob();
+
+    // ITEMS JOB
+    const itemsDto = await this.bigQueryHandleService.handleItemsJob();
+
+    return { datasetJobStatusDto, tableJobStatusDto };
   }
-
-  // // 2 - SEGUNDO JOB: HANDLE TABLES
-  // // UPDATE IF NEEDED
-  // private async handleTablesJob() {
-  //   // GET MONDAY BOARDS
-  //   const mondayDto = await this.mondayHandleService.getBoards();
-
-  //   // CREATE TABLES IF NEEDED
-  //   const tableDto = await this.bigQueryHandleService.createTables(
-  //     mondayDto.data,
-  //   );
-  // }
-
-  // // 3 - HANDLE TRANSFER
-  // // GET ITEMS
-  // // CREATE ITEMS ON TABLE IF NEEDED
-  // // UPDATE ITEMS IF NEEDED
-  // // DELETE ITEMS IF NEEDED
-  // private async handleTransferJob() {
-  //   const crudOperationsDto = await this.bigQueryHandleService.crudOperations(
-  //     mondayDto.data,
-  //     tableDto.data,
-  //   );
-  // }
 }

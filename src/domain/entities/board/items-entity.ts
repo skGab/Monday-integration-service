@@ -3,9 +3,9 @@ export abstract class Column_valueVo {
   text: string;
 }
 
-export abstract class Items {
-  state: string;
+export abstract class ItemsEntity {
   name: string;
+  state: string;
   group: {
     title: string;
   };
@@ -13,5 +13,5 @@ export abstract class Items {
 }
 
 export class ItemsPage {
-  constructor(public items: Items[]) {}
+  constructor(public items: ItemsEntity[]) {}
 }

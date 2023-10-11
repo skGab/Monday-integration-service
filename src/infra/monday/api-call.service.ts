@@ -2,13 +2,13 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AxiosRequestConfig } from 'axios';
-import { Board } from 'src/domain/entities/board/board';
-import { Workspace } from 'src/domain/entities/board/workspace';
+import { BoardEntity } from 'src/domain/entities/board/board-entity';
+import { WorkspaceEntity } from 'src/domain/entities/board/workspace-entity';
 
 export interface MondayResponseVo {
   data: {
-    boards: Board[];
-    workspaces: Workspace[];
+    boards: BoardEntity[];
+    workspaces: WorkspaceEntity[];
   };
   account_id: number;
 }
@@ -37,7 +37,7 @@ export class ApiCallService {
 
     const body = {
       query:
-        'query{ boards(limit:1, ids:5073094843) {id state name item_terminology items_page { items {name state group {title} column_values { column {title} text}}} workspace {id state name}} workspaces(limit:1, ids:2990734) {id state name}}',
+        'query{ boards(limit:1, ids:5073094843) {id state name items_page { items {name state group {title} column_values { column {title} text}}} activity_logs {event data} workspace {id state name}} workspaces(limit:1, ids:2990734) {id state name}}',
     };
 
     const headers = {

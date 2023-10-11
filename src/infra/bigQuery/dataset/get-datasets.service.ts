@@ -1,13 +1,13 @@
 import { BigQuery, Dataset } from '@google-cloud/bigquery';
 import { Injectable, Logger } from '@nestjs/common';
-import { Workspace } from 'src/domain/entities/board/workspace';
+import { WorkspaceEntity } from 'src/domain/entities/board/workspace-entity';
 
 @Injectable()
 export class GetDatasetsService {
   private readonly logger = new Logger(GetDatasetsService.name);
 
   async run(
-    workspaces: Workspace[],
+    workspaces: WorkspaceEntity[],
     bigQueryClient: BigQuery,
   ): Promise<Dataset[] | null> {
     if (!workspaces) {
@@ -15,20 +15,17 @@ export class GetDatasetsService {
       return null;
     }
 
-    const datasets: Dataset[] = [];
+    // Map workspace IDs for quick lookup
+    const workspaceIds = workspaces.map((workspace) => workspace.getId());
 
-    for (const workspace of workspaces) {
-      const datasetId = workspace.name; // Assuming dataset IDs correspond to workspace names
-      const dataset = bigQueryClient.dataset(datasetId);
+    // Fetch all datasets
+    const [allDatasets] = await bigQueryClient.getDatasets();
 
-      // Check if dataset exists
-      const [exists] = await dataset.exists();
+    // Filter datasets based on workspace_id label
+    const filteredDatasets = allDatasets.filter((dataset) => {
+      return workspaceIds.includes(dataset.metadata.labels?.workspace_id);
+    });
 
-      if (exists) {
-        datasets.push(dataset);
-      }
-    }
-
-    return datasets;
+    return filteredDatasets;
   }
 }

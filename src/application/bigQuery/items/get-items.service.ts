@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
-import { Board } from 'src/domain/entities/board/board';
+import { BoardEntity } from 'src/domain/entities/board/board-entity';
 
 @Injectable()
 export class GetItemsService {
   constructor(private bigQueryRepositoryService: BigQueryRepository) {}
 
-  async run(mondayBoards: Board[]): Promise<string[]> {
+  async run(mondayBoards: BoardEntity[]): Promise<string[]> {
     const bigQueryItemsId: string[] = [];
 
     // GETTING ROWS ON BIGQUERY FROM BOARDS

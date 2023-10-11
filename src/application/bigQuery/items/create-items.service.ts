@@ -1,9 +1,7 @@
 import { Table } from '@google-cloud/bigquery';
 import { Injectable } from '@nestjs/common';
-import {
-  Status,
-  TransferResponse,
-} from 'src/application/dtos/bigQuery/crud-operations.dto';
+import { TransferResponse } from 'src/application/dtos/bigQuery/items.dto';
+import { SharedShape } from 'src/application/dtos/core/payload.dto';
 
 import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
 
@@ -15,21 +13,25 @@ export class CreateItemsService {
   async run(
     coreItems: { [key: string]: string }[],
     table: Table,
-  ): Promise<Status> {
+  ): Promise<SharedShape> {
     // FAST EXIST IF ANY NEW DATA TO INSERT
     if (coreItems.length === 0) {
-      return {
-        count: 0,
-        status: 'Não ha novos items para inserção',
-      };
+      // return {
+      //   count: 0,
+      //   status: 'Não ha novos items para inserção',
+      // };
+
+      return;
     }
 
     const data = await this.create(coreItems, table);
 
-    return {
-      count: data.insertedPayload.length,
-      status: 'Novos items inseridos',
-    };
+    // return {
+    //   count: data.insertedPayload.length,
+    //   status: 'Novos items inseridos',
+    // };
+
+    return;
   }
 
   private async create(

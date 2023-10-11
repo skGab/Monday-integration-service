@@ -18,7 +18,6 @@ import { CreateBoardsService } from './bigQuery/create/create-boards.service';
 import { GetItemsService } from './bigQuery/items/get-items.service';
 import { CrudOnItemsService } from './bigQuery/crud-on-items.service';
 import { GetWorkspacesService } from './bigQuery/workspace/get-workspaces.service';
-import { UpdateWorkspaceService } from './bigQuery/workspace/update-workspace.service';
 
 @Module({
   // CONTROLLERS
@@ -35,7 +34,6 @@ import { UpdateWorkspaceService } from './bigQuery/workspace/update-workspace.se
     GetItemsService,
     BigQueryHandleService,
     GetWorkspacesService,
-    UpdateWorkspaceService,
 
     FilterItemsService,
     CreateItemsService,

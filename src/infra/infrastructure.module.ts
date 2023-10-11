@@ -6,12 +6,12 @@ import { BigQuery } from '@google-cloud/bigquery';
 // INFRA
 import { ApiCallService } from './monday/api-call.service';
 import { CreateDatasetService } from './bigQuery/dataset/create-dataset.service';
-import { CreateTableService } from './bigQuery/table/create-table.service';
+import { CreateTablesService } from './bigQuery/table/create-table.service';
 import { BigQueryRepositoryService } from './bigQuery/bigQuery-repository.service';
 import { MondayRepositoryService } from './monday/monday-repository.service';
 import { GetRowsService } from './bigQuery/rows/get-rows.service';
 import { UpdateRowsService } from './bigQuery/rows/update-rows.service';
-import { CheckPlacesService } from './bigQuery/table/check-places.service';
+import { CheckPlacesService } from './bigQuery/table/utils/check-places.service';
 
 // DOMAIN
 import { MondayRepository } from 'src/domain/repository/monday-repository';
@@ -20,6 +20,7 @@ import { EntityFactory } from 'src/domain/factory/entity-factory';
 import { ErrorDispatch } from '../domain/events/error-dispatch.events';
 import { InsertRowsService } from './bigQuery/rows/insert-rows.service';
 import { GetDatasetsService } from './bigQuery/dataset/get-datasets.service';
+import { GetTablesService } from './bigQuery/table/get-tables.service';
 
 @Module({
   // CONFIGURATION
@@ -31,11 +32,12 @@ import { GetDatasetsService } from './bigQuery/dataset/get-datasets.service';
 
     // CRUD
     CreateDatasetService,
-    CreateTableService,
+    CreateTablesService,
     InsertRowsService,
     GetRowsService,
     UpdateRowsService,
     GetDatasetsService,
+    GetTablesService,
 
     // UTIL SERVICES
     ApiCallService,

@@ -1,7 +1,7 @@
-import { Board } from '../entities/board/board';
-import { Workspace } from '../entities/board/workspace';
+import { BoardEntity } from '../entities/board/board-entity';
+import { WorkspaceEntity } from '../entities/board/workspace-entity';
 
 export abstract class MondayRepository {
-  abstract getBoards(): Promise<Board[] | null>;
-  abstract getWorkSpaces(): Promise<Workspace[] | null>;
+  abstract getBoards(): Promise<BoardEntity[] | null>;
+  abstract getWorkSpaces(): Promise<WorkspaceEntity[] | null>;
 }

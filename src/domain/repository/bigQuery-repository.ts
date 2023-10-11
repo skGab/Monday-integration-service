@@ -1,11 +1,12 @@
 import { BigQuery, Dataset, Table } from '@google-cloud/bigquery';
-import { Board } from '../entities/board/board';
-import { Workspace } from '../entities/board/workspace';
-import { TransferResponse } from '../../application/dtos/bigQuery/crud-operations.dto';
+import { BoardEntity } from '../entities/board/board-entity';
+import { WorkspaceEntity } from '../entities/board/workspace-entity';
+import { TransferResponse } from '../../application/dtos/bigQuery/items.dto';
 
 export abstract class BigQueryRepository {
   // TABLES
-  abstract createTables(boards: Board[]): Promise<Table[] | null>;
+  abstract createTables(boards: BoardEntity[]): Promise<Table[] | null>;
+  abstract getTables(boards: BoardEntity[]): Promise<Table[] | null>;
 
   // ROWS
   abstract insertRows(
@@ -16,12 +17,14 @@ export abstract class BigQueryRepository {
     items: { [key: string]: string }[],
     board: Table,
   ): Promise<TransferResponse | null>;
-  abstract getRows(board: Board): Promise<string[] | null>;
+  abstract getRows(board: BoardEntity): Promise<string[] | null>;
 
   // DATASETS
-  abstract getDatasets(workspaces: Workspace[]): Promise<Dataset[] | null>;
-  abstract updateDatasets(workspaces: Workspace[]): Promise<Dataset[] | null>;
+  abstract getDatasets(
+    workspaces: WorkspaceEntity[],
+  ): Promise<Dataset[] | null>;
+
   abstract createDatasets(
-    datasetsToCreate: Workspace[],
+    datasetsToCreate: WorkspaceEntity[],
   ): Promise<Dataset[] | null>;
 }

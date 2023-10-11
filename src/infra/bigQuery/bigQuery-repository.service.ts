@@ -1,3 +1,4 @@
+import { GetTablesService } from './table/get-tables.service';
 import { GetDatasetsService } from './dataset/get-datasets.service';
 import { GetRowsService } from './rows/get-rows.service';
 import { UpdateRowsService } from './rows/update-rows.service';
@@ -6,15 +7,15 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { CreateDatasetService } from './dataset/create-dataset.service';
-import { CreateTableService } from './table/create-table.service';
+import { CreateTablesService } from './table/create-table.service';
 
 import Credentials from '../security/credentials.json';
 
-import { Workspace } from 'src/domain/entities/board/workspace';
 import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
-import { Board } from 'src/domain/entities/board/board';
-import { TransferResponse } from 'src/application/dtos/bigQuery/crud-operations.dto';
+import { TransferResponse } from 'src/application/dtos/bigQuery/items.dto';
 import { InsertRowsService } from './rows/insert-rows.service';
+import { BoardEntity } from 'src/domain/entities/board/board-entity';
+import { WorkspaceEntity } from 'src/domain/entities/board/workspace-entity';
 
 @Injectable()
 export class BigQueryRepositoryService implements BigQueryRepository {
@@ -25,11 +26,12 @@ export class BigQueryRepositoryService implements BigQueryRepository {
   constructor(
     private readonly createDatasetService: CreateDatasetService,
     private readonly getDatasetsService: GetDatasetsService,
-    private readonly createTableService: CreateTableService,
+    private readonly createTableService: CreateTablesService,
     private readonly configService: ConfigService,
     private readonly updateRowsService: UpdateRowsService,
     private readonly getRowsService: GetRowsService,
     private readonly insertRowsService: InsertRowsService,
+    private readonly getTablesService: GetTablesService,
   ) {
     this.bigQueryClient = new BigQuery({
       projectId: this.configService.get<string>('BIGQUERY_PROJECT_ID'),
@@ -38,7 +40,7 @@ export class BigQueryRepositoryService implements BigQueryRepository {
   }
 
   // TABLES
-  async createTables(boards: Board[]): Promise<Table[] | null> {
+  async createTables(boards: BoardEntity[]): Promise<Table[] | null> {
     if (!boards || boards.length == 0) {
       this.logger.error(
         'Nenhum quadro encontrado para criação de tabelas no BigQuery',
@@ -54,9 +56,21 @@ export class BigQueryRepositoryService implements BigQueryRepository {
 
     return tables;
   }
+  async getTables(boards: BoardEntity[]): Promise<Table[] | null> {
+    if (!boards) {
+      this.logger.error(
+        'Nenhuma quadro encontrado para busca de Datasets no BigQuery',
+      );
+      return null;
+    }
+
+    const tables = await this.getTablesService.run(this.bigQueryClient, boards);
+
+    return tables;
+  }
 
   // ROWS
-  async getRows(board: Board): Promise<string[] | null> {
+  async getRows(board: BoardEntity): Promise<string[] | null> {
     if (!board) {
       this.logger.error(
         'Nenhum quadro encontrado para busca de Ids no BigQuery',
@@ -94,13 +108,13 @@ export class BigQueryRepositoryService implements BigQueryRepository {
   }
   // DATASETS
   async createDatasets(
-    datasetsToCreate: Workspace[],
+    datasetsToCreate: WorkspaceEntity[],
   ): Promise<Dataset[] | null> {
-    const promises = datasetsToCreate.map(async (dataset) => {
-      const response = await this.createDatasetService.run(
+    const promises = datasetsToCreate.map(async (workspace) => {
+      const response = await this.createDatasetService.create(
         this.location,
         this.bigQueryClient,
-        dataset.name,
+        workspace,
       );
       return response;
     });
@@ -110,24 +124,7 @@ export class BigQueryRepositoryService implements BigQueryRepository {
     return datasets;
   }
 
-  async updateDatasets(
-    datasetsToUpdated: Workspace[],
-  ): Promise<Dataset[] | null> {
-    const promises = datasetsToUpdated.map(async (dataset) => {
-      const response = await this.createDatasetService.run(
-        this.location,
-        this.bigQueryClient,
-        dataset.name,
-      );
-      return response;
-    });
-
-    const datasets = await Promise.all(promises);
-
-    return datasets;
-  }
-
-  async getDatasets(workspaces: Workspace[]): Promise<Dataset[] | null> {
+  async getDatasets(workspaces: WorkspaceEntity[]): Promise<Dataset[] | null> {
     if (!workspaces) {
       this.logger.error(
         'Nenhuma area encontrado para busca de Datasets no BigQuery',

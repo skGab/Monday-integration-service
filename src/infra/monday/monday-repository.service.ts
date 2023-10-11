@@ -1,9 +1,9 @@
-import { Workspace } from './../../domain/entities/board/workspace';
 import { EntityFactory } from '../../domain/factory/entity-factory';
 import { Injectable, Logger } from '@nestjs/common';
 import { lastValueFrom } from 'rxjs';
-import { Board } from 'src/domain/entities/board/board';
 import { ApiCallService } from './api-call.service';
+import { BoardEntity } from 'src/domain/entities/board/board-entity';
+import { WorkspaceEntity } from 'src/domain/entities/board/workspace-entity';
 
 @Injectable()
 export class MondayRepositoryService {
@@ -11,7 +11,7 @@ export class MondayRepositoryService {
 
   constructor(private apiCallService: ApiCallService) {}
 
-  async getBoards(): Promise<Board[] | null> {
+  async getBoards(): Promise<BoardEntity[] | null> {
     const response = await lastValueFrom(this.apiCallService.run());
 
     if ('errors' in response.data) {
@@ -29,7 +29,7 @@ export class MondayRepositoryService {
     return boards.map((board) => EntityFactory.createBoard(board));
   }
 
-  async getWorkSpaces(): Promise<Workspace[] | null> {
+  async getWorkSpaces(): Promise<WorkspaceEntity[] | null> {
     const response = await lastValueFrom(this.apiCallService.run());
 
     if ('errors' in response.data) {

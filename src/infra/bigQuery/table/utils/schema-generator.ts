@@ -1,9 +1,9 @@
-import { Board } from 'src/domain/entities/board/board';
+import { BoardEntity } from 'src/domain/entities/board/board-entity';
 
 export class SchemaGenerator {
   private schema;
 
-  run(board: Board) {
+  run(board: BoardEntity) {
     const uniqueColumnTitles = new Set();
 
     // LOOPING THROUGHT EACH COLUMN FROM BOARDS.ITEMS

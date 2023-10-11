@@ -1,6 +1,6 @@
 import { BigQuery } from '@google-cloud/bigquery';
 import { Injectable, Logger } from '@nestjs/common';
-import { Board } from 'src/domain/entities/board/board';
+import { BoardEntity } from 'src/domain/entities/board/board-entity';
 
 @Injectable()
 export class GetRowsService {
@@ -8,7 +8,7 @@ export class GetRowsService {
 
   async run(
     location: string,
-    board: Board,
+    board: BoardEntity,
     bigQueryClient: BigQuery,
   ): Promise<string[] | null> {
     if (!board) {

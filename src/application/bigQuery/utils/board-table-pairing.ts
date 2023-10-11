@@ -1,13 +1,13 @@
 import { Table } from '@google-cloud/bigquery';
-import { Board } from 'src/domain/entities/board/board';
+import { BoardEntity } from 'src/domain/entities/board/board-entity';
 
 export interface BoardTablePairs {
-  board: Board;
+  board: BoardEntity;
   table: Table;
 }
 
 export class BoardTablePairing {
-  run(mondayBoards: Board[], bigQueryTables: Table[]): BoardTablePairs[] {
+  run(mondayBoards: BoardEntity[], bigQueryTables: Table[]): BoardTablePairs[] {
     const boardTablePairs = mondayBoards.map((board, index) => ({
       board,
       table: bigQueryTables[index],
