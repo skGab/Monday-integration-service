@@ -6,7 +6,6 @@ export class Board {
     public id: string,
     public state: string,
     public name: string,
-    public item_terminology: string,
     public items_page: ItemsPage,
     public workspace: Workspace,
   ) {}

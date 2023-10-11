@@ -10,8 +10,9 @@ export class CreateBoardsService {
 
   // CREATE BOARDS ON BIGQUERY, FROM MONDAY
   async run(mondayBoards: Board[]): Promise<Table[]> {
-    const bigQueryTables =
-      this.bigQueryRepositoryService.createTables(mondayBoards);
+    const bigQueryTables = await this.bigQueryRepositoryService.createTables(
+      mondayBoards,
+    );
 
     if (bigQueryTables === null) return null;
 

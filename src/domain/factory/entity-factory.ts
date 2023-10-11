@@ -11,7 +11,6 @@ export class EntityFactory {
       rawBoard.id,
       rawBoard.state,
       rawBoard.name,
-      this.sanitizeTitle(rawBoard.item_terminology),
       this.createItem(rawBoard.items_page.items),
       this.createWorkspace(rawBoard.workspace),
     );

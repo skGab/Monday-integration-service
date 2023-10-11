@@ -1,26 +1,28 @@
 import { Module } from '@nestjs/common';
 
-import { BoardController } from './controllers/board.controller';
+import { IntegrationController } from './controllers/integration.controller';
 import { WorkSpaceController } from './controllers/workspace.controller';
 
 import { InfrastructureModule } from 'src/infra/infrastructure.module';
 
-import { BigQueryHandleService } from './bigQuery/bigQuery-handle.service';
 import { CreateItemsService } from './bigQuery/items/create-items.service';
 import { UpdateItemsService } from './bigQuery/items/update-items.service';
 import { FilterItemsService } from './bigQuery/items/filter-items.service';
 
-import { MondayHandleService } from './monday/monday-handle.service';
+import { MondayHandleService } from './handles/monday-handle.service';
+import { BigQueryHandleService } from './handles/bigQuery-handle.service';
 
 import { PipeLineOrchestratorUsecase } from './usecase/pipeLine-orchestrator.service';
-import { CreateWorkspaceService } from './bigQuery/create/create-workspace.service';
+import { CreateWorkspaceService } from './bigQuery/workspace/create-workspace.service';
 import { CreateBoardsService } from './bigQuery/create/create-boards.service';
 import { GetItemsService } from './bigQuery/items/get-items.service';
 import { CrudOnItemsService } from './bigQuery/crud-on-items.service';
+import { GetWorkspacesService } from './bigQuery/workspace/get-workspaces.service';
+import { UpdateWorkspaceService } from './bigQuery/workspace/update-workspace.service';
 
 @Module({
   // CONTROLLERS
-  controllers: [BoardController, WorkSpaceController],
+  controllers: [IntegrationController, WorkSpaceController],
 
   // SERVICES
   providers: [
@@ -28,10 +30,12 @@ import { CrudOnItemsService } from './bigQuery/crud-on-items.service';
 
     MondayHandleService,
     CreateWorkspaceService,
-    BigQueryHandleService,
     CrudOnItemsService,
     CreateBoardsService,
     GetItemsService,
+    BigQueryHandleService,
+    GetWorkspacesService,
+    UpdateWorkspaceService,
 
     FilterItemsService,
     CreateItemsService,

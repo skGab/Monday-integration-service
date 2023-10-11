@@ -1,7 +1,7 @@
 import { Table } from '@google-cloud/bigquery';
 import { Injectable, Logger } from '@nestjs/common';
 import { Board } from 'src/domain/entities/board/board';
-import { TransferResponse } from 'src/application/bigQuery/dtos/crud-operations.dto';
+import { TransferResponse } from 'src/application/dtos/bigQuery/crud-operations.dto';
 
 @Injectable()
 export class UpdateRowsService {

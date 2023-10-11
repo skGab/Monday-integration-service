@@ -5,7 +5,7 @@ import { BigQuery } from '@google-cloud/bigquery';
 
 // INFRA
 import { ApiCallService } from './monday/api-call.service';
-import { CreateDatasetService } from './bigQuery/create-dataset.service';
+import { CreateDatasetService } from './bigQuery/dataset/create-dataset.service';
 import { CreateTableService } from './bigQuery/table/create-table.service';
 import { BigQueryRepositoryService } from './bigQuery/bigQuery-repository.service';
 import { MondayRepositoryService } from './monday/monday-repository.service';
@@ -19,6 +19,7 @@ import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
 import { EntityFactory } from 'src/domain/factory/entity-factory';
 import { ErrorDispatch } from '../domain/events/error-dispatch.events';
 import { InsertRowsService } from './bigQuery/rows/insert-rows.service';
+import { GetDatasetsService } from './bigQuery/dataset/get-datasets.service';
 
 @Module({
   // CONFIGURATION
@@ -34,6 +35,7 @@ import { InsertRowsService } from './bigQuery/rows/insert-rows.service';
     InsertRowsService,
     GetRowsService,
     UpdateRowsService,
+    GetDatasetsService,
 
     // UTIL SERVICES
     ApiCallService,

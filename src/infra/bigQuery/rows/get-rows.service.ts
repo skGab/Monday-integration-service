@@ -17,9 +17,7 @@ export class GetRowsService {
     }
 
     // Construct a SQL query based on your board. This is just a placeholder
-    const sqlQuery = `SELECT * FROM ${board.workspace.workspaceName()}.${
-      board.name
-    }`;
+    const sqlQuery = `SELECT * FROM ${board.workspace.name}.${board.name}`;
 
     const options = {
       query: sqlQuery,

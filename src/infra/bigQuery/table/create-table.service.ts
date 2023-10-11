@@ -24,15 +24,17 @@ export class CreateTableService {
         if (!exists) {
           const schema = this.schemaGenerator.run(board);
 
-          console.log(schema);
-
           const [newTable] = await bigQuery
             .dataset(datasetName)
             .createTable(tableName, { schema: schema });
 
+          console.log('Nova Tabela criada:', newTable.id);
+
           // RETURNING NEW TABLE
           return newTable;
         }
+
+        console.log('Tabela existente:', table.id);
 
         return table;
       });

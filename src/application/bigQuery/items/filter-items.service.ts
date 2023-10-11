@@ -2,7 +2,7 @@ import { GetItemsService } from './get-items.service';
 import { Injectable } from '@nestjs/common';
 import { Board } from 'src/domain/entities/board/board';
 
-import { PreparePayload } from './prepare-payload';
+import { PreparePayload } from '../utils/prepare-payload';
 
 export interface FilteredData {
   coreItems: { [key: string]: string }[];

@@ -5,9 +5,9 @@ import {
   ResponseFactory,
   ServiceResponse,
 } from 'src/domain/factory/response-factory';
-import { BodyShape } from 'src/application/core/payload.dto';
+import { BodyShape } from 'src/application/dtos/core/payload.dto';
 import { Table } from '@google-cloud/bigquery';
-import { Status } from 'src/application/bigQuery/dtos/crud-operations.dto';
+import { Status } from 'src/application/dtos/bigQuery/crud-operations.dto';
 
 @Injectable()
 export class UpdateItemsService {

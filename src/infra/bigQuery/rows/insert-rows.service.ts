@@ -1,6 +1,6 @@
 import { Table } from '@google-cloud/bigquery';
 import { Injectable } from '@nestjs/common';
-import { TransferResponse } from 'src/application/bigQuery/dtos/crud-operations.dto';
+import { TransferResponse } from 'src/application/dtos/bigQuery/crud-operations.dto';
 
 @Injectable()
 export class InsertRowsService {

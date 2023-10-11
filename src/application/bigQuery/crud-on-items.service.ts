@@ -1,3 +1,4 @@
+import { BigQueryHandleService } from './../handles/bigQuery-handle.service';
 import { Injectable } from '@nestjs/common';
 
 import { UpdateItemsService } from './items/update-items.service';
@@ -8,9 +9,12 @@ import { Board } from 'src/domain/entities/board/board';
 import {
   CrudOperationsDto,
   Status,
-} from 'src/application/bigQuery/dtos/crud-operations.dto';
+} from 'src/application/dtos/bigQuery/crud-operations.dto';
 import { FilterItemsService } from './items/filter-items.service';
-import { BoardTablePairing, BoardTablePairs } from './board-table-pairing';
+import {
+  BoardTablePairing,
+  BoardTablePairs,
+} from './utils/board-table-pairing';
 
 @Injectable()
 export class CrudOnItemsService {
@@ -33,7 +37,7 @@ export class CrudOnItemsService {
   constructor(
     private readonly updateItemsService: UpdateItemsService,
     private readonly filterItemsService: FilterItemsService,
-    private readonly createItemsService: CreateItemsService,
+    private readonly createItemsService: CreateItemsService, // private readonly bigQueryHandleService: BigQueryHandleService,
   ) {}
 
   async run(
@@ -100,8 +104,6 @@ export class CrudOnItemsService {
   private async create(coreItems: any[], table: Table): Promise<Status> {
     try {
       const insertedItems = await this.createItemsService.run(coreItems, table);
-
-      console.log(insertedItems);
 
       return (this.newItemsStatus = insertedItems);
     } catch (err) {

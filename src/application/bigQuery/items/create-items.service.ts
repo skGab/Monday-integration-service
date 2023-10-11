@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import {
   Status,
   TransferResponse,
-} from 'src/application/bigQuery/dtos/crud-operations.dto';
+} from 'src/application/dtos/bigQuery/crud-operations.dto';
 
 import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
 
