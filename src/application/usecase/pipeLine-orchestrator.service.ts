@@ -26,6 +26,10 @@ export class PipeLineOrchestratorUsecase {
 
     // WHAT ABOUT ANOTHER REQUEST COMES WHEM PERFOMING THE JOBS ?
 
+    // NOW I NEED TO GET THE DATA IM RETURNING AND DO THE OPERATIONS
+
+    // THEM CONTINUE TO ITEMS  HANDLE
+
     // DATASET JOB
     const datasetJobStatusDto =
       await this.bigQueryHandleService.handleDatasetsJob();
@@ -35,7 +39,7 @@ export class PipeLineOrchestratorUsecase {
       await this.bigQueryHandleService.handleTablesJob();
 
     // ITEMS JOB
-    const itemsDto = await this.bigQueryHandleService.handleItemsJob();
+    // const itemsDto = await this.bigQueryHandleService.handleItemsJob();
 
     return { datasetJobStatusDto, tableJobStatusDto };
   }

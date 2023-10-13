@@ -66,6 +66,8 @@ export class BigQueryRepositoryService implements BigQueryRepository {
 
     const tables = await this.getTablesService.run(this.bigQueryClient, boards);
 
+    if (!tables || tables.length == 0) return null;
+
     return tables;
   }
 

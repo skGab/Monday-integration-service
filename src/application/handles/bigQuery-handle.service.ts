@@ -1,5 +1,3 @@
-import { BigQueryRepositoryService } from './../../infra/bigQuery/bigQuery-repository.service';
-import { FilteredData } from './../bigQuery/items/filter-items.service';
 import { CreateWorkspaceService } from '../bigQuery/workspace/create-workspace.service';
 import { TableJobStatusDto } from '../dtos/bigQuery/table.dto';
 import { Injectable } from '@nestjs/common';
@@ -7,11 +5,11 @@ import { DatasetJobStatusDto } from 'src/application/dtos/bigQuery/dataset.dto';
 import { ItemsJobStatus } from 'src/application/dtos/bigQuery/items.dto';
 import { MondayHandleService } from './monday-handle.service';
 import { GetWorkspacesService } from '../bigQuery/workspace/get-workspaces.service';
-import { SharedShape } from '../dtos/core/payload.dto';
 import { WorkspaceEntity } from 'src/domain/entities/board/workspace-entity';
 import { BoardEntity } from 'src/domain/entities/board/board-entity';
 import { Dataset } from '@google-cloud/bigquery';
 import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
+import { SharedShape } from '../dtos/core/payload.dto';
 
 @Injectable()
 export class BigQueryHandleService {
@@ -24,8 +22,6 @@ export class BigQueryHandleService {
 
   // 1 - PRIMEIRO JOB: HANDLE DATASETS
   async handleDatasetsJob(): Promise<DatasetJobStatusDto> {
-    let newDatasets: SharedShape;
-
     // GET MONDAY WORKSPACES
     const workspaceDto = await this.mondayHandleService.getWorkspaces();
 
@@ -39,7 +35,7 @@ export class BigQueryHandleService {
     const { datasetsToCreate, datasetsNames } = filteredData;
 
     // CREATE THE DATASETS IF NEEDED
-    newDatasets = await this.createWorkspaceService.run(datasetsToCreate);
+    const newDatasets = await this.createWorkspaceService.run(datasetsToCreate);
 
     // RETURN DTO
     const datasetJobStatusDto = new DatasetJobStatusDto(
@@ -63,17 +59,36 @@ export class BigQueryHandleService {
       return new TableJobStatusDto(null, null, null, null);
     }
 
-    const { tablesToCreate, tablesToUpdate, tablesNames } = filteredData;
+    const { tablesToCreate, tablesToUpdate } = filteredData;
 
-    // PRECISO CONTINUAR A IMPLEMENTAÇÃO DE ATUALIZAÇÕES DE TABELAS
-    // PRECISO RESOLVER O PROBLEMA NA HORA DE PEGAR TABELAS E CONTINUAR
+    // CREATE TABLES IF NEEDED
+    // const tableDto = await this.createTables(mondayDto.data);
 
-    // // CREATE TABLES IF NEEDED
-    // // const tableDto = await this.createTables(mondayDto.data);
+    // UPDATE IF NEEDED
 
-    // // UPDATE IF NEEDED
+    const newTables: SharedShape = {
+      names: tablesToCreate,
+      count: tablesToCreate.length,
+      status: 'Success',
+    };
 
-    return new TableJobStatusDto(mondayDto.data, tablesNames);
+    const updatedTables: SharedShape = {
+      names: tablesToUpdate.flatMap((table) => table.names),
+      count: tablesToUpdate.length,
+      status: 'Success',
+    };
+
+    const tablesNames = [
+      ...tablesToCreate,
+      ...tablesToUpdate.flatMap((table) => table.names),
+    ];
+
+    return new TableJobStatusDto(
+      mondayDto.data,
+      tablesNames,
+      newTables,
+      updatedTables,
+    );
   }
 
   // 3 - HANDLE Items
@@ -149,44 +164,54 @@ export class BigQueryHandleService {
   }
 
   public async filterBoards(boards: BoardEntity[]) {
-    const tablesToUpdate: string[] = [];
-    const tablesToCreate: string[] = [];
+    try {
+      const tablesToUpdate: { names: string[]; changes: any }[] = [];
+      const tablesToCreate: string[] | string = [];
 
-    // GETTING CURRENT TABLES
-    const currentTables = await this.bigQueryRepositoryService.getTables(
-      boards,
-    );
+      // GETTING CURRENT TABLES
+      const currentTables = await this.bigQueryRepositoryService.getTables(
+        boards,
+      );
 
-    const tablesNames = currentTables.map((table) => table.id);
+      // Create a set for quick look-up of existing tables
+      const existingTablesNames = new Set(
+        currentTables ? currentTables.map((table) => table.id) : [],
+      );
 
-    // Create a set for quick look-up of existing tables
-    const existingTablesNames = new Set(tablesNames);
+      // FILTERING DATA TO UPDATE OR CREATE
+      for (const board of boards) {
+        // If the board's table already exists, it's a candidate for updating
+        if (existingTablesNames.has(board.name)) {
+          for (const activityLog of board.activity_logs) {
+            const { event, data } = activityLog;
+            // Decode the data JSON field
+            const parsedData = JSON.parse(data);
 
-    // FILTERING DATA TO UPDATE OR CREATE
-    for (const board of boards) {
-      // If the board's table already exists, it's a candidate for updating
-      if (existingTablesNames.has(board.name)) {
-        for (const activityLog of board.activity_logs) {
-          const { event, data } = activityLog;
-          // Decode the data JSON field
-          const parsedData = JSON.parse(data);
-
-          // Add logic for different types of events
-          switch (event) {
-            case 'update_group_name':
-            case 'update_name':
-              tablesToUpdate.push(parsedData.board_id);
-              break;
-            // add other cases based on your needs
+            // Add logic for different types of events
+            switch (event) {
+              case 'update_group_name':
+              case 'update_name':
+                tablesToUpdate.push({
+                  names: parsedData.name,
+                  changes: {
+                    oldValue: parsedData.previous_value,
+                    newValue: parsedData.value,
+                  },
+                });
+                break;
+              // add other cases based on your needs
+            }
           }
+        } else {
+          // If the board's table does not exist, it's a candidate for creation
+          tablesToCreate.push(board.name);
         }
-      } else {
-        // If the board's table does not exist, it's a candidate for creation
-        tablesToCreate.push(board.name);
       }
-    }
 
-    return { tablesToUpdate, tablesToCreate, tablesNames };
+      return { tablesToUpdate, tablesToCreate };
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   // CREATE TABLES

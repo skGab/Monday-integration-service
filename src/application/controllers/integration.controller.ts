@@ -37,8 +37,8 @@ export class IntegrationController {
         message: 'Dados sincronizados',
       };
 
-      // return status ? response : 'Nenhum dado encontrado para sincronização';
-      return status;
+      return status ? response : 'Nenhum dado encontrado para sincronização';
+      // return status;
     } catch (error) {
       // RETURNING INTERNAL ERROR TO THE CLIENT
       throw new HttpException(
