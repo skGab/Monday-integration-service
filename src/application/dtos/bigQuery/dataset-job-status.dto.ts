@@ -4,7 +4,6 @@ import { WorkspaceDto } from '../monday/workspace.dto';
 export class DatasetJobStatusDto {
   constructor(
     private mondayWorkspaces: WorkspaceDto,
-    private bigQueryDatasets: string[],
-    private newDatasets: SharedShape,
+    private operationStatus: SharedShape,
   ) {}
 }

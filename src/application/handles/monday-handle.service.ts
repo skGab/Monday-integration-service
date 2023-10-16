@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { MondayRepository } from 'src/domain/repository/monday-repository';
+import { MondayRepository } from 'src/domain/repositories/monday-repository';
 import { MondayDto } from '../dtos/monday/monday.dto';
 import { WorkspaceDto } from '../dtos/monday/workspace.dto';
 

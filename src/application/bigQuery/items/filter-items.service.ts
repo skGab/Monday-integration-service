@@ -14,7 +14,10 @@ export class FilterItemsService {
   private preparePayload = new PreparePayload();
   constructor(private getItemsService: GetItemsService) {}
 
-  async run(board: BoardEntity, mondayBoards: BoardEntity[]): Promise<FilteredData> {
+  async run(
+    board: BoardEntity,
+    mondayBoards: BoardEntity[],
+  ): Promise<FilteredData> {
     // GET ITEMS FROM BIGQUERY
     const bigQueryItemsId = await this.getItemsService.run(mondayBoards);
 

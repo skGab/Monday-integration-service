@@ -15,7 +15,7 @@ interface ErrorEvent {
   source: string;
 }
 
-@Controller('boards')
+@Controller('integration')
 export class IntegrationController {
   logger = new Logger(IntegrationController.name);
 
@@ -40,6 +40,7 @@ export class IntegrationController {
       return status ? response : 'Nenhum dado encontrado para sincronização';
       // return status;
     } catch (error) {
+      console.log(error);
       // RETURNING INTERNAL ERROR TO THE CLIENT
       throw new HttpException(
         {

@@ -1,8 +1,14 @@
 import { CheckPlacesService } from './utils/check-places.service';
-import { BigQuery, Table } from '@google-cloud/bigquery';
+import { BigQuery } from '@google-cloud/bigquery';
 import { Injectable, Logger } from '@nestjs/common';
 import { SchemaGenerator } from './utils/schema-generator';
 import { BoardEntity } from 'src/domain/entities/board/board-entity';
+
+interface CreateTableResponse {
+  newTable?: string;
+  existingTable?: string;
+  error?: string;
+}
 
 @Injectable()
 export class CreateTablesService {
@@ -13,45 +19,43 @@ export class CreateTablesService {
     this.schemaGenerator = new SchemaGenerator();
   }
 
-  async run(location: string, bigQuery: BigQuery, boards: BoardEntity[]) {
+  async run(
+    location: string,
+    bigQuery: BigQuery,
+    board: BoardEntity,
+  ): Promise<CreateTableResponse> {
     try {
-      const promises = boards.map(async (board) => {
-        // CHECKING FOR TABLE AND DATASETS EXISTENCES
-        const { exists, table, datasetName, tableName } =
-          await this.checkPlacesService.run(board, location, bigQuery);
+      const { exists, table, datasetName, tableName } =
+        await this.checkPlacesService.run(board, location, bigQuery);
 
-        // CREATING TABLE IF NOT EXISTES
-        if (!exists) {
-          const schema = this.schemaGenerator.run(board);
+      // CREATING TABLE IF NOT EXISTES
+      if (!exists) {
+        const schema = this.schemaGenerator.run(board);
 
-          // Include the board_id label here
-          const options = {
-            schema: schema,
-            labels: {
-              board_id: board.getId(),
-            },
-          };
+        const options = {
+          schema: schema,
+          labels: {
+            board_id: board.getId(),
+          },
+        };
 
-          const [newTable] = await bigQuery
-            .dataset(datasetName)
-            .createTable(tableName, options);
+        const [newTable] = await bigQuery
+          .dataset(datasetName)
+          .createTable(tableName, options);
 
-          console.log('Nova Tabela criada:', newTable.id);
+        console.log('Nova Tabela criada:', newTable.id);
 
-          // RETURNING NEW TABLE
-          return newTable;
-        }
+        // RETURNING NEW TABLE
+        return { newTable: newTable.id };
+      }
 
-        console.log('Tabela existente:', table.id);
+      console.log('Tabela existente:', table.id);
 
-        return table;
-      });
-
-      const tables = await Promise.all(promises);
-      return tables as Table[];
+      // RETURNING EXISTING TALBE
+      return { existingTable: table.id };
     } catch (error) {
       this.logger.error(error);
-      return null;
+      return { error: `Erro na criação: ${board.name}` };
     }
   }
 }

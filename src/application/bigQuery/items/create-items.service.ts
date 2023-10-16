@@ -1,13 +1,11 @@
 import { Table } from '@google-cloud/bigquery';
 import { Injectable } from '@nestjs/common';
-import { TransferResponse } from 'src/application/dtos/bigQuery/items.dto';
 import { SharedShape } from 'src/application/dtos/core/payload.dto';
-
-import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
+import { RowRepository } from 'src/domain/repositories/bigQuery/row-repository';
 
 @Injectable()
 export class CreateItemsService {
-  constructor(private bigQueryRepositoryService: BigQueryRepository) {}
+  constructor(private rowRepositoryService: RowRepository) {}
 
   // HANDLE NEW ITEMS
   async run(
@@ -24,7 +22,10 @@ export class CreateItemsService {
       return;
     }
 
-    const data = await this.create(coreItems, table);
+    const response = await this.rowRepositoryService.createRows(
+      coreItems,
+      table,
+    );
 
     // return {
     //   count: data.insertedPayload.length,
@@ -32,17 +33,5 @@ export class CreateItemsService {
     // };
 
     return;
-  }
-
-  private async create(
-    coreItems: { [key: string]: string }[],
-    table: Table,
-  ): Promise<TransferResponse> {
-    const response = await this.bigQueryRepositoryService.insertRows(
-      coreItems,
-      table,
-    );
-
-    return response;
   }
 }

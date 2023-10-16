@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { BigQueryRepository } from 'src/domain/repository/bigQuery-repository';
 import { Table } from '@google-cloud/bigquery';
 import { SharedShape } from 'src/application/dtos/core/payload.dto';
+import { RowRepository } from 'src/domain/repositories/bigQuery/row-repository';
 
 @Injectable()
 export class UpdateItemsService {
-  constructor(private bigQueryRepositoryService: BigQueryRepository) {}
+  constructor(private rowRepositoryService: RowRepository) {}
 
   async run(
     duplicateItems: { [key: string]: string }[],
@@ -17,7 +17,7 @@ export class UpdateItemsService {
     }
 
     // UPDATE IMPLEMENTATION ON BIGQUERY
-    const data = await this.bigQueryRepositoryService.updateRows(
+    const data = await this.rowRepositoryService.updateRows(
       duplicateItems,
       table,
     );

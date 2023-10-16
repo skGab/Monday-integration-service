@@ -1,10 +1,16 @@
+import { BoardsJobHandleService } from './../handles/boardsJob-handle.service';
+import { WorkspacesJobHandleService } from './../handles/workspacesJob-handle.service';
+import { ItemsJobHandleService } from './../handles/itemsJob-handle.service';
 import { Injectable } from '@nestjs/common';
-import { BigQueryHandleService } from '../handles/bigQuery-handle.service';
 import { PayloadDto } from 'src/application/dtos/core/payload.dto';
 
 @Injectable()
 export class PipeLineOrchestratorUsecase {
-  constructor(private bigQueryHandleService: BigQueryHandleService) {}
+  constructor(
+    private itemsJobHandleService: ItemsJobHandleService,
+    private workspacesJobHandleService: WorkspacesJobHandleService,
+    private boardsJobHandleService: BoardsJobHandleService,
+  ) {}
 
   async run(): Promise<PayloadDto> {
     // GETTING DATA
@@ -13,8 +19,8 @@ export class PipeLineOrchestratorUsecase {
     // INSTANCIA DO PAYLOAD
     const payload = new PayloadDto(datasetJobStatusDto, tableJobStatusDto);
 
-    // console.dir(payload, { depth: null });
-    console.log(payload);
+    console.dir(payload, { depth: null });
+    // console.log(payload);
     return payload;
   }
 
@@ -26,20 +32,17 @@ export class PipeLineOrchestratorUsecase {
 
     // WHAT ABOUT ANOTHER REQUEST COMES WHEM PERFOMING THE JOBS ?
 
-    // NOW I NEED TO GET THE DATA IM RETURNING AND DO THE OPERATIONS
-
-    // THEM CONTINUE TO ITEMS  HANDLE
+    // IMPLEMENTAR O SERVICO DE UPDATE DE TABELAS LA NO INFRA E DEPOIS PROSSEGUIR PARA OS ITEMS
 
     // DATASET JOB
     const datasetJobStatusDto =
-      await this.bigQueryHandleService.handleDatasetsJob();
-
+      await this.workspacesJobHandleService.handleDatasetsJob();
     // TABLE JOB
     const tableJobStatusDto =
-      await this.bigQueryHandleService.handleTablesJob();
+      await this.boardsJobHandleService.handleTablesJob();
 
     // ITEMS JOB
-    // const itemsDto = await this.bigQueryHandleService.handleItemsJob();
+    // const itemsDto = await this.itemsJobHandleService.handleItemsJob();
 
     return { datasetJobStatusDto, tableJobStatusDto };
   }

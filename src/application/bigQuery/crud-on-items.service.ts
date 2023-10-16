@@ -1,11 +1,10 @@
-import { BigQueryHandleService } from './../handles/bigQuery-handle.service';
 import { Injectable } from '@nestjs/common';
 
 import { UpdateItemsService } from './items/update-items.service';
 import { CreateItemsService } from './items/create-items.service';
 
 import { Table } from '@google-cloud/bigquery';
-import { ItemsJobStatus } from 'src/application/dtos/bigQuery/items.dto';
+import { ItemsJobStatus } from 'src/application/dtos/bigQuery/item-job-status.dto';
 import { FilterItemsService } from './items/filter-items.service';
 import {
   BoardTablePairing,
@@ -38,7 +37,10 @@ export class CrudOnItemsService {
     private readonly createItemsService: CreateItemsService, // private readonly bigQueryHandleService: BigQueryHandleService,
   ) {}
 
-  async run(mondayBoards: BoardEntity[], tables: Table[]): Promise<ItemsJobStatus> {
+  async run(
+    mondayBoards: BoardEntity[],
+    tables: Table[],
+  ): Promise<ItemsJobStatus> {
     // Reset status before running
     // this.resetStatus();
 

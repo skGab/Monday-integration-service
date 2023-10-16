@@ -1,6 +1,6 @@
-import { ItemsJobStatus } from '../bigQuery/items.dto';
-import { DatasetJobStatusDto } from '../bigQuery/dataset.dto';
-import { TableJobStatusDto } from '../bigQuery/table.dto';
+import { ItemsJobStatus } from '../bigQuery/item-job-status.dto';
+import { DatasetJobStatusDto } from '../bigQuery/dataset-job-status.dto';
+import { TableJobStatusDto } from '../bigQuery/table-job-status.dto';
 
 export interface SharedShape {
   names: string | string[];
