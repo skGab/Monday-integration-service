@@ -3,6 +3,7 @@ import { WorkspaceEntity } from './workspace-entity';
 
 export class BoardEntity {
   constructor(
+    public type,
     public id: string,
     public state: string,
     public name: string,

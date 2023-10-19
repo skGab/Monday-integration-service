@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { MondayRepository } from 'src/domain/repositories/monday-repository';
-import { MondayDto } from '../dtos/monday/monday.dto';
+import { BoardDto } from '../dtos/monday/monday.dto';
 import { WorkspaceDto } from '../dtos/monday/workspace.dto';
 
 @Injectable()
@@ -8,36 +8,30 @@ export class MondayHandleService {
   constructor(private mondayRepositoryService: MondayRepository) {}
 
   // GET MONDAY BOARDS
-  async getBoards(): Promise<MondayDto> {
+  async getBoards(): Promise<BoardDto> {
     try {
       const mondayBoards = await this.mondayRepositoryService.getBoards();
 
       // RETURNING NULL IF ANY BOARDS FOUND
       if (!mondayBoards) {
-        const mondayDto = new MondayDto(
+        return new BoardDto(
           null,
           [],
           0,
           'Nenhum Board Encontrado durante a busca',
         );
-
-        return mondayDto;
       }
 
-      const mondayDto = new MondayDto(
+      // RETURNING MONDAY VO
+      return new BoardDto(
         mondayBoards,
         mondayBoards.map((board) => board.name),
         mondayBoards.length,
         'Success',
       );
-
-      // RETURNING MONDAY VO
-      return mondayDto;
     } catch (error) {
       // RETURNING MONDAY VO WITH ERROR
-      const mondayDto = new MondayDto(null, [], 0, error);
-
-      return mondayDto;
+      return new BoardDto(null, [], 0, error.message);
     }
   }
 
@@ -50,7 +44,7 @@ export class MondayHandleService {
       if (!workspaces) {
         return new WorkspaceDto(
           null,
-          [],
+          null,
           0,
           'Nenhuma area de trabalho Encontrada durante a busca',
         );

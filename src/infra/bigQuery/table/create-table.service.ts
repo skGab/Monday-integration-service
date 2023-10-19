@@ -20,13 +20,16 @@ export class CreateTablesService {
   }
 
   async run(
-    location: string,
     bigQuery: BigQuery,
     board: BoardEntity,
   ): Promise<CreateTableResponse> {
     try {
-      const { exists, table, datasetName, tableName } =
-        await this.checkPlacesService.run(board, location, bigQuery);
+      const dataset = bigQuery.dataset(board.workspace.name);
+
+      const { exists, tablesToRefresh } = await this.checkPlacesService.run(
+        board,
+        bigQuery,
+      );
 
       // CREATING TABLE IF NOT EXISTES
       if (!exists) {
@@ -39,20 +42,32 @@ export class CreateTablesService {
           },
         };
 
-        const [newTable] = await bigQuery
-          .dataset(datasetName)
-          .createTable(tableName, options);
+        const [newTable] = await dataset.createTable(board.name, options);
 
-        console.log('Nova Tabela criada:', newTable.id);
+        console.log('Nova Tabela criada:', board.name);
 
         // RETURNING NEW TABLE
         return { newTable: newTable.id };
       }
 
-      console.log('Tabela existente:', table.id);
+      // Delete the old table
+      await dataset.table(tablesToRefresh.oldTable).delete();
+
+      const schema = this.schemaGenerator.run(board);
+
+      const options = {
+        schema: schema,
+        labels: {
+          board_id: board.getId(),
+        },
+      };
+
+      const [existingTable] = await dataset.createTable(board.name, options);
+
+      console.log('Tabela existente:', existingTable.id);
 
       // RETURNING EXISTING TALBE
-      return { existingTable: table.id };
+      return { existingTable: existingTable.id };
     } catch (error) {
       this.logger.error(error);
       return { error: `Erro na criação: ${board.name}` };

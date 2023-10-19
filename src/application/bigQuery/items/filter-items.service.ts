@@ -28,12 +28,12 @@ export class FilterItemsService {
       return null;
     }
 
-    // PREPARE DATA TO BE INSERT OR UPDATE
-    const { coreItems, duplicateItems } = this.preparePayload.run(
-      bigQueryItemsId,
-      board,
-    );
+    // // PREPARE DATA TO BE INSERT OR UPDATE
+    // const { coreItems, duplicateItems } = this.preparePayload.run(
+    //   bigQueryItemsId,
+    //   board,
+    // );
 
-    return { coreItems, duplicateItems };
+    return;
   }
 }

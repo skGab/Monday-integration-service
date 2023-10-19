@@ -7,16 +7,14 @@ import {
 
 export class PreparePayload {
   run(bigQueryItemsId: string[], board: BoardEntity) {
-    // Prepare individual payloads for each item.
-    const prepareItems = board.items_page.items.map(this.prepareSinglePayload);
-
     // Filter out duplicates.
-    const { coreItems, duplicateItems } = this.checkDuplicatedItems(
-      bigQueryItemsId,
-      prepareItems,
-    );
+    // const { coreItems, duplicateItems } = this.checkDuplicatedItems(
+    //   bigQueryItemsId,
+    //   prepareItems,
+    // );
 
-    return { coreItems, duplicateItems };
+    // return { coreItems, duplicateItems };
+    return;
   }
 
   private checkDuplicatedItems(
@@ -38,20 +36,5 @@ export class PreparePayload {
       duplicateItems,
       coreItems,
     };
-  }
-
-  private prepareSinglePayload(items: ItemsEntity): {
-    [key: string]: string;
-  } {
-    const payload: { [key: string]: string } = {};
-
-    payload.nome = items.name;
-    payload.grupo = items.group.title;
-
-    items.column_values.forEach((column: Column_valueVo) => {
-      payload[column.column.title] = column.text;
-    });
-
-    return payload;
   }
 }

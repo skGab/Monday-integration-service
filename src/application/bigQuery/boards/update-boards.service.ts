@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { SharedShape } from 'src/application/dtos/core/payload.dto';
+
 import { BoardEntity } from 'src/domain/entities/board/board-entity';
 import { TableRepository } from 'src/domain/repositories/bigQuery/table-repository';
 
@@ -10,21 +10,24 @@ export class UpdateBoardsService {
   async run(
     mondayBoards: BoardEntity[],
     existingTables: string[],
-  ): Promise<{ updatedTables: SharedShape }> {
-    const filteredBoards = mondayBoards.filter((board) => {
-      return existingTables.includes(board.name);
-    });
+  ): Promise<string[]> {
+    try {
+      if (mondayBoards.length == 0) {
+        return null;
+      }
 
-    const response = await this.tableRepositoryService.updateTables(
-      filteredBoards,
-    );
+      const filteredBoards = mondayBoards.filter((board) => {
+        return existingTables.includes(board.name);
+      });
 
-    const updatedTables: SharedShape = {
-      names: response,
-      count: response.length,
-      status: 'Success',
-    };
+      // const refreshTables = await this.tableRepositoryService.updateTables(
+      //   filteredBoards,
+      // );
 
-    return { updatedTables };
+      return;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
   }
 }

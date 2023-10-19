@@ -1,43 +1,54 @@
-import { Table } from '@google-cloud/bigquery';
+import { BigQuery, InsertRowsResponse, Table } from '@google-cloud/bigquery';
 import { Injectable } from '@nestjs/common';
-import { TransferResponse } from 'src/application/dtos/bigQuery/item-job-status.dto';
+import { ItemsOperation } from 'src/application/dtos/bigQuery/item-job-status.dto';
+import { BoardEntity } from 'src/domain/entities/board/board-entity';
 
 @Injectable()
 export class InsertRowsService {
-  async run(coreItems: any[], table: Table): Promise<TransferResponse> {
+  async run(
+    items: any[],
+    bigQueryClient: BigQuery,
+    board: BoardEntity,
+  ): Promise<ItemsOperation> {
     try {
-      await table.insert(coreItems);
+      // GETTING THE TABLE REFERENCE
+      const table = bigQueryClient
+        .dataset(board.workspace.name)
+        .table(board.name);
 
-      return {
-        tableId: table.id,
-        status: 'success',
-        insertedPayload: coreItems,
-      };
-    } catch (error) {
-      this.handleError(error);
-    }
-  }
+      // TWO RETRIES OF 40 SEC
+      let maxRetries = 2;
+      let delay = 40000;
 
-  private handleError(error: any): void {
-    console.log(`Error inserting rows into table: ${error.message}`);
+      for (let i = 0; i <= maxRetries; i++) {
+        try {
+          // INSERTIN DATA
+          await table.insert(items);
 
-    if (error.errors && Array.isArray(error.errors)) {
-      error.errors.forEach((err, index) => {
-        console.log(`Error in row ${index}:`);
-
-        if (err.errors && Array.isArray(err.errors)) {
-          err.errors.forEach((subErr, subIndex) => {
-            console.log(`  Sub-error ${subIndex}: ${subErr.message}`);
-          });
+          return {
+            table: table.id,
+            items: items,
+            count: items.length,
+            status: 'success',
+          };
+        } catch (insertError) {
+          // RETRY TWO TIMES IF FAILED
+          console.log(
+            `Insert failed, attempt ${i + 1}: ${insertError.message}`,
+          );
+          if (i === maxRetries) {
+            throw insertError; // Re-throw the error if max retries reached
+          }
+          await new Promise((resolve) => setTimeout(resolve, delay));
         }
-
-        console.log(`  Associated row: ${JSON.stringify(err.row)}`);
-      });
-    }
-
-    if (error.response && error.response.insertErrors) {
-      console.log('Insert errors:');
-      console.log(JSON.stringify(error.response.insertErrors, null, 2));
+      }
+    } catch (error) {
+      return {
+        table: board.name,
+        items: null,
+        count: 0,
+        status: error.message,
+      };
     }
   }
 }

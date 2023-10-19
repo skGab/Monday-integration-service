@@ -1,49 +1,36 @@
-import { CheckPlacesService } from './utils/check-places.service';
-import { BigQuery, Table } from '@google-cloud/bigquery';
-import { Injectable, Logger } from '@nestjs/common';
-import { SchemaGenerator } from './utils/schema-generator';
+import { BigQuery } from '@google-cloud/bigquery';
+import { Injectable } from '@nestjs/common';
+import { SharedShape } from 'src/application/dtos/core/payload.dto';
+
 import { BoardEntity } from 'src/domain/entities/board/board-entity';
+
+interface TableNameActivity {
+  board_id: number;
+  board_name: string;
+  value: { name: string };
+  previous_value: { name: string };
+}
 
 @Injectable()
 export class UpdateTablesService {
-  private logger = new Logger(UpdateTablesService.name);
-  private schemaGenerator: SchemaGenerator;
+  private versionMap: Record<string, number> = {};
 
-  constructor(private checkPlacesService: CheckPlacesService) {
-    this.schemaGenerator = new SchemaGenerator();
-  }
-
-  async run(location: string, bigQuery: BigQuery, boards: BoardEntity[]) {
+  async run(
+    oldTable: string,
+    bigQuery: BigQuery,
+    board: BoardEntity,
+  ): Promise<string> {
     try {
-      const promises = boards.map(async (board) => {
-        // CHECKING FOR TABLE AND DATASETS EXISTENCES
-        const { exists, table, datasetName, tableName } =
-          await this.checkPlacesService.run(board, location, bigQuery);
+     
 
-        // CREATING TABLE IF NOT EXISTES
-        if (!exists) {
-          const schema = this.schemaGenerator.run(board);
+      
 
-          const [newTable] = await bigQuery
-            .dataset(datasetName)
-            .createTable(tableName, { schema: schema });
+      console.log(`Old table truncated: ${oldTable}`);
 
-          console.log('Nova Tabela criada:', newTable.id);
-
-          // RETURNING NEW TABLE
-          return newTable;
-        }
-
-        console.log('Tabela existente:', table.id);
-
-        return table;
-      });
-
-      const tables = await Promise.all(promises);
-      return tables as Table[];
+      return board.name;
     } catch (error) {
-      this.logger.error(error);
-      return null;
+      console.log(error);
+      return 'Error ao recriar tabelas';
     }
   }
 }

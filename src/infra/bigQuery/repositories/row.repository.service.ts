@@ -2,16 +2,25 @@ import { BigQuery, Table } from '@google-cloud/bigquery';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { TransferResponse } from 'src/application/dtos/bigQuery/item-job-status.dto';
+import {
+  InsertResponse,
+  ItemsOperation,
+} from 'src/application/dtos/bigQuery/item-job-status.dto';
 import { BoardEntity } from 'src/domain/entities/board/board-entity';
 import { GetRowsService } from '../rows/get-rows.service';
 import { InsertRowsService } from '../rows/insert-rows.service';
 import { UpdateRowsService } from '../rows/update-rows.service';
 
 import Credentials from '../../security/credentials.json';
+import { RowRepository } from 'src/domain/repositories/bigQuery/row-repository';
+import { SharedShape } from 'src/application/dtos/core/payload.dto';
+import {
+  ItemsEntity,
+  Column_valueVo,
+} from 'src/domain/entities/board/items-entity';
 
 @Injectable()
-export class RowRepositoryService {
+export class RowRepositoryService implements RowRepository {
   private bigQueryClient: BigQuery;
   private readonly location = 'southamerica-east1';
   private readonly logger = new Logger(RowRepositoryService.name);
@@ -50,7 +59,7 @@ export class RowRepositoryService {
   async updateRows(
     duplicateItems: any[],
     table: Table,
-  ): Promise<TransferResponse | null> {
+  ): Promise<InsertResponse | null> {
     try {
       const response = await this.updateRowsService.run(duplicateItems, table);
 
@@ -61,10 +70,43 @@ export class RowRepositoryService {
   }
 
   //   CREATE ROWS SERVICE
-  async insertRows(
-    coreItems: any[],
-    table: Table,
-  ): Promise<TransferResponse | null> {
-    return await this.insertRowsService.run(coreItems, table);
+  async createRows(
+    mondayBoards: BoardEntity[],
+  ): Promise<ItemsOperation[] | string> {
+    try {
+      const responses: ItemsOperation[] = [];
+
+      for (const board of mondayBoards) {
+        // PREPARE ITEMS FOR INSERTION
+        const items = board.items_page.items.map(this.prepareSinglePayload);
+
+        const response = await this.insertRowsService.run(
+          items,
+          this.bigQueryClient,
+          board,
+        );
+        responses.push(response);
+      }
+
+      return responses;
+    } catch (error) {
+      console.log(error);
+      return error.message;
+    }
+  }
+
+  private prepareSinglePayload(items: ItemsEntity): {
+    [key: string]: string;
+  } {
+    const payload: { [key: string]: string } = {};
+
+    payload.nome = items.name;
+    payload.grupo = items.group.title;
+
+    items.column_values.forEach((column: Column_valueVo) => {
+      payload[column.column.title] = column.text;
+    });
+
+    return payload;
   }
 }

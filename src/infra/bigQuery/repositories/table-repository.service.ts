@@ -8,9 +8,11 @@ import { CreateTablesService } from '../table/create-table.service';
 import { GetTablesService } from '../table/get-tables.service';
 
 import Credentials from '../../security/credentials.json';
+import { TableRepository } from 'src/domain/repositories/bigQuery/table-repository';
+import { SharedShape } from 'src/application/dtos/core/payload.dto';
 
 @Injectable()
-export class TableRepositoryService {
+export class TableRepositoryService implements TableRepository {
   private bigQueryClient: BigQuery;
   private readonly location = 'southamerica-east1';
   private readonly logger = new Logger(TableRepositoryService.name);
@@ -28,14 +30,30 @@ export class TableRepositoryService {
   }
 
   // UPDATE TABLES SERVICE
-  async updateTables(filteredBoards: BoardEntity[]): Promise<any> {
-    const response = await this.updateTablesService.run(
-      this.location,
-      this.bigQueryClient,
-      filteredBoards,
-    );
+  async updateTables(
+    tablesToRefresh: { oldTable: string; board: BoardEntity }[],
+  ): Promise<string | SharedShape> {
+    const tables: string[] = [];
 
-    return response;
+    if (tablesToRefresh?.length == 0) {
+      return 'Não ha tabelas existentes para atualização';
+    }
+
+    for (const data of tablesToRefresh) {
+      const table = await this.updateTablesService.run(
+        data.oldTable,
+        this.bigQueryClient,
+        data.board,
+      );
+
+      tables.push(table);
+    }
+
+    return {
+      names: tables,
+      count: tables.length,
+      status: 'success',
+    };
   }
 
   //   CREATE TABLES SERVICE
@@ -44,21 +62,20 @@ export class TableRepositoryService {
     existingTables: string[];
     errors: string[];
   }> {
+    // CREATING TABLES
     const promises = boards.map(async (board) => {
-      return await this.createTableService.run(
-        this.location,
-        this.bigQueryClient,
-        board,
-      );
+      return await this.createTableService.run(this.bigQueryClient, board);
     });
 
+    // PREPARING RESULTS
     const results = await Promise.allSettled(promises);
 
-    // Extract the value or reason from each settled promise
     const newTables: string[] = [];
     const existingTables: string[] = [];
     const errors: string[] = [];
 
+    // EXTRACTING THE DATA FROM THE PROMISES RESULT
+    // GETTING THE RESULTS AND PUSHING TO THE RIGHT PLACE
     results.forEach((result) => {
       if (result.status === 'fulfilled') {
         const value = result.value;
@@ -73,7 +90,11 @@ export class TableRepositoryService {
       }
     });
 
-    return { createdTables: newTables, existingTables, errors };
+    return {
+      createdTables: newTables,
+      existingTables,
+      errors,
+    };
   }
 
   //   GET TABLES SERVICE

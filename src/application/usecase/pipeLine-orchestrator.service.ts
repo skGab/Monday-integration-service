@@ -3,6 +3,7 @@ import { WorkspacesJobHandleService } from './../handles/workspacesJob-handle.se
 import { ItemsJobHandleService } from './../handles/itemsJob-handle.service';
 import { Injectable } from '@nestjs/common';
 import { PayloadDto } from 'src/application/dtos/core/payload.dto';
+import { promisify } from 'util';
 
 @Injectable()
 export class PipeLineOrchestratorUsecase {
@@ -14,36 +15,55 @@ export class PipeLineOrchestratorUsecase {
 
   async run(): Promise<PayloadDto> {
     // GETTING DATA
-    const { datasetJobStatusDto, tableJobStatusDto } = await this.queuingJobs();
+    const { datasetJobStatusDto, tableJobStatusDto, itemJobStatusDto } =
+      await this.queuingJobs();
 
     // INSTANCIA DO PAYLOAD
-    const payload = new PayloadDto(datasetJobStatusDto, tableJobStatusDto);
+    const payload = new PayloadDto(
+      datasetJobStatusDto,
+      tableJobStatusDto,
+      itemJobStatusDto,
+    );
 
-    console.dir(payload, { depth: null });
+    console.dir(payload, { depth: 4 });
     // console.log(payload);
     return payload;
   }
 
   // GETTING DATA
   private async queuingJobs() {
-    // WHEM THE REQUEST ARRIVES THIS TASK JOB SHOULD RUN FIRST,  WHEM COMPLETED
-    // SHOULD RUN THE NEXT JOB AFTER 2 MINUTES, WHEN COMPLETE
-    // SHOULD RUN THE LAST JOB AFTER 2 MINUTES
+    const delay = promisify(setTimeout);
 
-    // WHAT ABOUT ANOTHER REQUEST COMES WHEM PERFOMING THE JOBS ?
-
-    // IMPLEMENTAR O SERVICO DE UPDATE DE TABELAS LA NO INFRA E DEPOIS PROSSEGUIR PARA OS ITEMS
+    console.log('--------------------');
+    console.log('Iniciando Dataset Job');
+    console.log('--------------------');
 
     // DATASET JOB
-    const datasetJobStatusDto =
-      await this.workspacesJobHandleService.handleDatasetsJob();
+    const datasetJobStatusDto = await this.workspacesJobHandleService.handle();
+
+    console.log('--------------------');
+    console.log('Iniciando Table Job');
+    console.log('--------------------');
+
     // TABLE JOB
-    const tableJobStatusDto =
-      await this.boardsJobHandleService.handleTablesJob();
+    const tableJobStatusDto = await this.boardsJobHandleService.handle();
+
+    console.log('--------------------');
+    console.log('Aguardando disponibilidade de tabelas...');
+    console.log('--------------------');
+
+    // Wait for 2 minutes
+    await delay(120 * 1000);
+
+    console.log('--------------------');
+    console.log('Iniciando Items Job');
+    console.log('--------------------');
 
     // ITEMS JOB
-    // const itemsDto = await this.itemsJobHandleService.handleItemsJob();
+    const itemJobStatusDto = await this.itemsJobHandleService.handle(
+      tableJobStatusDto.boardDto.data,
+    );
 
-    return { datasetJobStatusDto, tableJobStatusDto };
+    return { datasetJobStatusDto, tableJobStatusDto, itemJobStatusDto };
   }
 }

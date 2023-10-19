@@ -5,9 +5,14 @@ import { AxiosRequestConfig } from 'axios';
 import { BoardEntity } from 'src/domain/entities/board/board-entity';
 import { WorkspaceEntity } from 'src/domain/entities/board/workspace-entity';
 
-export interface MondayResponseVo {
+export interface BoardResponseVo {
   data: {
     boards: BoardEntity[];
+  };
+  account_id: number;
+}
+export interface WorkspaceResponseVo {
+  data: {
     workspaces: WorkspaceEntity[];
   };
   account_id: number;
@@ -23,34 +28,54 @@ export interface ErrorResponse {
   account_id?: number;
 }
 
-export type ApiResponseType = MondayResponseVo | ErrorResponse;
+export type WorkspaceResponseType = WorkspaceResponseVo | ErrorResponse;
+
+export type BoardResponseType = BoardResponseVo | ErrorResponse;
 
 @Injectable()
 export class ApiCallService {
+  private url = 'https://api.monday.com/v2';
+  private headers = {
+    'Content-Type': 'application/json',
+    Authorization: this.configService.get<string>('MONDAY_TOKEN'),
+    'Api-Version': '2023-10',
+  };
+
+  private config: AxiosRequestConfig = { headers: this.headers };
+
   constructor(
     private configService: ConfigService,
     private httpService: HttpService,
   ) {}
 
-  run() {
-    const url = 'https://api.monday.com/v2';
-
+  callBoards() {
+    // BUILD QUERY
     const body = {
       query:
-        'query{ boards(limit:1, ids:5073094843) {id state name items_page { items {name state group {title} column_values { column {title} text}}} activity_logs {event data} workspace {id state name}} workspaces(limit:1, ids:2990734) {id state name}}',
+        'query{ boards {type id state name items_page { items {name state group {title} column_values { column {title} text}}} activity_logs {event data} workspace {id state name}}}',
     };
 
-    const headers = {
-      'Content-Type': 'application/json',
-      Authorization: this.configService.get<string>('MONDAY_TOKEN'),
-      'Api-Version': '2023-10',
-    };
-
-    const config: AxiosRequestConfig = { headers: headers };
-    const observable = this.httpService.post<ApiResponseType>(
-      url,
+    // MAKING REQUEST
+    const observable = this.httpService.post<BoardResponseType>(
+      this.url,
       body,
-      config,
+      this.config,
+    );
+
+    return observable;
+  }
+
+  callWorkspaces() {
+    // BUILD QUERY
+    const body = {
+      query: 'query{ workspaces {id state name}}',
+    };
+
+    // GETTING WORKSPACES
+    const observable = this.httpService.post<WorkspaceResponseType>(
+      this.url,
+      body,
+      this.config,
     );
 
     return observable;

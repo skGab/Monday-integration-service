@@ -7,9 +7,10 @@ import { CreateDatasetService } from '../dataset/create-dataset.service';
 import { GetDatasetsService } from '../dataset/get-datasets.service';
 
 import Credentials from '../../security/credentials.json';
+import { DatasetRepository } from 'src/domain/repositories/bigQuery/dataset-repository';
 
 @Injectable()
-export class DatasetRepositoryService {
+export class DatasetRepositoryService implements DatasetRepository {
   private bigQueryClient: BigQuery;
   private readonly location = 'southamerica-east1';
   private readonly logger = new Logger(DatasetRepositoryService.name);
@@ -38,9 +39,7 @@ export class DatasetRepositoryService {
 
     // Extract the result from each settled promise
     const datasetsIds: string[] = responses.map((response) =>
-      response.status === 'fulfilled'
-        ? `Disponivel: ${response.value}`
-        : response.reason,
+      response.status === 'fulfilled' ? response.value : response.reason,
     );
 
     return datasetsIds;

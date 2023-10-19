@@ -1,13 +1,13 @@
 import { Table } from '@google-cloud/bigquery';
 import { Injectable, Logger } from '@nestjs/common';
-import { TransferResponse } from 'src/application/dtos/bigQuery/item-job-status.dto';
+import { InsertResponse } from 'src/application/dtos/bigQuery/item-job-status.dto';
 
 @Injectable()
 export class UpdateRowsService {
   private readonly logger = new Logger(UpdateRowsService.name);
 
   // UPDATE ITEMS
-  async run(duplicateItems: any[], table: Table): Promise<TransferResponse> {
+  async run(duplicateItems: any[], table: Table) {
     // if (!payload) return null;
 
     const itemIds = duplicateItems.map((item) => item.id_de_elemento);
@@ -29,6 +29,6 @@ export class UpdateRowsService {
       tableId: table.id,
       status: 'success',
       insertedPayload: duplicateItems,
-    };
+    } as InsertResponse;
   }
 }

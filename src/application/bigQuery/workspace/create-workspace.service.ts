@@ -1,21 +1,26 @@
+import { Dataset } from '@google-cloud/bigquery';
 import { Injectable } from '@nestjs/common';
 import { SharedShape } from 'src/application/dtos/core/payload.dto';
 import { WorkspaceEntity } from 'src/domain/entities/board/workspace-entity';
 import { DatasetRepository } from 'src/domain/repositories/bigQuery/dataset-repository';
 
+type Response = {
+  avaliableDatasets: string[] | string;
+};
+
 @Injectable()
 export class CreateWorkspaceService {
   constructor(private datasetRepositoryService: DatasetRepository) {}
 
-  async run(datasetsToCreate: WorkspaceEntity[]): Promise<SharedShape> {
+  async run(datasetsToCreate: WorkspaceEntity[]): Promise<Response> {
     try {
       // FAST EXIST IF NO MONDAY BOARDS
-      if (datasetsToCreate.length === 0 || !datasetsToCreate)
+      if (!datasetsToCreate) {
         return {
-          names: null,
-          count: 0,
-          status: 'Não ha novas areas de trabalho para criação',
+          avaliableDatasets:
+            'Não foram encontrados areas de trabalho para criação',
         };
+      }
 
       // CREATING DATASETS
       const datasets = await this.datasetRepositoryService.createDatasets(
@@ -23,12 +28,12 @@ export class CreateWorkspaceService {
       );
 
       return {
-        names: datasets,
-        count: datasets.length,
-        status: 'Success',
+        avaliableDatasets: datasets,
       };
     } catch (error) {
-      return { names: null, count: 0, status: error };
+      return {
+        avaliableDatasets: error.message,
+      };
     }
   }
 }

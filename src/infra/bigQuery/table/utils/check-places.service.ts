@@ -1,43 +1,60 @@
-import { CreateDatasetService } from '../../dataset/create-dataset.service';
-import { BigQuery } from '@google-cloud/bigquery';
+import { BigQuery, Table } from '@google-cloud/bigquery';
 import { Injectable, Logger } from '@nestjs/common';
 import { BoardEntity } from 'src/domain/entities/board/board-entity';
-import { ErrorDispatch } from 'src/domain/events/error-dispatch.events';
 
 @Injectable()
 export class CheckPlacesService {
   private logger = new Logger(CheckPlacesService.name);
 
-  constructor(
-    private createDatasetService: CreateDatasetService,
-    private readonly errorDispatch: ErrorDispatch,
-  ) {}
-
-  async run(board: BoardEntity, location: string, bigQuery: BigQuery) {
-    // Getting the board and workspace reference
+  async run(board: BoardEntity, bigQuery: BigQuery) {
     const datasetName = board.workspace.name;
-    const tableName = board.name;
 
-    // Ensure dataset exists
-    const dataset = await this.createDatasetService.create(
-      location,
-      bigQuery,
-      board.workspace,
-    );
+    try {
+      // GET TABLES
+      const tables = await this.getTablesFromDataset(datasetName, bigQuery);
 
-    if (dataset === null) {
-      this.logger.error('Nenhum dataset disponivel para criação da tabela');
+      // GET EXISTING TABLE
+      const tableWithBoardId = await this.findTableByBoardId(tables, board.id);
+
+      if (tableWithBoardId) {
+        return {
+          exists: true,
+          tablesToRefresh: {
+            oldTable: tableWithBoardId.tableName as string,
+            board,
+          },
+        };
+      }
+    } catch (error) {
+      this.logger.error(`An error occurred: ${error.message}`);
+    }
+
+    return { exists: false };
+  }
+
+  private async getTablesFromDataset(datasetName: string, bigQuery: BigQuery) {
+    const [tables] = await bigQuery.dataset(datasetName).getTables();
+
+    if (!tables) {
+      this.logger.log(`No tables found in Dataset: ${datasetName}`);
       return null;
     }
 
-    const table = bigQuery.dataset(datasetName).table(tableName);
-    const [exists] = await table.exists();
+    return tables;
+  }
 
-    return {
-      exists,
-      table,
-      datasetName,
-      tableName,
-    };
+  private async findTableByBoardId(tables: Table[], boardId: string) {
+    if (tables.length == 0) return null;
+
+    const metadataPromises = tables.map((table) => table.getMetadata());
+    const metadataList = await Promise.all(metadataPromises);
+
+    const foundMetadata = metadataList.find(
+      (metadata) => metadata[0].labels?.['board_id'] === boardId,
+    );
+
+    return foundMetadata
+      ? { tableName: foundMetadata[0].tableReference.tableId }
+      : null;
   }
 }

@@ -12,29 +12,43 @@ export class MondayRepositoryService {
   constructor(private apiCallService: ApiCallService) {}
 
   async getBoards(): Promise<BoardEntity[] | null> {
-    const response = await lastValueFrom(this.apiCallService.run());
+    try {
+      const response = await lastValueFrom(this.apiCallService.callBoards());
 
-    if ('errors' in response.data) {
-      this.logger.error(response.data.errors);
-      throw response.data.errors[0].message;
+      if ('errors' in response.data) {
+        this.logger.error(response.data.errors);
+        return null;
+      }
+
+      const { boards } = response.data.data;
+
+      if (!boards || boards.length === 0) {
+        this.logger.log('Nenhum quadro encontrado durante a busca');
+        return null;
+      }
+
+      // Filter boards where type is 'board'
+      const filteredBoards = boards
+        .filter((board) => board.type === 'board')
+        .filter((board) => board.workspace !== null);
+
+      if (filteredBoards.length === 0) {
+        this.logger.log('No boards of type "board" found.');
+        return null;
+      }
+
+      return filteredBoards.map((board) => EntityFactory.createBoard(board));
+    } catch (error) {
+      console.log(error);
     }
-
-    const { boards } = response.data.data;
-
-    if (!boards || boards.length === 0) {
-      this.logger.log('Nenhum quadro encontrado durante a busca');
-      return null;
-    }
-
-    return boards.map((board) => EntityFactory.createBoard(board));
   }
 
   async getWorkSpaces(): Promise<WorkspaceEntity[] | null> {
-    const response = await lastValueFrom(this.apiCallService.run());
+    const response = await lastValueFrom(this.apiCallService.callWorkspaces());
 
     if ('errors' in response.data) {
       this.logger.error(`GraphQL Error: ${response.data.errors[0].message}`);
-      throw response.data.errors[0].message;
+      return null;
     }
 
     const { workspaces } = response.data.data;

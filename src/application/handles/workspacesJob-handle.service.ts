@@ -12,19 +12,19 @@ export class WorkspacesJobHandleService {
   ) {}
 
   // 1 - PRIMEIRO JOB: HANDLE DATASETS
-  async handleDatasetsJob(): Promise<DatasetJobStatusDto> {
+  async handle(): Promise<DatasetJobStatusDto> {
     // GET MONDAY WORKSPACES
     const workspaceDto = await this.mondayHandleService.getWorkspaces();
 
     // CREATE THE DATASETS IF NEEDED
-    const operationStatus = await this.createWorkspaceService.run(
+    const { avaliableDatasets } = await this.createWorkspaceService.run(
       workspaceDto.data,
     );
 
     // RETURN DTO
     const datasetJobStatusDto = new DatasetJobStatusDto(
+      avaliableDatasets,
       workspaceDto,
-      operationStatus,
     );
 
     return datasetJobStatusDto;
