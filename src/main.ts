@@ -12,9 +12,11 @@ async function bootstrap() {
     {
       snapshot: true,
       abortOnError: false,
+      logger: ['error', 'warn', 'log'],
     },
   );
-  await app.listen(3000);
+
+  app.enableCors(), await app.listen(8080);
 }
 
 bootstrap();

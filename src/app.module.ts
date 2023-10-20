@@ -1,29 +1,15 @@
 import { Module } from '@nestjs/common';
-import { DevtoolsModule } from '@nestjs/devtools-integration';
 
-import { BoardController } from './application/controllers/board.controller';
-import { TransferBoardService } from './application/services/transfer-boards.service';
-import { TransferBoards } from './application/usecases/transfer-boards.usecase';
-import { BoardsRepository } from './domain/repositories/boards.repository';
-import { PrismaService } from './infra/service/prisma-client.service';
-import { PrismaBoardsRepository } from './infra/repositories/prisma-boards.repository';
+// LAYERS
+import { ApplicationModule } from './application/application.module';
+import { InfrastructureModule } from './infra/infrastructure.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
-    DevtoolsModule.register({
-      http: process.env.NODE_ENV !== 'production',
-    }),
-  ],
-  controllers: [BoardController],
-  providers: [
-    TransferBoardService,
-    TransferBoards,
-    PrismaService,
-
-    {
-      provide: BoardsRepository, // Providing the interface
-      useClass: PrismaBoardsRepository, // Linking to the concrete implementation
-    },
+    ApplicationModule,
+    InfrastructureModule,
+    EventEmitterModule.forRoot(),
   ],
 })
 export class AppModule {}
