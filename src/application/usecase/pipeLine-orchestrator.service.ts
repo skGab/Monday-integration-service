@@ -7,6 +7,8 @@ import { promisify } from 'util';
 
 @Injectable()
 export class PipeLineOrchestratorUsecase {
+  private isRunning = false; // Add the flag
+
   constructor(
     private itemsJobHandleService: ItemsJobHandleService,
     private workspacesJobHandleService: WorkspacesJobHandleService,
@@ -14,6 +16,14 @@ export class PipeLineOrchestratorUsecase {
   ) {}
 
   async run(): Promise<PayloadDto> {
+    // if (this.isRunning) {
+    //   console.log('Another process is currently running. Please wait.');
+    //   return;
+    // }
+
+    // this.isRunning = true;
+
+    // try {
     // GETTING DATA
     const { datasetJobStatusDto, tableJobStatusDto, itemJobStatusDto } =
       await this.queuingJobs();
@@ -28,6 +38,11 @@ export class PipeLineOrchestratorUsecase {
     console.dir(payload, { depth: 4 });
     // console.log(payload);
     return payload;
+    // } catch (error) {
+    //   console.error('An error occurred:', error);
+    // } finally {
+    //   this.isRunning = false;
+    // }
   }
 
   // GETTING DATA
@@ -52,8 +67,8 @@ export class PipeLineOrchestratorUsecase {
     console.log('Aguardando disponibilidade de tabelas...');
     console.log('--------------------');
 
-    // Wait for 2 minutes
-    await delay(120 * 1000);
+    // Wait for 4 minutes
+    await delay(240 * 1000);
 
     console.log('--------------------');
     console.log('Iniciando Items Job');

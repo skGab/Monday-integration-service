@@ -37,7 +37,7 @@ export class IntegrationController {
         message: 'Dados sincronizados',
       };
 
-      return status ? response : 'Nenhum dado encontrado para sincronização';
+      return status ? status : 'Nenhum dado encontrado para sincronização';
       // return status;
     } catch (error) {
       console.log(error);
