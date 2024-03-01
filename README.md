@@ -3,7 +3,7 @@
 
 <!-- THUMB -->
 <p align="center">
-        <img src="./src/lib/imgs/doc_thumb.png" width="250px" style="box-shadow: 1px 2px 4px gray;" alt="Logo do Projeto" object-fit="cover">
+        <img src="./doc_thumb.png" width="250px" style="box-shadow: 1px 2px 4px gray;" alt="Logo do Projeto" object-fit="cover">
 </p>
 
 <!-- STATUS -->
