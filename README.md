@@ -1,19 +1,17 @@
 <!-- TITLE -->
-<h1 align="center" color="black"><a href="https://portfolio-one-mu-37.vercel.app/" target="_blank">Portfólio</a></h1>
+<h1 align="center" color="black">Monday Integration Service</h1>
 
 <!-- THUMB -->
 <p align="center">
-  <a href="https://portfolio-one-mu-37.vercel.app/" rel="noopener" target="_blank">
-        <img src="./src/lib/imgs/doc_thumb.png" style="box-shadow: 1px 2px 4px gray;" alt="Logo do Projeto" object-fit="cover">
-  </a>
+        <img src="./src/lib/imgs/doc_thumb.png" width="250px" style="box-shadow: 1px 2px 4px gray;" alt="Logo do Projeto" object-fit="cover">
 </p>
 
 <!-- STATUS -->
 <div align="center">
 
 [![Status](https://img.shields.io/badge/status-active-success.svg)]()
-[![GitHub Issues](https://img.shields.io/github/issues/zDeep10/Portfolio.svg)](https://github.com/zDeep10/Portfolio/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/zDeep10/Portfolio.svg)](https://github.com/zDeep10/Portfolio/pulls)
+[![GitHub Issues](https://img.shields.io/github/issues/skGab/Monday-integration-service.svg)](https://github.com/skGab/Monday-integration-service/issues)
+[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/skGab/Monday-integration-service.svg)](https://github.com/skGab/Monday-integration-service/pulls)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
 
 </div>
@@ -23,7 +21,7 @@
 <!-- DESCRIPTION -->
 <p align="center"> 
         💡 
-        Portfolio pessoal desenvolvido com SvelteKit e Typescript. Através de uma interface moderna e responsiva, apresento uma breve introdução sobre minha trajetória, bem como detalhes e links para projetos desenvolvidos.
+        Projeto de integração entre plataformas. Com o objetivo de otimizar a transferência de dados entre o CRM Monday e o armazenamento da Google BigQuery.
   <br> 
 </p>
 
@@ -40,26 +38,34 @@
 
 ## Tecnologias <a name="tecnologies"></a>
 
-- Sveltekit
+- Node.js
 - Typescript
-- Sass
-- AOS (Animações)
+- NestJS
 
 ## Objetivo <a name="goal"></a>
 
- A proposta é oferecer uma plataforma bem estruturada e visualmente atrativa, com o propósito de destacar habilidades e experiências de mercado.
+ Este serviço realiza a busca dos dados no CRM Monday, executa os tratamentos e validações necessários, e os encaminha para a BigQuery. Além disso, registra todos os logs durante o processo de transferência. Para facilitar a visualização desses registros, foi criado um painel frontend como um projeto separado. Este painel oferece uma interface intuitiva para visualizar os logs e inclui um botão com a funcionalidade de acionamento na rota do serviço.
 
 ## Funcionalidades <a name="features"></a>
 
-- Requisição de repositorios - API
+- Requisição de dados da plataforma monday
+- Validação e conversão de dados para padrão de armazenamento BigQuery
+- Envio de payload para serviço de armazenamento Google BigQuery
+- Controle de logs gerados pelas tarefas 
 
 ## Requerimentos de qualidade <a name="quality"></a>
 
-- Responsividade
+- Escalavel
 - Performance
 - Sustentável
 
 ## Instruções de Uso <a name="glossary"></a>
+
+- MONDAY_TOKEN (ENV): Este é um token de autenticação fornecido pelo CRM Monday para acessar e manipular os dados da plataforma. Você deve definir este token como uma variável de ambiente (ENV) no ambiente de execução do projeto.
+
+- BIGQUERY_PROJECT_ID (ENV): Este é o ID do projeto na Google Cloud Platform que contém o armazenamento BigQuery. É necessário para autenticar e autorizar o acesso ao BigQuery.
+
+- Credentials from '../../security/credentials.json': Este arquivo contém credenciais de segurança necessárias para autenticar o acesso a determinados recursos ou serviços. Certifique-se de que o caminho para este arquivo esteja corretamente configurado, pois ele será utilizado para a autenticação dentro do sistema.
 
 - Certifique-se de ter o Node.js instalado em seu sistema. Em seguida, execute o seguinte comando para instalar as dependências do projeto:
 
@@ -72,10 +78,10 @@ npm install
 - Para iniciar o servidor de desenvolvimento local, utilize o seguinte comando:
 
 ``
-npm run dev
+npm run start:dev
 ``
 
-O sistema estará disponível em http://localhost:5000/. As alterações no código serão recarregadas automaticamente no navegador durante o desenvolvimento.
+O sistema estará disponível em http://localhost:8080/. As alterações no código serão recarregadas automaticamente no navegador durante o desenvolvimento.
 
 <br>
 
@@ -85,7 +91,7 @@ O sistema estará disponível em http://localhost:5000/. As alterações no cód
 npm run build
 ``
 
-Os arquivos finais serão gerados na pasta 'build'.
+Os arquivos finais serão gerados na pasta 'dist'.
 
 <br>
 
@@ -93,10 +99,10 @@ Os arquivos finais serão gerados na pasta 'build'.
 
 
 ``
-npm run preview
+npm run start:prod
 ``
 
-O sistema estará disponível em http://localhost:5000/ em uma versão otimizada para produção.
+O sistema estará disponível em http://localhost:8080/ em uma versão otimizada para produção.
 
 <br>
 
@@ -112,4 +118,4 @@ npm run format
 
 ## Autor <a name="authors"></a>
 
--   [@Gabriel Assunção](https://github.com/zDeep10) - Ideia e Construção
+-   [@Gabriel Assunção](https://github.com/skGab) - Ideia e Construção
